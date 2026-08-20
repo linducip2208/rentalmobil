@@ -197,6 +197,43 @@ class BookingResource extends Resource
                     }),
             ])
             ->actions([
+                Tables\Actions\Action::make('convertToOrder')
+                    ->label('Konversi ke Order')
+                    ->icon('heroicon-o-arrow-right-square')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konversi Booking ke Order')
+                    ->modalDescription('Apakah Anda yakin ingin mengkonversi booking ini menjadi order?')
+                    ->modalSubmitActionLabel('Ya, Konversi')
+                    ->action(function (Booking $record) {
+                        $order = \App\Models\RentalOrder::create([
+                            'booking_id' => $record->id,
+                            'customer_id' => $record->customer_id,
+                            'vehicle_id' => $record->vehicle_id,
+                            'driver_id' => $record->driver_id,
+                            'location_id' => $record->pickup_location_id,
+                            'start_date' => $record->start_date,
+                            'end_date' => $record->end_date,
+                            'rental_type' => $record->rental_type,
+                            'duration_days' => $record->duration_days,
+                            'daily_rate_snapshot' => $record->daily_rate_snapshot,
+                            'subtotal' => $record->subtotal,
+                            'discount_total' => $record->discount_amount,
+                            'tax_total' => $record->tax_amount,
+                            'final_amount' => $record->total_amount,
+                            'deposit_amount' => $record->deposit_amount,
+                            'balance_due' => $record->total_amount - $record->deposit_amount,
+                            'status' => 'draft',
+                            'payment_status' => $record->deposit_amount > 0 ? 'partial' : 'unpaid',
+                            'created_by' => auth()->id(),
+                        ]);
+                        $record->update(['status' => 'converted']);
+                        \Filament\Notifications\Notification::make()
+                            ->title("Berhasil dikonversi! Order #{$order->order_number}")
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Booking $record): bool => $record->status === 'confirmed'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
