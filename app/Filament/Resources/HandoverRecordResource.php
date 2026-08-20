@@ -18,7 +18,7 @@ class HandoverRecordResource extends Resource
 {
     protected static ?string $model = HandoverRecord::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-right-arrow-left';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrows-right-left';
 
     protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
 

@@ -18,7 +18,7 @@ class KmLogResource extends Resource
 {
     protected static ?string $model = KmLog::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-gauge';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
 

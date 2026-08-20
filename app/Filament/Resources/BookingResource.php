@@ -200,7 +200,7 @@ class BookingResource extends Resource
             ->actions([
                 Actions\Action::make('convertToOrder')
                     ->label('Konversi ke Order')
-                    ->icon('heroicon-o-arrow-right-square')
+                    ->icon('heroicon-o-arrow-right-end-on-rectangle')
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Konversi Booking ke Order')
