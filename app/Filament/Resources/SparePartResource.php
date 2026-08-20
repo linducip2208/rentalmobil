@@ -109,12 +109,12 @@ class SparePartResource extends Resource
                     ->query(fn ($query) => $query->whereColumn('stock', '<=', 'min_stock')),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Filament\Actions\EditAction::make(),
+                Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Filament\Actions\BulkActionGroup::make([
+                    Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
