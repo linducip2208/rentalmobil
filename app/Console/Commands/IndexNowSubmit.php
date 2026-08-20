@@ -4,10 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\AuditLog;
 use App\Models\BlogPost;
-use App\Models\SystemSetting;
+use App\Services\Seo\IndexNowService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class IndexNowSubmit extends Command
 {
@@ -15,14 +13,9 @@ class IndexNowSubmit extends Command
 
     protected $description = 'Submit new and updated URLs to IndexNow (Bing, Yandex, Seznam, Naver)';
 
-    protected int $batchSize = 50;
-
-    public function handle(): int
+    public function handle(IndexNowService $indexNow): int
     {
-        $apiKey = SystemSetting::get('indexnow_api_key');
-        $host = parse_url(config('app.url', 'https://rentalmobil.test'), PHP_URL_HOST);
-
-        if (empty($apiKey)) {
+        if (empty($indexNow->getApiKey())) {
             $this->error('IndexNow API key not configured. Set "indexnow_api_key" in SystemSetting.');
             return Command::FAILURE;
         }
@@ -34,47 +27,20 @@ class IndexNowSubmit extends Command
             return Command::SUCCESS;
         }
 
-        $batches = array_chunk($urls, $this->batchSize);
-        $submittedCount = 0;
-
-        foreach ($batches as $batch) {
-            $payload = [
-                'host' => $host,
-                'key' => $apiKey,
-                'keyLocation' => config('app.url', 'https://rentalmobil.test') . '/indexnow-key.txt',
-                'urlList' => $batch,
-            ];
-
-            try {
-                $response = Http::timeout(10)
-                    ->withHeaders(['Content-Type' => 'application/json'])
-                    ->post('https://api.indexnow.org/indexnow', $payload);
-
-                if ($response->successful() || $response->status() === 202) {
-                    $submittedCount += count($batch);
-                    $this->line("  Submitted batch of " . count($batch) . " URL(s).");
-                } else {
-                    $this->warn("  Batch failed with status {$response->status()}.");
-                    Log::warning('IndexNow batch failed', ['status' => $response->status(), 'body' => $response->body()]);
-                }
-            } catch (\Exception $e) {
-                $this->error("  HTTP error: {$e->getMessage()}");
-                Log::error('IndexNow HTTP error', ['message' => $e->getMessage()]);
-            }
-        }
+        $submittedCount = $indexNow->submitUrls($urls);
 
         $this->info("Submitted {$submittedCount} URL(s) to IndexNow.");
-        Log::info('IndexNowSubmit completed', ['submitted' => $submittedCount, 'total' => count($urls)]);
 
         return Command::SUCCESS;
     }
 
     protected function collectUpdatedUrls(): array
     {
-        $baseUrl = config('app.url', 'https://rentalmobil.test');
+        $baseUrl = config('app.url');
         $urls = [];
 
-        $recentPosts = BlogPost::published()
+        $recentPosts = BlogPost::query()
+            ->where('is_published', true)
             ->where('updated_at', '>=', now()->subHours(48))
             ->pluck('slug')
             ->toArray();

@@ -39,7 +39,10 @@ class AdminPanelProvider extends PanelProvider
             ->font('Inter')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('15.5rem')
+            ->collapsedSidebarWidth('4rem')
             ->darkMode(true)
+            ->topbar(true)
             ->maxContentWidth('full')
             ->navigationGroups([
                 NavigationGroup::make('🚗 Master Data')->collapsed(false),
