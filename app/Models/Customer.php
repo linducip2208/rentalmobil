@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class Customer extends Model
 {
@@ -15,7 +14,6 @@ class Customer extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'slug',
         'email',
         'phone',
         'address',
@@ -45,21 +43,6 @@ class Customer extends Model
             'total_orders' => 'integer',
             'is_active' => 'boolean',
         ];
-    }
-
-    protected static function boot(): void
-    {
-        parent::boot();
-        static::creating(function (Customer $model) {
-            if (empty($model->slug)) {
-                $model->slug = Str::slug($model->name);
-            }
-        });
-        static::updating(function (Customer $model) {
-            if (empty($model->slug)) {
-                $model->slug = Str::slug($model->name);
-            }
-        });
     }
 
     public function user(): BelongsTo

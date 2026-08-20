@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BookingResource\Pages;
 use App\Models\Booking;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class BookingResource extends Resource
 {
     protected static ?string $model = Booking::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-calendar';
 
-    protected static ?string $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
 
     protected static ?int $navigationSort = 11;
 
     protected static ?string $navigationLabel = 'Booking';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Booking')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Booking')->schema([
                 Forms\Components\Select::make('customer_id')
                     ->label('Customer')
                     ->relationship('customer', 'name')
@@ -57,7 +60,7 @@ class BookingResource extends Resource
                     ->preload(),
             ])->columns(2),
 
-            Forms\Components\Section::make('Jadwal')->schema([
+            Schemas\Components\Section::make('Jadwal')->schema([
                 Forms\Components\DateTimePicker::make('start_date')
                     ->label('Tanggal Mulai')
                     ->required(),
@@ -74,7 +77,7 @@ class BookingResource extends Resource
                     ->default(1),
             ])->columns(2),
 
-            Forms\Components\Section::make('Biaya')->schema([
+            Schemas\Components\Section::make('Biaya')->schema([
                 Forms\Components\TextInput::make('daily_rate')
                     ->label('Tarif/Hari (Rp)')
                     ->numeric()
@@ -103,7 +106,7 @@ class BookingResource extends Resource
                     ->prefix('Rp'),
             ])->columns(3),
 
-            Forms\Components\Section::make('Status & Catatan')->schema([
+            Schemas\Components\Section::make('Status & Catatan')->schema([
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([

@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\InvoiceResource\Pages;
 use App\Models\Invoice;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-receipt-percent';
 
-    protected static ?string $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
 
     protected static ?int $navigationSort = 13;
 
     protected static ?string $navigationLabel = 'Invoice';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Invoice')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Invoice')->schema([
                 Forms\Components\Select::make('rental_order_id')
                     ->label('Order Sewa')
                     ->relationship('rentalOrder', 'order_number')

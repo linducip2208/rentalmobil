@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TransferResource\Pages;
 use App\Models\Transfer;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class TransferResource extends Resource
 {
     protected static ?string $model = Transfer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrows-right-left';
 
-    protected static ?string $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
 
     protected static ?int $navigationSort = 35;
 
     protected static ?string $navigationLabel = 'Transfer Kendaraan';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Transfer')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Transfer')->schema([
                 Forms\Components\Select::make('vehicle_id')
                     ->label('Kendaraan')
                     ->relationship('vehicle', 'name')

@@ -5,29 +5,32 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BlogPostResource\Pages;
 use App\Models\BlogPost;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use UnitEnum;
+use BackedEnum;
 
 class BlogPostResource extends Resource
 {
     protected static ?string $model = BlogPost::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-pencil';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-pencil';
 
-    protected static ?string $navigationGroup = '📢 Marketing';
+    protected static string | UnitEnum | null $navigationGroup = '📢 Marketing';
 
     protected static ?int $navigationSort = 51;
 
     protected static ?string $navigationLabel = 'Blog Post';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Konten')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Konten')->schema([
                 Forms\Components\TextInput::make('title')
                     ->label('Judul')
                     ->required()
@@ -49,7 +52,7 @@ class BlogPostResource extends Resource
                     ->columnSpanFull(),
             ])->columns(2),
 
-            Forms\Components\Section::make('Publishing')->schema([
+            Schemas\Components\Section::make('Publishing')->schema([
                 Forms\Components\Select::make('category_id')
                     ->label('Kategori')
                     ->relationship('category', 'name')
@@ -77,7 +80,7 @@ class BlogPostResource extends Resource
                     ->default(false),
             ])->columns(2),
 
-            Forms\Components\Section::make('SEO')->schema([
+            Schemas\Components\Section::make('SEO')->schema([
                 Forms\Components\TextInput::make('meta_title')
                     ->label('Meta Title')
                     ->maxLength(255),

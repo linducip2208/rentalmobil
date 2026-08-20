@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ExpenseResource\Pages;
 use App\Models\Expense;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class ExpenseResource extends Resource
 {
     protected static ?string $model = Expense::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-down';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-trending-down';
 
-    protected static ?string $navigationGroup = '💰 Keuangan';
+    protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
 
     protected static ?int $navigationSort = 23;
 
     protected static ?string $navigationLabel = 'Pengeluaran';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Pengeluaran')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Pengeluaran')->schema([
                 Forms\Components\Select::make('expense_category_id')
                     ->label('Kategori')
                     ->relationship('category', 'name')

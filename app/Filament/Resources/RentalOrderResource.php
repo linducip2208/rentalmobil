@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\RentalOrderResource\Pages;
 use App\Models\RentalOrder;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class RentalOrderResource extends Resource
 {
     protected static ?string $model = RentalOrder::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
 
     protected static ?int $navigationSort = 12;
 
     protected static ?string $navigationLabel = 'Order Sewa';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Order')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Order')->schema([
                 Forms\Components\Select::make('customer_id')
                     ->label('Customer')
                     ->relationship('customer', 'name')
@@ -51,7 +54,7 @@ class RentalOrderResource extends Resource
                     ->preload(),
             ])->columns(2),
 
-            Forms\Components\Section::make('Jadwal Sewa')->schema([
+            Schemas\Components\Section::make('Jadwal Sewa')->schema([
                 Forms\Components\DateTimePicker::make('start_date')
                     ->label('Tanggal Mulai')
                     ->required(),
@@ -66,7 +69,7 @@ class RentalOrderResource extends Resource
                     ->default(1),
             ])->columns(2),
 
-            Forms\Components\Section::make('Biaya')->schema([
+            Schemas\Components\Section::make('Biaya')->schema([
                 Forms\Components\TextInput::make('daily_rate')
                     ->label('Tarif/Hari (Rp)')
                     ->numeric()
@@ -118,7 +121,7 @@ class RentalOrderResource extends Resource
                     ->default(false),
             ])->columns(3),
 
-            Forms\Components\Section::make('Status & Catatan')->schema([
+            Schemas\Components\Section::make('Status & Catatan')->schema([
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([

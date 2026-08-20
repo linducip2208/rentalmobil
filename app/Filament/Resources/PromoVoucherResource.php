@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PromoVoucherResource\Pages;
 use App\Models\PromoVoucher;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class PromoVoucherResource extends Resource
 {
     protected static ?string $model = PromoVoucher::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-ticket';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static ?string $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
 
     protected static ?int $navigationSort = 17;
 
     protected static ?string $navigationLabel = 'Promo & Voucher';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Promo')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Promo')->schema([
                 Forms\Components\TextInput::make('code')
                     ->label('Kode Voucher')
                     ->required()
@@ -60,7 +63,7 @@ class PromoVoucherResource extends Resource
                     ->prefix('Rp'),
             ])->columns(2),
 
-            Forms\Components\Section::make('Batas Waktu & Penggunaan')->schema([
+            Schemas\Components\Section::make('Batas Waktu & Penggunaan')->schema([
                 Forms\Components\TextInput::make('usage_limit')
                     ->label('Batas Penggunaan')
                     ->numeric(),

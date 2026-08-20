@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\InvestigationCaseResource\Pages;
 use App\Models\InvestigationCase;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class InvestigationCaseResource extends Resource
 {
     protected static ?string $model = InvestigationCase::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-magnifying-glass';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-magnifying-glass';
 
-    protected static ?string $navigationGroup = '🛡️ Security';
+    protected static string | UnitEnum | null $navigationGroup = '🛡️ Security';
 
     protected static ?int $navigationSort = 42;
 
     protected static ?string $navigationLabel = 'Kasus Investigasi';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Kasus')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Kasus')->schema([
                 Forms\Components\TextInput::make('title')
                     ->label('Judul')
                     ->required()
@@ -88,7 +91,7 @@ class InvestigationCaseResource extends Resource
                     ->required(),
             ])->columns(2),
 
-            Forms\Components\Section::make('Hasil Investigasi')->schema([
+            Schemas\Components\Section::make('Hasil Investigasi')->schema([
                 Forms\Components\Textarea::make('findings')
                     ->label('Temuan')
                     ->rows(3),

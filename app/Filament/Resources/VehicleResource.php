@@ -5,29 +5,32 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\VehicleResource\Pages;
 use App\Models\Vehicle;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use UnitEnum;
+use BackedEnum;
 
 class VehicleResource extends Resource
 {
     protected static ?string $model = Vehicle::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-truck';
 
-    protected static ?string $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
 
     protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Kendaraan';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Dasar')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Dasar')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()
@@ -63,7 +66,7 @@ class VehicleResource extends Resource
                     ->maxLength(1000),
             ])->columns(2),
 
-            Forms\Components\Section::make('Detail Kendaraan')->schema([
+            Schemas\Components\Section::make('Detail Kendaraan')->schema([
                 Forms\Components\TextInput::make('license_plate')
                     ->label('No. Polisi')
                     ->required()
@@ -115,7 +118,7 @@ class VehicleResource extends Resource
                     ->default(false),
             ])->columns(3),
 
-            Forms\Components\Section::make('Harga Sewa')->schema([
+            Schemas\Components\Section::make('Harga Sewa')->schema([
                 Forms\Components\TextInput::make('daily_rate')
                     ->label('Tarif Harian (Rp)')
                     ->numeric()
@@ -139,7 +142,7 @@ class VehicleResource extends Resource
                     ->prefix('Rp'),
             ])->columns(3),
 
-            Forms\Components\Section::make('Foto & Fitur')->schema([
+            Schemas\Components\Section::make('Foto & Fitur')->schema([
                 Forms\Components\FileUpload::make('image')
                     ->label('Foto Utama')
                     ->image()
@@ -151,7 +154,7 @@ class VehicleResource extends Resource
                     ->placeholder('Tambah fitur'),
             ])->columns(2),
 
-            Forms\Components\Section::make('Status Servis')->schema([
+            Schemas\Components\Section::make('Status Servis')->schema([
                 Forms\Components\DateTimePicker::make('last_serviced_at')
                     ->label('Terakhir Diservis'),
                 Forms\Components\DateTimePicker::make('last_km_at')

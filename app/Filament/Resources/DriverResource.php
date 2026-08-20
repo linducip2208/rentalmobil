@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DriverResource\Pages;
 use App\Models\Driver;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class DriverResource extends Resource
 {
     protected static ?string $model = Driver::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static ?string $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
 
     protected static ?int $navigationSort = 6;
 
     protected static ?string $navigationLabel = 'Supir';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Supir')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Supir')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()
@@ -46,7 +49,7 @@ class DriverResource extends Resource
                     ->rows(2),
             ])->columns(2),
 
-            Forms\Components\Section::make('SIM & Status')->schema([
+            Schemas\Components\Section::make('SIM & Status')->schema([
                 Forms\Components\TextInput::make('license_number')
                     ->label('No. SIM')
                     ->required()

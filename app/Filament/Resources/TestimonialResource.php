@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TestimonialResource\Pages;
 use App\Models\Testimonial;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class TestimonialResource extends Resource
 {
     protected static ?string $model = Testimonial::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-star';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-star';
 
-    protected static ?string $navigationGroup = '📢 Marketing';
+    protected static string | UnitEnum | null $navigationGroup = '📢 Marketing';
 
     protected static ?int $navigationSort = 52;
 
     protected static ?string $navigationLabel = 'Testimoni';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Testimoni')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Testimoni')->schema([
                 Forms\Components\Select::make('customer_id')
                     ->label('Customer')
                     ->relationship('customer', 'name')

@@ -5,29 +5,32 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BrandResource\Pages;
 use App\Models\Brand;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use UnitEnum;
+use BackedEnum;
 
 class BrandResource extends Resource
 {
     protected static ?string $model = Brand::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
 
     protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Merek';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Merek')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Merek')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()

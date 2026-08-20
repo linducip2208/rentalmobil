@@ -7,14 +7,12 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
-use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -29,7 +27,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('RentalMobil')
-            ->brandLogo(fn () => view('filament.brand-logo'))
             ->favicon(asset('favicon.ico'))
             ->colors([
                 'primary' => Color::Indigo,
@@ -55,53 +52,16 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('🔌 Integrasi')->collapsed(true),
                 NavigationGroup::make('⚙️ Sistem')->collapsed(true),
             ])
-            ->resources([
-                \App\Filament\Resources\CategoryResource::class,
-                \App\Filament\Resources\BrandResource::class,
-                \App\Filament\Resources\LocationResource::class,
-                \App\Filament\Resources\VehicleResource::class,
-                \App\Filament\Resources\CustomerResource::class,
-                \App\Filament\Resources\DriverResource::class,
-                \App\Filament\Resources\PaymentMethodResource::class,
-                \App\Filament\Resources\AddonResource::class,
-                \App\Filament\Resources\BookingResource::class,
-                \App\Filament\Resources\RentalOrderResource::class,
-                \App\Filament\Resources\InvoiceResource::class,
-                \App\Filament\Resources\PaymentResource::class,
-                \App\Filament\Resources\ReturnRecordResource::class,
-                \App\Filament\Resources\DamageReportResource::class,
-                \App\Filament\Resources\PromoVoucherResource::class,
-                \App\Filament\Resources\ChartOfAccountResource::class,
-                \App\Filament\Resources\JournalEntryResource::class,
-                \App\Filament\Resources\ExpenseResource::class,
-                \App\Filament\Resources\ExpenseCategoryResource::class,
-                \App\Filament\Resources\BankAccountResource::class,
-                \App\Filament\Resources\MaintenanceLogResource::class,
-                \App\Filament\Resources\ServiceScheduleResource::class,
-                \App\Filament\Resources\FuelLogResource::class,
-                \App\Filament\Resources\DeliveryResource::class,
-                \App\Filament\Resources\TransferResource::class,
-                \App\Filament\Resources\BlacklistEntryResource::class,
-                \App\Filament\Resources\InvestigationCaseResource::class,
-                \App\Filament\Resources\BlogPostResource::class,
-                \App\Filament\Resources\TestimonialResource::class,
-                \App\Filament\Resources\FaqResource::class,
-                \App\Filament\Resources\UserResource::class,
-            ])
-            ->widgets([
-                \App\Filament\Widgets\StatsOverviewWidget::class,
-                \App\Filament\Widgets\RevenueChartWidget::class,
-                \App\Filament\Widgets\OrderStatusChartWidget::class,
-                \App\Filament\Widgets\RecentOrdersTableWidget::class,
-                \App\Filament\Widgets\OverdueOrdersTableWidget::class,
-            ])
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
+                PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,

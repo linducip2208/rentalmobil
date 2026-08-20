@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DamageReportResource\Pages;
 use App\Models\DamageReport;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class DamageReportResource extends Resource
 {
     protected static ?string $model = DamageReport::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-exclamation-triangle';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-exclamation-triangle';
 
-    protected static ?string $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
 
     protected static ?int $navigationSort = 16;
 
     protected static ?string $navigationLabel = 'Laporan Kerusakan';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Kerusakan')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Kerusakan')->schema([
                 Forms\Components\Select::make('vehicle_id')
                     ->label('Kendaraan')
                     ->relationship('vehicle', 'name')
@@ -50,7 +53,7 @@ class DamageReportResource extends Resource
                     ->placeholder('— Tidak terkait —'),
             ])->columns(2),
 
-            Forms\Components\Section::make('Detail Kerusakan')->schema([
+            Schemas\Components\Section::make('Detail Kerusakan')->schema([
                 Forms\Components\Select::make('damage_type')
                     ->label('Jenis Kerusakan')
                     ->options([
@@ -99,7 +102,7 @@ class DamageReportResource extends Resource
                     ->prefix('Rp'),
             ])->columns(2),
 
-            Forms\Components\Section::make('Status Penilaian')->schema([
+            Schemas\Components\Section::make('Status Penilaian')->schema([
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([

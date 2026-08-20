@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 
 class RevenueChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Pendapatan 7 Hari Terakhir';
+    protected ?string $heading = 'Pendapatan 7 Hari Terakhir';
 
     protected static ?int $sort = 1;
 

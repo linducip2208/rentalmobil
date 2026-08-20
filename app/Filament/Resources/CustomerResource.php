@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
 
     protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Customer';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Data Diri')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Data Diri')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()
@@ -76,7 +79,7 @@ class CustomerResource extends Resource
                     ->maxSize(2048),
             ])->columns(2),
 
-            Forms\Components\Section::make('Perusahaan & Kontak Darurat')->schema([
+            Schemas\Components\Section::make('Perusahaan & Kontak Darurat')->schema([
                 Forms\Components\TextInput::make('company_name')
                     ->label('Nama Perusahaan')
                     ->maxLength(255),
@@ -91,7 +94,7 @@ class CustomerResource extends Resource
                     ->maxLength(20),
             ])->columns(2),
 
-            Forms\Components\Section::make('Skor & Catatan')->schema([
+            Schemas\Components\Section::make('Skor & Catatan')->schema([
                 Forms\Components\TextInput::make('trust_score')
                     ->label('Skor Kepercayaan')
                     ->numeric()

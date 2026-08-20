@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BlacklistEntryResource\Pages;
 use App\Models\BlacklistEntry;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class BlacklistEntryResource extends Resource
 {
     protected static ?string $model = BlacklistEntry::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-no-symbol';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-no-symbol';
 
-    protected static ?string $navigationGroup = '🛡️ Security';
+    protected static string | UnitEnum | null $navigationGroup = '🛡️ Security';
 
     protected static ?int $navigationSort = 41;
 
     protected static ?string $navigationLabel = 'Blacklist';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Blacklist')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Blacklist')->schema([
                 Forms\Components\Select::make('customer_id')
                     ->label('Customer')
                     ->relationship('customer', 'name')
@@ -127,7 +130,7 @@ class BlacklistEntryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBlacklistEntries::route('/'),
+            'index' => Pages\ListBlacklistEntrys::route('/'),
             'create' => Pages\CreateBlacklistEntry::route('/create'),
             'edit' => Pages\EditBlacklistEntry::route('/{record}/edit'),
             'view' => Pages\ViewBlacklistEntry::route('/{record}'),

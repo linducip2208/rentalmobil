@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\JournalEntryResource\Pages;
 use App\Models\JournalEntry;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class JournalEntryResource extends Resource
 {
     protected static ?string $model = JournalEntry::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $navigationGroup = '💰 Keuangan';
+    protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
 
     protected static ?int $navigationSort = 22;
 
     protected static ?string $navigationLabel = 'Jurnal Umum';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Jurnal')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Jurnal')->schema([
                 Forms\Components\DatePicker::make('date')
                     ->label('Tanggal')
                     ->required(),
@@ -44,7 +47,7 @@ class JournalEntryResource extends Resource
                     ->required(),
             ])->columns(2),
 
-            Forms\Components\Section::make('Detail Jurnal')->schema([
+            Schemas\Components\Section::make('Detail Jurnal')->schema([
                 Forms\Components\Repeater::make('lines')
                     ->label('Baris Jurnal')
                     ->relationship('lines')
@@ -74,7 +77,7 @@ class JournalEntryResource extends Resource
                     ->addActionLabel('Tambah Baris'),
             ]),
 
-            Forms\Components\Section::make('Ringkasan')->schema([
+            Schemas\Components\Section::make('Ringkasan')->schema([
                 Forms\Components\TextInput::make('total_debit')
                     ->label('Total Debit (Rp)')
                     ->numeric()
@@ -152,7 +155,7 @@ class JournalEntryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListJournalEntries::route('/'),
+            'index' => Pages\ListJournalEntrys::route('/'),
             'create' => Pages\CreateJournalEntry::route('/create'),
             'edit' => Pages\EditJournalEntry::route('/{record}/edit'),
             'view' => Pages\ViewJournalEntry::route('/{record}'),

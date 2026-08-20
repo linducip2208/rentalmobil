@@ -1,20 +1,20 @@
 <?php
 
 use App\Http\Controllers\BlogController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\FaqController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PSeo\AlternativeController;
 use App\Http\Controllers\PSeo\CategoryCityController;
 use App\Http\Controllers\PSeo\CategoryListController;
 use App\Http\Controllers\PSeo\CompareController;
 use App\Http\Controllers\PSeo\VehicleDetailController;
 use App\Http\Controllers\Portal\AuthController;
+use App\Http\Controllers\Portal\BookingController;
 use App\Http\Controllers\Portal\DashboardController;
+use App\Http\Controllers\Portal\InvoiceController;
+use App\Http\Controllers\Portal\OrderController;
+use App\Http\Controllers\Portal\PaymentController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 

@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ServiceScheduleResource\Pages;
 use App\Models\ServiceSchedule;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class ServiceScheduleResource extends Resource
 {
     protected static ?string $model = ServiceSchedule::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
 
     protected static ?int $navigationSort = 32;
 
     protected static ?string $navigationLabel = 'Jadwal Servis';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Jadwal Servis')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Jadwal Servis')->schema([
                 Forms\Components\Select::make('vehicle_id')
                     ->label('Kendaraan')
                     ->relationship('vehicle', 'name')

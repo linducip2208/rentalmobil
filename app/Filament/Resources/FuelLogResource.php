@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\FuelLogResource\Pages;
 use App\Models\FuelLog;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class FuelLogResource extends Resource
 {
     protected static ?string $model = FuelLog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-bolt';
 
-    protected static ?string $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
 
     protected static ?int $navigationSort = 33;
 
     protected static ?string $navigationLabel = 'Log Bahan Bakar';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Pengisian BBM')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Pengisian BBM')->schema([
                 Forms\Components\Select::make('vehicle_id')
                     ->label('Kendaraan')
                     ->relationship('vehicle', 'name')

@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ExpenseCategoryResource\Pages;
 use App\Models\ExpenseCategory;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class ExpenseCategoryResource extends Resource
 {
     protected static ?string $model = ExpenseCategory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-folder-open';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-folder-open';
 
-    protected static ?string $navigationGroup = '💰 Keuangan';
+    protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
 
     protected static ?int $navigationSort = 24;
 
     protected static ?string $navigationLabel = 'Kategori Pengeluaran';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Kategori')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Kategori')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()
@@ -88,7 +91,7 @@ class ExpenseCategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListExpenseCategories::route('/'),
+            'index' => Pages\ListExpenseCategorys::route('/'),
             'create' => Pages\CreateExpenseCategory::route('/create'),
             'edit' => Pages\EditExpenseCategory::route('/{record}/edit'),
             'view' => Pages\ViewExpenseCategory::route('/{record}'),

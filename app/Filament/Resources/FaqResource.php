@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\FaqResource\Pages;
 use App\Models\Faq;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class FaqResource extends Resource
 {
     protected static ?string $model = Faq::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-question-mark-circle';
 
-    protected static ?string $navigationGroup = '📢 Marketing';
+    protected static string | UnitEnum | null $navigationGroup = '📢 Marketing';
 
     protected static ?int $navigationSort = 53;
 
     protected static ?string $navigationLabel = 'FAQ';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi FAQ')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi FAQ')->schema([
                 Forms\Components\TextInput::make('question')
                     ->label('Pertanyaan')
                     ->required()

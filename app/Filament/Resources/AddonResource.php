@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AddonResource\Pages;
 use App\Models\Addon;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class AddonResource extends Resource
 {
     protected static ?string $model = Addon::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-plus-circle';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-plus-circle';
 
-    protected static ?string $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
 
     protected static ?int $navigationSort = 8;
 
     protected static ?string $navigationLabel = 'Add-on';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Add-on')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Add-on')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()

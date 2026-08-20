@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Models\Payment;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
 
     protected static ?int $navigationSort = 14;
 
     protected static ?string $navigationLabel = 'Pembayaran';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Pembayaran')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Pembayaran')->schema([
                 Forms\Components\Select::make('invoice_id')
                     ->label('Invoice')
                     ->relationship('invoice', 'invoice_number')

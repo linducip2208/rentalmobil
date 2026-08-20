@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DeliveryResource\Pages;
 use App\Models\Delivery;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class DeliveryResource extends Resource
 {
     protected static ?string $model = Delivery::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-truck';
 
-    protected static ?string $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
 
     protected static ?int $navigationSort = 34;
 
     protected static ?string $navigationLabel = 'Pengiriman';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Pengiriman')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Pengiriman')->schema([
                 Forms\Components\Select::make('rental_order_id')
                     ->label('Order Sewa')
                     ->relationship('rentalOrder', 'order_number')
@@ -167,7 +170,7 @@ class DeliveryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDeliveries::route('/'),
+            'index' => Pages\ListDeliverys::route('/'),
             'create' => Pages\CreateDelivery::route('/create'),
             'edit' => Pages\EditDelivery::route('/{record}/edit'),
             'view' => Pages\ViewDelivery::route('/{record}'),

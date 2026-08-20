@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BankAccountResource\Pages;
 use App\Models\BankAccount;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class BankAccountResource extends Resource
 {
     protected static ?string $model = BankAccount::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-library';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-building-library';
 
-    protected static ?string $navigationGroup = '💰 Keuangan';
+    protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
 
     protected static ?int $navigationSort = 25;
 
     protected static ?string $navigationLabel = 'Rekening Bank';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Rekening')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Rekening')->schema([
                 Forms\Components\TextInput::make('bank_name')
                     ->label('Nama Bank')
                     ->required()

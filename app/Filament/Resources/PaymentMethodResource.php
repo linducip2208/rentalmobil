@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PaymentMethodResource\Pages;
 use App\Models\PaymentMethod;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class PaymentMethodResource extends Resource
 {
     protected static ?string $model = PaymentMethod::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-credit-card';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-credit-card';
 
-    protected static ?string $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
 
     protected static ?int $navigationSort = 7;
 
     protected static ?string $navigationLabel = 'Metode Bayar';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Metode Bayar')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Metode Bayar')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()

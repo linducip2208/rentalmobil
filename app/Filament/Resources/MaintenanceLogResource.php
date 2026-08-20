@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MaintenanceLogResource\Pages;
 use App\Models\MaintenanceLog;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class MaintenanceLogResource extends Resource
 {
     protected static ?string $model = MaintenanceLog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
-    protected static ?string $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
 
     protected static ?int $navigationSort = 31;
 
     protected static ?string $navigationLabel = 'Log Perawatan';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Perawatan')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Perawatan')->schema([
                 Forms\Components\Select::make('vehicle_id')
                     ->label('Kendaraan')
                     ->relationship('vehicle', 'name')
@@ -74,7 +77,7 @@ class MaintenanceLogResource extends Resource
                     ->required(),
             ])->columns(2),
 
-            Forms\Components\Section::make('Detail Servis')->schema([
+            Schemas\Components\Section::make('Detail Servis')->schema([
                 Forms\Components\TextInput::make('km_at_service')
                     ->label('KM Saat Servis')
                     ->numeric(),

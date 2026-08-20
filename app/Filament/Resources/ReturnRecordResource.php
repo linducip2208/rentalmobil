@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ReturnRecordResource\Pages;
 use App\Models\ReturnRecord;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class ReturnRecordResource extends Resource
 {
     protected static ?string $model = ReturnRecord::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-left';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-uturn-left';
 
-    protected static ?string $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
 
     protected static ?int $navigationSort = 15;
 
     protected static ?string $navigationLabel = 'Pengembalian';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi Pengembalian')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi Pengembalian')->schema([
                 Forms\Components\Select::make('rental_order_id')
                     ->label('Order Sewa')
                     ->relationship('rentalOrder', 'order_number')
@@ -43,7 +46,7 @@ class ReturnRecordResource extends Resource
                     ->maxLength(20),
             ])->columns(2),
 
-            Forms\Components\Section::make('Kondisi Kendaraan')->schema([
+            Schemas\Components\Section::make('Kondisi Kendaraan')->schema([
                 Forms\Components\Select::make('body_condition')
                     ->label('Kondisi Body')
                     ->options([
@@ -79,7 +82,7 @@ class ReturnRecordResource extends Resource
                     ->rows(2),
             ])->columns(2),
 
-            Forms\Components\Section::make('Biaya Tambahan')->schema([
+            Schemas\Components\Section::make('Biaya Tambahan')->schema([
                 Forms\Components\TextInput::make('extra_charge')
                     ->label('Biaya Tambahan (Rp)')
                     ->numeric()

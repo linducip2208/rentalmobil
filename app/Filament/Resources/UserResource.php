@@ -5,27 +5,30 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
+use BackedEnum;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?string $navigationGroup = '⚙️ Sistem';
+    protected static string | UnitEnum | null $navigationGroup = '⚙️ Sistem';
 
     protected static ?int $navigationSort = 71;
 
     protected static ?string $navigationLabel = 'User';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make('Informasi User')->schema([
+        return $schema->components([
+            Schemas\Components\Section::make('Informasi User')->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()

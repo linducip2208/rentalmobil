@@ -7,7 +7,7 @@ use App\Models\RentalOrder;
 
 class OrderStatusChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Status Order';
+    protected ?string $heading = 'Status Order';
 
     protected static ?int $sort = 2;
 
