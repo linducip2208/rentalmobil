@@ -18,9 +18,9 @@ class GpsIntegrationResource extends Resource
     protected static ?string $model = GpsIntegration::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cloud-arrow-down';
-    protected static \UnitEnum|string|null $navigationGroup = '🔌 Integrasi';
+    protected static \UnitEnum|string|null $navigationGroup = '⚙️ Sistem & Integrasi';
     protected static ?string $navigationLabel = 'Integrasi GPS BYOK';
-    protected static ?int $navigationSort = 82;
+    protected static ?int $navigationSort = 5;
 
     public static function shouldRegisterNavigation(): bool { return in_array(auth()->user()?->role, ['super_admin','owner','admin'], true); }
     public static function canViewAny(): bool { return static::shouldRegisterNavigation(); }

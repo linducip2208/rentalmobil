@@ -20,7 +20,7 @@ class Expense extends Model
         'amount',
         'expense_date',
         'payment_method_id',
-        'receipt_path',
+        'receipt_url',
         'status',
         'approved_by',
         'approved_at',

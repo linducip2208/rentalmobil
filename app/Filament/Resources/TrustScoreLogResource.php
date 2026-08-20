@@ -20,9 +20,9 @@ class TrustScoreLogResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static string | UnitEnum | null $navigationGroup = '🛡️ Security';
+    protected static string | UnitEnum | null $navigationGroup = '🛡️ Risiko & Keamanan';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Skor Kepercayaan';
 

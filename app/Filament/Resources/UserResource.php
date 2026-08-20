@@ -20,11 +20,11 @@ class UserResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static string | UnitEnum | null $navigationGroup = '⚙️ Sistem';
+    protected static string | UnitEnum | null $navigationGroup = '⚙️ Sistem & Integrasi';
 
-    protected static ?int $navigationSort = 71;
+    protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'User';
+    protected static ?string $navigationLabel = 'Pengguna';
 
     public static function form(Schema $schema): Schema
     {

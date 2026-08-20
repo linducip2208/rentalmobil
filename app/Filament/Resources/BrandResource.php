@@ -22,7 +22,7 @@ class BrandResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
 
     protected static ?int $navigationSort = 2;
 

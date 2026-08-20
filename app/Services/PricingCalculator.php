@@ -106,7 +106,7 @@ class PricingCalculator
             return round($lateHours * $hourlyRate, 2);
         }
 
-        $dailyRate = max($hourlyRate * 24, (float) $order->daily_rate * 1.5);
+        $dailyRate = max($hourlyRate * 24, (float) $order->daily_rate_snapshot * 1.5);
         return round($lateDays * $dailyRate, 2);
     }
 

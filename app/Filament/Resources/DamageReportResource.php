@@ -20,9 +20,9 @@ class DamageReportResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-exclamation-triangle';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 16;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $navigationLabel = 'Laporan Kerusakan';
 
@@ -48,7 +48,7 @@ class DamageReportResource extends Resource
                     ->preload(),
                 Forms\Components\Select::make('return_record_id')
                     ->label('Pengembalian')
-                    ->relationship('returnRecord', 'return_date')
+                    ->relationship('returnRecord', 'actual_return_date')
                     ->searchable()
                     ->preload()
                     ->placeholder('— Tidak terkait —'),

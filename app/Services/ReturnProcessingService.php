@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DamageReport;
 use App\Models\ReturnRecord;
 use App\Models\RentalOrder;
+use App\Models\SystemSetting;
 use App\Models\Vehicle;
 use App\Services\DamageCalculator;
 use App\Services\InvoiceGenerationService;
@@ -29,24 +30,27 @@ class ReturnProcessingService
             throw new \RuntimeException("Cannot process return for order with status '{$order->status}'.");
         }
 
-        $returnDate = Carbon::parse($data['return_date'] ?? now());
+        $returnDate = Carbon::parse($data['actual_return_date'] ?? now());
         $vehicle = $order->vehicle;
 
         return DB::transaction(function () use ($order, $data, $returnDate, $vehicle) {
             $returnRecord = ReturnRecord::create([
                 'rental_order_id' => $order->id,
-                'return_date' => $returnDate,
+                'actual_return_date' => $returnDate->toDateString(),
+                'actual_return_time' => $data['actual_return_time'] ?? now()->format('H:i:s'),
+                'return_location_id' => $data['return_location_id'] ?? $order->location_id,
                 'return_km' => $data['return_km'] ?? $vehicle->current_km,
-                'fuel_level' => $data['fuel_level'] ?? 'full',
-                'condition_notes' => $data['condition_notes'] ?? null,
+                'return_fuel_level' => $data['return_fuel_level'] ?? 100,
                 'body_condition' => $data['body_condition'] ?? 'good',
                 'interior_condition' => $data['interior_condition'] ?? 'good',
                 'tire_condition' => $data['tire_condition'] ?? 'good',
                 'has_damage' => $data['has_damage'] ?? false,
                 'damage_description' => $data['damage_description'] ?? null,
-                'damage_photos' => $data['damage_photos'] ?? [],
-                'status' => 'pending',
-                'inspector_id' => auth()->id(),
+                'photos' => $data['photos'] ?? [],
+                'other_charges' => $data['other_charges'] ?? 0,
+                'notes' => $data['notes'] ?? null,
+                'status' => 'pending_review',
+                'inspector_id' => $data['inspector_id'] ?? auth()->id(),
             ]);
 
             if (!empty($data['damage_reports'])) {
@@ -63,12 +67,12 @@ class ReturnProcessingService
                         'customer_id' => $order->customer_id,
                         'reported_by' => auth()->id(),
                         'damage_type' => $damage['damage_type'],
-                        'damage_location' => $damage['damage_location'] ?? null,
+                        'location_on_vehicle' => $damage['location_on_vehicle'] ?? $damage['damage_location'] ?? null,
                         'severity' => $damage['severity'],
                         'description' => $damage['description'] ?? null,
                         'estimated_cost' => $estimatedCost,
                         'photos' => $damage['photos'] ?? [],
-                        'status' => 'pending',
+                        'status' => 'reported',
                     ]);
                 }
             }
@@ -77,8 +81,10 @@ class ReturnProcessingService
 
             $returnRecord->update([
                 'late_minutes' => $charges['late_minutes'],
-                'late_fee' => $charges['late_fee'],
-                'extra_charge' => $charges['fuel_charge'] + $charges['other_charges'],
+                'late_charge' => $charges['late_fee'],
+                'fuel_charge' => $charges['fuel_charge'],
+                'damage_total' => $charges['damage_charge'],
+                'total_charges' => $charges['total_charges'],
             ]);
 
             $vehicle->update([
@@ -97,29 +103,20 @@ class ReturnProcessingService
 
         $lateMinutes = 0;
         $lateFee = 0.0;
-        $lateDeadline = $order->end_date->copy()->addHours(
+        $returnAt = Carbon::parse($returnRecord->actual_return_date->format('Y-m-d').' '.($returnRecord->actual_return_time ?? '23:59:59'));
+        $lateDeadline = $order->end_date->copy()->endOfDay()->addHours(
             (int) SystemSetting::get('return_grace_hours', 0)
         );
 
-        if ($returnDate = $returnRecord->return_date) {
-            if ($returnDate->gt($lateDeadline)) {
-                $lateMinutes = (int) $lateDeadline->diffInMinutes($returnDate);
-                $lateFee = $this->pricing->calculateLateFee($order, $returnDate);
-            }
+        if ($returnAt->gt($lateDeadline)) {
+            $lateMinutes = (int) $lateDeadline->diffInMinutes($returnAt);
+            $lateFee = $this->pricing->calculateLateFee($order, $returnAt);
         }
 
         $fuelCharge = 0.0;
         $fullFuelCost = (float) SystemSetting::get('full_fuel_cost', 150000);
 
-        $fuelLevels = [
-            'empty' => 1.0,
-            'quarter' => 0.75,
-            'half' => 0.5,
-            'three_quarter' => 0.25,
-            'full' => 0.0,
-        ];
-
-        $missingPercent = $fuelLevels[$returnRecord->fuel_level] ?? 0.0;
+        $missingPercent = max(0, min(100, 100 - (int) $returnRecord->return_fuel_level)) / 100;
         $fuelCharge = round($missingPercent * $fullFuelCost, 2);
 
         $damageCharge = 0.0;
@@ -129,8 +126,8 @@ class ReturnProcessingService
         }
 
         $otherCharges = 0.0;
-        if ((float) $returnRecord->extra_charge > 0) {
-            $otherCharges = (float) $returnRecord->extra_charge;
+        if ((float) $returnRecord->other_charges > 0) {
+            $otherCharges = (float) $returnRecord->other_charges;
         }
 
         return [
@@ -145,7 +142,7 @@ class ReturnProcessingService
 
     public function approveReturn(ReturnRecord $returnRecord, int $userId): ReturnRecord
     {
-        if ($returnRecord->status !== 'pending') {
+        if ($returnRecord->status !== 'pending_review') {
             throw new \RuntimeException("Cannot approve return with status '{$returnRecord->status}'.");
         }
 
@@ -159,15 +156,14 @@ class ReturnProcessingService
             $order = $returnRecord->rentalOrder;
 
             $order->update([
-                'actual_return_date' => $returnRecord->return_date,
-                'late_fee' => $returnRecord->late_fee,
+                'actual_return_date' => $returnRecord->actual_return_date,
+                'late_fee' => $returnRecord->late_charge,
+                'fuel_charge' => $returnRecord->fuel_charge,
                 'status' => 'completed',
+                'completed_at' => now(),
             ]);
 
-            $totalCharges = (float) $returnRecord->late_fee
-                + (float) $returnRecord->extra_charge
-                + DamageReport::where('return_record_id', $returnRecord->id)
-                    ->sum('estimated_cost');
+            $totalCharges = (float) $returnRecord->total_charges;
 
             if ($totalCharges > 0) {
                 $order->update([
@@ -185,13 +181,12 @@ class ReturnProcessingService
             $depositRefund = $this->pricing->calculateDepositRefund(
                 (float) $order->deposit_amount,
                 DamageReport::where('return_record_id', $returnRecord->id)->sum('estimated_cost'),
-                (float) $returnRecord->late_fee,
-                (float) $returnRecord->extra_charge,
+                (float) $returnRecord->late_charge,
+                (float) $returnRecord->fuel_charge + (float) $returnRecord->other_charges,
                 0.0
             );
 
-            if ($depositRefund > 0 && $depositRefund < (float) $order->deposit_amount) {
-                $deduction = (float) $order->deposit_amount - $depositRefund;
+            if ($depositRefund > 0) {
                 $this->invoiceService->generateRefund($order, $depositRefund);
             } elseif ($depositRefund <= 0) {
                 $this->invoiceService->generateAdditionalCharge(
@@ -202,7 +197,19 @@ class ReturnProcessingService
             }
 
             Vehicle::where('id', $order->vehicle_id)
-                ->update(['status' => 'available']);
+                ->update(['status' => $returnRecord->has_damage ? 'maintenance' : 'available']);
+
+            $order->customer->increment('total_orders');
+            $order->customer->increment('total_spent', (float) $order->amount_paid);
+            app(LoyaltyService::class)->updateTier($order->customer);
+            $trustChange = $returnRecord->has_damage ? -10 : ((int) $returnRecord->late_minutes > 0 ? -2 : 5);
+            app(TrustScoreService::class)->updateScore(
+                $order->customer_id,
+                $trustChange,
+                $returnRecord->has_damage ? 'Pengembalian dengan kerusakan' : ((int) $returnRecord->late_minutes > 0 ? 'Pengembalian terlambat' : 'Pengembalian tepat waktu tanpa kerusakan'),
+                ReturnRecord::class,
+                $returnRecord->id,
+            );
 
             return $returnRecord->fresh();
         });
@@ -210,7 +217,7 @@ class ReturnProcessingService
 
     public function disputeReturn(ReturnRecord $returnRecord, string $notes): ReturnRecord
     {
-        if ($returnRecord->status !== 'pending') {
+        if ($returnRecord->status !== 'pending_review') {
             throw new \RuntimeException("Cannot dispute return with status '{$returnRecord->status}'.");
         }
 

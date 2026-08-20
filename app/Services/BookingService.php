@@ -20,6 +20,11 @@ class BookingService
 
     public function createBooking(array $data): Booking
     {
+        $screening = app(BlacklistService::class)->checkCustomerBeforeBooking((int) $data['customer_id']);
+        if ($screening['blocked'] ?? true) {
+            throw new \RuntimeException($screening['reason'] ?? 'Customer tidak lolos pemeriksaan risiko.');
+        }
+
         $vehicle = Vehicle::findOrFail($data['vehicle_id']);
         $startDate = Carbon::parse($data['start_date']);
         $endDate = Carbon::parse($data['end_date']);
@@ -85,7 +90,7 @@ class BookingService
             throw new \RuntimeException('Vehicle is no longer available for the selected dates.');
         }
 
-        $booking->update(['status' => 'confirmed']);
+        $booking->update(['status' => 'confirmed', 'confirmed_at' => now()]);
         $vehicle->update(['status' => 'reserved']);
 
         $this->notification->sendBookingConfirmation($booking);

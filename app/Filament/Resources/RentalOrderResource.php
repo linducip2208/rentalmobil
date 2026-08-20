@@ -18,11 +18,11 @@ class RentalOrderResource extends Resource
 {
     protected static ?string $model = RentalOrder::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-document-text';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 12;
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Order Sewa';
 

@@ -20,9 +20,9 @@ class ServiceScheduleResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clock';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🛠️ Perawatan Armada';
 
-    protected static ?int $navigationSort = 32;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Jadwal Servis';
 

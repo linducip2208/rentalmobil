@@ -22,7 +22,7 @@ class JournalEntryResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
 
-    protected static ?int $navigationSort = 22;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Jurnal Umum';
 

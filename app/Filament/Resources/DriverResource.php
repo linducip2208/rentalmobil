@@ -20,9 +20,9 @@ class DriverResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 7;
 
     protected static ?string $navigationLabel = 'Supir';
 

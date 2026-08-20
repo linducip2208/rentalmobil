@@ -22,7 +22,7 @@ class VehicleResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-truck';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
 
     protected static ?int $navigationSort = 4;
 

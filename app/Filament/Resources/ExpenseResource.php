@@ -22,7 +22,7 @@ class ExpenseResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
 
-    protected static ?int $navigationSort = 23;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Pengeluaran';
 
@@ -61,7 +61,7 @@ class ExpenseResource extends Resource
                     ->relationship('paymentMethod', 'name')
                     ->searchable()
                     ->preload(),
-                Forms\Components\FileUpload::make('receipt_path')
+                Forms\Components\FileUpload::make('receipt_url')
                     ->label('Bukti/Faktur')
                     ->disk('public')
                     ->directory('expenses')
@@ -141,6 +141,16 @@ class ExpenseResource extends Resource
                     }),
             ])
             ->actions([
+                Actions\Action::make('approve')->label('Setujui')->icon('heroicon-o-check-badge')->color('success')->requiresConfirmation()
+                    ->action(function (\App\Models\Expense $record): void {
+                        $service=app(\App\Services\ApprovalService::class);
+                        $workflow=$service->submitForApproval($record,'expense',$record->user_id);
+                        $service->approve($workflow,auth()->id());
+                    })->visible(fn(\App\Models\Expense $record):bool=>$record->status==='pending'),
+                Actions\Action::make('reject')->label('Tolak')->icon('heroicon-o-x-circle')->color('danger')
+                    ->modalForm([Forms\Components\Textarea::make('reason')->label('Alasan')->required()])
+                    ->action(function(\App\Models\Expense $record,array $data):void{$service=app(\App\Services\ApprovalService::class);$workflow=$service->submitForApproval($record,'expense',$record->user_id);$service->reject($workflow,auth()->id(),$data['reason']);})
+                    ->visible(fn(\App\Models\Expense $record):bool=>$record->status==='pending'),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

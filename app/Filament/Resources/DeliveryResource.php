@@ -20,9 +20,9 @@ class DeliveryResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-truck';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🚚 Serah Terima & Logistik';
 
-    protected static ?int $navigationSort = 34;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Pengiriman';
 

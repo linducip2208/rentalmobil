@@ -10,6 +10,7 @@ use App\Models\Provider;
 use App\Models\RentalOrder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class NotificationDispatcher
 {
@@ -303,42 +304,35 @@ class NotificationDispatcher
     {
         $baseUrl = $provider->base_url;
         $apiKey = $provider->api_key;
+        $config = $provider->config ?? [];
 
         if (blank($baseUrl)) {
             throw new \RuntimeException('Provider base URL belum dikonfigurasi.');
         }
 
-        $headers = ['Content-Type: application/json'];
+        $headers = $provider->extra_headers ?? [];
         if (filled($apiKey)) {
-            $headers[] = "Authorization: Bearer {$apiKey}";
-        }
-        foreach (($provider->extra_headers ?? []) as $name => $value) {
-            $headers[] = "{$name}: {$value}";
-        }
-
-        $ch = curl_init();
-
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $baseUrl,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30,
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-
-        curl_close($ch);
-
-        if ($error) {
-            throw new \RuntimeException("cURL error: {$error}");
+            $authHeader = $config['auth_header'] ?? 'Authorization';
+            $authScheme = $config['auth_scheme'] ?? 'Bearer';
+            $headers[$authHeader] = trim("{$authScheme} {$apiKey}");
         }
 
-        if ($httpCode >= 400) {
-            throw new \RuntimeException("API error (HTTP {$httpCode}): {$response}");
+        $fieldMap = $config['payload_map'] ?? [];
+        if (is_array($fieldMap) && $fieldMap !== []) {
+            $mapped = [];
+            foreach ($fieldMap as $target => $source) {
+                $mapped[$target] = $payload[$source] ?? $source;
+            }
+            $payload = $mapped;
+        }
+
+        $request = Http::withHeaders($headers)->timeout((int) ($config['timeout_seconds'] ?? 30));
+        $response = ($provider->api_format === 'rest_form')
+            ? $request->asForm()->post($baseUrl, $payload)
+            : $request->asJson()->post($baseUrl, $payload);
+
+        if ($response->failed()) {
+            throw new \RuntimeException("API error (HTTP {$response->status()}): {$response->body()}");
         }
     }
 

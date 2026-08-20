@@ -20,11 +20,11 @@ class KmLogResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🛠️ Perawatan Armada';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationLabel = 'KM Log';
+    protected static ?string $navigationLabel = 'Catatan Kilometer';
 
     public static function form(Schema $schema): Schema
     {

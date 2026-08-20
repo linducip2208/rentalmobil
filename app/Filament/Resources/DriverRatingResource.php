@@ -19,11 +19,11 @@ class DriverRatingResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-star';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🚚 Serah Terima & Logistik';
 
-    protected static ?int $navigationSort = 12;
+    protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationLabel = 'Rating Driver';
+    protected static ?string $navigationLabel = 'Penilaian Driver';
 
     public static function form(Schema $schema): Schema
     {

@@ -20,9 +20,9 @@ class TestimonialResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-star';
 
-    protected static string | UnitEnum | null $navigationGroup = '📢 Marketing';
+    protected static string | UnitEnum | null $navigationGroup = '📢 Konten & Marketing';
 
-    protected static ?int $navigationSort = 52;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Testimoni';
 

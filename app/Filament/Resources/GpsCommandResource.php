@@ -18,9 +18,9 @@ class GpsCommandResource extends Resource
 {
     protected static ?string $model = GpsCommand::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-command-line';
-    protected static \UnitEnum|string|null $navigationGroup = '🛡️ Security';
+    protected static \UnitEnum|string|null $navigationGroup = '🛡️ Risiko & Keamanan';
     protected static ?string $navigationLabel = 'Perintah GPS';
-    protected static ?int $navigationSort = 53;
+    protected static ?int $navigationSort = 7;
 
     public static function shouldRegisterNavigation(): bool { return in_array(auth()->user()?->role, ['super_admin','owner','admin','manager'], true); }
     public static function canViewAny(): bool { return static::shouldRegisterNavigation(); }

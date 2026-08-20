@@ -18,11 +18,11 @@ class TransferResource extends Resource
 {
     protected static ?string $model = Transfer::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrows-right-left';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🚚 Serah Terima & Logistik';
 
-    protected static ?int $navigationSort = 35;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Transfer Kendaraan';
 

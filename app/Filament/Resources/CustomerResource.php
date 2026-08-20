@@ -20,11 +20,11 @@ class CustomerResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
 
     protected static ?int $navigationSort = 5;
 
-    protected static ?string $navigationLabel = 'Customer';
+    protected static ?string $navigationLabel = 'Pelanggan';
 
     public static function form(Schema $schema): Schema
     {

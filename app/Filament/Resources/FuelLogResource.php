@@ -20,9 +20,9 @@ class FuelLogResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-bolt';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🛠️ Perawatan Armada';
 
-    protected static ?int $navigationSort = 33;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Log Bahan Bakar';
 

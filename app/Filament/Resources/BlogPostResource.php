@@ -22,11 +22,11 @@ class BlogPostResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-pencil';
 
-    protected static string | UnitEnum | null $navigationGroup = '📢 Marketing';
+    protected static string | UnitEnum | null $navigationGroup = '📢 Konten & Marketing';
 
-    protected static ?int $navigationSort = 51;
+    protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'Blog Post';
+    protected static ?string $navigationLabel = 'Artikel Blog';
 
     public static function form(Schema $schema): Schema
     {

@@ -20,9 +20,9 @@ class ContractResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 14;
+    protected static ?int $navigationSort = 6;
 
     protected static ?string $navigationLabel = 'Kontrak';
 

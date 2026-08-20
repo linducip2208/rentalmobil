@@ -119,4 +119,10 @@ class LaporanKeuangan extends Page
             ->get()
             ->toArray();
     }
+
+    public function exportExcel()
+    {
+        $rows = collect($this->getRecentPayments())->map(fn (array $payment) => [$payment['payment_number'], $payment['customer']['name'] ?? '-', $payment['payment_date'], $payment['payment_method']['name'] ?? '-', $payment['status'], (float) $payment['amount']]);
+        return app(\App\Services\ReportExcelService::class)->download('laporan-keuangan-'.$this->dateFrom.'-'.$this->dateTo, ['No. Pembayaran','Customer','Tanggal','Metode','Status','Jumlah'], $rows);
+    }
 }

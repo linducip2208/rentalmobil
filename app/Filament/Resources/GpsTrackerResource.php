@@ -19,11 +19,11 @@ class GpsTrackerResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-signal';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '📡 GPS & Monitoring';
 
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationLabel = 'GPS Tracker';
+    protected static ?string $navigationLabel = 'Perangkat GPS';
 
     public static function form(Schema $schema): Schema
     {

@@ -20,11 +20,11 @@ class InvoiceResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-receipt-percent';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 13;
+    protected static ?int $navigationSort = 7;
 
-    protected static ?string $navigationLabel = 'Invoice';
+    protected static ?string $navigationLabel = 'Tagihan';
 
     public static function form(Schema $schema): Schema
     {

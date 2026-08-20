@@ -20,9 +20,9 @@ class PromoVoucherResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 17;
+    protected static ?int $navigationSort = 11;
 
     protected static ?string $navigationLabel = 'Promo & Voucher';
 

@@ -75,7 +75,7 @@ class PendingApprovalsWidget extends BaseWidget
                     ->requiresConfirmation()
                     ->modalHeading('Setujui Permintaan')
                     ->modalDescription('Apakah Anda yakin ingin menyetujui permintaan ini?')
-                    ->action(fn (ApprovalWorkflow $record) => $record->approve(Auth::id()))
+                    ->action(fn (ApprovalWorkflow $record) => app(\App\Services\ApprovalService::class)->approve($record, Auth::id()))
                     ->visible(fn (ApprovalWorkflow $record): bool => $record->status === 'pending'),
                 Actions\Action::make('reject')
                     ->label('Tolak')
@@ -88,7 +88,7 @@ class PendingApprovalsWidget extends BaseWidget
                             ->label('Alasan Penolakan')
                             ->required(),
                     ])
-                    ->action(fn (ApprovalWorkflow $record, array $data) => $record->reject(Auth::id(), $data['reason']))
+                    ->action(fn (ApprovalWorkflow $record, array $data) => app(\App\Services\ApprovalService::class)->reject($record, Auth::id(), $data['reason']))
                     ->visible(fn (ApprovalWorkflow $record): bool => $record->status === 'pending'),
             ])
             ->poll('30s');

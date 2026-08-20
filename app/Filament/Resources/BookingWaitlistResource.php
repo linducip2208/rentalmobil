@@ -12,8 +12,8 @@ class BookingWaitlistResource extends Resource
 {
     protected static ?string $model = BookingWaitlist::class;
     protected static \BackedEnum|string|null $navigationIcon='heroicon-o-queue-list';
-    protected static \UnitEnum|string|null $navigationGroup='📋 Penjualan';
-    protected static ?string $navigationLabel='Daftar Tunggu'; protected static ?int $navigationSort=24;
+    protected static \UnitEnum|string|null $navigationGroup='📅 Reservasi & Rental';
+    protected static ?string $navigationLabel='Daftar Tunggu'; protected static ?int $navigationSort=4;
     public static function form(Schema $schema): Schema { return $schema->components([
         Forms\Components\Select::make('customer_id')->relationship('customer','name')->searchable()->preload()->required(),
         Forms\Components\Select::make('category_id')->relationship('category','name')->searchable()->preload(),
@@ -27,6 +27,6 @@ class BookingWaitlistResource extends Resource
         Tables\Columns\TextColumn::make('customer.name')->label('Customer')->searchable(), Tables\Columns\TextColumn::make('category.name')->label('Kategori'),
         Tables\Columns\TextColumn::make('start_date')->label('Mulai')->date(), Tables\Columns\TextColumn::make('end_date')->label('Selesai')->date(),
         Tables\Columns\TextColumn::make('priority')->label('Prioritas')->sortable(), Tables\Columns\TextColumn::make('status')->badge(),
-    ])->defaultSort('priority')->recordActions([Actions\Action::make('offer')->label('Tawarkan')->icon('heroicon-o-paper-airplane')->action(fn($r)=>$r->update(['status'=>'offered','offered_at'=>now(),'expires_at'=>now()->addHours(6)]))->visible(fn($r)=>$r->status==='waiting'),Actions\EditAction::make()]); }
+    ])->defaultSort('priority')->recordActions([Actions\Action::make('offer')->label('Tawarkan')->icon('heroicon-o-paper-airplane')->requiresConfirmation()->action(fn($r)=>app(\App\Services\WaitlistService::class)->offer($r))->visible(fn($r)=>$r->status==='waiting'),Actions\EditAction::make()]); }
     public static function getPages(): array { return ['index'=>Pages\ListBookingWaitlists::route('/'),'create'=>Pages\CreateBookingWaitlist::route('/create'),'edit'=>Pages\EditBookingWaitlist::route('/{record}/edit')]; }
 }

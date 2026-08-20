@@ -20,9 +20,9 @@ class HandoverRecordResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrows-right-left';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🚚 Serah Terima & Logistik';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Serah Terima';
 

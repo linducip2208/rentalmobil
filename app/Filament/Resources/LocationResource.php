@@ -22,7 +22,7 @@ class LocationResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
 
     protected static ?int $navigationSort = 3;
 

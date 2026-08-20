@@ -20,11 +20,11 @@ class WatchListResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-eye';
 
-    protected static string | UnitEnum | null $navigationGroup = '🛡️ Security';
+    protected static string | UnitEnum | null $navigationGroup = '🛡️ Risiko & Keamanan';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'Watch List';
+    protected static ?string $navigationLabel = 'Daftar Pantau';
 
     public static function form(Schema $schema): Schema
     {

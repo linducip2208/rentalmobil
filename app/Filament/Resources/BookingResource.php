@@ -13,6 +13,8 @@ use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
 use BackedEnum;
+use App\Services\ApprovalService;
+use App\Services\BookingService;
 
 class BookingResource extends Resource
 {
@@ -20,11 +22,11 @@ class BookingResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-calendar';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'Booking';
+    protected static ?string $navigationLabel = 'Reservasi';
 
     public static function form(Schema $schema): Schema
     {
@@ -68,10 +70,8 @@ class BookingResource extends Resource
                 Forms\Components\DateTimePicker::make('end_date')
                     ->label('Tanggal Selesai')
                     ->required(),
-                Forms\Components\DatePicker::make('pickup_date')
-                    ->label('Tanggal Ambil'),
-                Forms\Components\DatePicker::make('return_date')
-                    ->label('Tanggal Kembali'),
+                Forms\Components\DatePicker::make('estimated_return_date')
+                    ->label('Estimasi Pengembalian'),
                 Forms\Components\TextInput::make('duration_days')
                     ->label('Durasi (Hari)')
                     ->numeric()
@@ -79,7 +79,7 @@ class BookingResource extends Resource
             ])->columns(2),
 
             Schemas\Components\Section::make('Biaya')->schema([
-                Forms\Components\TextInput::make('daily_rate')
+                Forms\Components\TextInput::make('daily_rate_snapshot')
                     ->label('Tarif/Hari (Rp)')
                     ->numeric()
                     ->prefix('Rp'),
@@ -207,34 +207,23 @@ class BookingResource extends Resource
                     ->modalDescription('Apakah Anda yakin ingin mengkonversi booking ini menjadi order?')
                     ->modalSubmitActionLabel('Ya, Konversi')
                     ->action(function (Booking $record) {
-                        $order = \App\Models\RentalOrder::create([
-                            'booking_id' => $record->id,
-                            'customer_id' => $record->customer_id,
-                            'vehicle_id' => $record->vehicle_id,
-                            'driver_id' => $record->driver_id,
-                            'location_id' => $record->pickup_location_id,
-                            'start_date' => $record->start_date,
-                            'end_date' => $record->end_date,
-                            'rental_type' => $record->rental_type,
-                            'duration_days' => $record->duration_days,
-                            'daily_rate_snapshot' => $record->daily_rate_snapshot,
-                            'subtotal' => $record->subtotal,
-                            'discount_total' => $record->discount_amount,
-                            'tax_total' => $record->tax_amount,
-                            'final_amount' => $record->total_amount,
-                            'deposit_amount' => $record->deposit_amount,
-                            'balance_due' => $record->total_amount - $record->deposit_amount,
-                            'status' => 'draft',
-                            'payment_status' => $record->deposit_amount > 0 ? 'partial' : 'unpaid',
-                            'created_by' => auth()->id(),
-                        ]);
-                        $record->update(['status' => 'converted']);
+                        $approval = app(ApprovalService::class);
+                        if ($approval->checkApprovalRequired('booking', (float) $record->total_amount)) {
+                            $approval->submitForApproval($record, 'booking', auth()->id());
+                            \Filament\Notifications\Notification::make()->title('Booking dikirim untuk persetujuan')->warning()->send();
+                            return;
+                        }
+                        $order = app(BookingService::class)->convertToOrder($record);
                         \Filament\Notifications\Notification::make()
                             ->title("Berhasil dikonversi! Order #{$order->order_number}")
                             ->success()
                             ->send();
                     })
                     ->visible(fn (Booking $record): bool => $record->status === 'confirmed'),
+                Actions\Action::make('confirm')
+                    ->label('Konfirmasi')->icon('heroicon-o-check-circle')->color('info')->requiresConfirmation()
+                    ->action(fn (Booking $record) => app(BookingService::class)->confirmBooking($record))
+                    ->visible(fn (Booking $record): bool => $record->status === 'pending_verification'),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

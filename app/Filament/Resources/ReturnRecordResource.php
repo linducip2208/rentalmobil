@@ -13,6 +13,7 @@ use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
 use BackedEnum;
+use App\Services\ReturnProcessingService;
 
 class ReturnRecordResource extends Resource
 {
@@ -20,9 +21,9 @@ class ReturnRecordResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-uturn-left';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 15;
+    protected static ?int $navigationSort = 9;
 
     protected static ?string $navigationLabel = 'Pengembalian';
 
@@ -36,15 +37,15 @@ class ReturnRecordResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\DateTimePicker::make('return_date')
+                Forms\Components\DatePicker::make('actual_return_date')
                     ->label('Tanggal Kembali')
                     ->required(),
+                Forms\Components\TimePicker::make('actual_return_time')->label('Jam Kembali'),
                 Forms\Components\TextInput::make('return_km')
                     ->label('KM Saat Kembali')
                     ->numeric(),
-                Forms\Components\TextInput::make('fuel_level')
-                    ->label('Level Bensin')
-                    ->maxLength(20),
+                Forms\Components\TextInput::make('return_fuel_level')
+                    ->label('Level Bensin (%)')->numeric()->minValue(0)->maxValue(100),
             ])->columns(2),
 
             Schemas\Components\Section::make('Kondisi Kendaraan')->schema([
@@ -72,7 +73,7 @@ class ReturnRecordResource extends Resource
                         'fair' => 'Cukup',
                         'poor' => 'Buruk',
                     ]),
-                Forms\Components\Textarea::make('condition_notes')
+                Forms\Components\Textarea::make('notes')
                     ->label('Catatan Kondisi')
                     ->rows(2),
                 Forms\Components\Toggle::make('has_damage')
@@ -84,7 +85,7 @@ class ReturnRecordResource extends Resource
             ])->columns(2),
 
             Schemas\Components\Section::make('Biaya Tambahan')->schema([
-                Forms\Components\TextInput::make('extra_charge')
+                Forms\Components\TextInput::make('other_charges')
                     ->label('Biaya Tambahan (Rp)')
                     ->numeric()
                     ->prefix('Rp')
@@ -93,7 +94,7 @@ class ReturnRecordResource extends Resource
                     ->label('Keterlambatan (Menit)')
                     ->numeric()
                     ->default(0),
-                Forms\Components\TextInput::make('late_fee')
+                Forms\Components\TextInput::make('late_charge')
                     ->label('Denda Keterlambatan (Rp)')
                     ->numeric()
                     ->prefix('Rp')
@@ -101,12 +102,11 @@ class ReturnRecordResource extends Resource
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([
-                        'pending' => 'Menunggu',
+                        'pending_review' => 'Menunggu Review',
                         'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'disputed' => 'Disengketakan',
                     ])
-                    ->default('pending')
-                    ->required(),
+                    ->default('pending_review')->disabled()->dehydrated(false),
                 Forms\Components\Textarea::make('rejection_reason')
                     ->label('Alasan Penolakan')
                     ->rows(2),
@@ -126,18 +126,18 @@ class ReturnRecordResource extends Resource
                     ->label('Kendaraan')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('return_date')
+                Tables\Columns\TextColumn::make('actual_return_date')
                     ->label('Tanggal Kembali')
                     ->dateTime('d M Y H:i')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('has_damage')
                     ->label('Kerusakan')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('extra_charge')
+                Tables\Columns\TextColumn::make('other_charges')
                     ->label('Biaya Tambahan')
                     ->money('IDR')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('late_fee')
+                Tables\Columns\TextColumn::make('late_charge')
                     ->label('Denda')
                     ->money('IDR')
                     ->sortable(),
@@ -145,15 +145,15 @@ class ReturnRecordResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
+                        'pending_review' => 'warning',
                         'approved' => 'success',
-                        'rejected' => 'danger',
+                        'disputed' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'pending' => 'Menunggu',
+                        'pending_review' => 'Menunggu Review',
                         'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'disputed' => 'Disengketakan',
                         default => ucfirst($state),
                     }),
             ])
@@ -161,12 +161,19 @@ class ReturnRecordResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options([
-                        'pending' => 'Menunggu',
+                        'pending_review' => 'Menunggu Review',
                         'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'disputed' => 'Disengketakan',
                     ]),
             ])
             ->actions([
+                Actions\Action::make('approve')->label('Setujui')->icon('heroicon-o-check-badge')->color('success')->requiresConfirmation()
+                    ->action(fn (ReturnRecord $record) => app(ReturnProcessingService::class)->approveReturn($record, auth()->id()))
+                    ->visible(fn (ReturnRecord $record): bool => $record->status === 'pending_review'),
+                Actions\Action::make('dispute')->label('Sengketakan')->icon('heroicon-o-exclamation-triangle')->color('danger')
+                    ->modalForm([Forms\Components\Textarea::make('reason')->label('Alasan')->required()])
+                    ->action(fn (ReturnRecord $record, array $data) => app(ReturnProcessingService::class)->disputeReturn($record, $data['reason']))
+                    ->visible(fn (ReturnRecord $record): bool => $record->status === 'pending_review'),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

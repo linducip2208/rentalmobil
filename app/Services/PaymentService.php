@@ -45,17 +45,10 @@ class PaymentService
                 'amount' => $amount,
                 'payment_date' => $data['payment_date'] ?? now()->toDateString(),
                 'reference_number' => $data['reference_number'] ?? null,
-                'proof_path' => $data['proof_path'] ?? null,
+                'proof_url' => $data['proof_url'] ?? $data['proof_path'] ?? null,
                 'status' => 'pending',
                 'notes' => $data['notes'] ?? null,
             ]);
-
-            $order = RentalOrder::find($invoice->rental_order_id);
-            if ($order) {
-                $order->update([
-                    'amount_paid' => round((float) $order->amount_paid + $amount, 2),
-                ]);
-            }
 
             return $payment;
         });
@@ -82,21 +75,21 @@ class PaymentService
 
             $invoice = Invoice::find($payment->invoice_id);
             if ($invoice) {
-                $totalPaid = (float) $invoice->payments()
+                $newTotalPaid = (float) $invoice->payments()
                     ->where('status', 'verified')
                     ->sum('amount');
 
-                $newTotalPaid = $totalPaid + $verifyAmount;
-
                 $newStatus = match (true) {
                     $newTotalPaid >= (float) $invoice->total_amount => 'paid',
-                    $newTotalPaid > 0 => 'partial',
-                    default => 'unpaid',
+                    $newTotalPaid > 0 => 'partially_paid',
+                    default => 'issued',
                 };
 
                 $invoice->update([
                     'amount_paid' => round($newTotalPaid, 2),
+                    'balance_due' => round(max(0, (float) $invoice->total_amount - $newTotalPaid), 2),
                     'status' => $newStatus,
+                    'paid_at' => $newStatus === 'paid' ? now() : null,
                 ]);
 
                 $order = RentalOrder::find($invoice->rental_order_id);
@@ -107,7 +100,8 @@ class PaymentService
 
                     $order->update([
                         'amount_paid' => round($orderPaid, 2),
-                        'payment_status' => $newStatus === 'paid' ? 'paid' : 'partial',
+                        'balance_due' => round(max(0, (float) $order->final_amount - $orderPaid), 2),
+                        'payment_status' => $newStatus === 'paid' ? 'paid' : 'partially_paid',
                     ]);
                 }
             }

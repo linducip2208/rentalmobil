@@ -147,37 +147,48 @@
                 <p class="text-stone-600 mb-8">Menu admin diorganisir mengikuti alur bisnis rental mobil. Berikut struktur lengkapnya:</p>
 
                 <div class="grid sm:grid-cols-2 gap-6">
-                    {{-- Master Data --}}
+                    {{-- Data Utama --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center text-sm">📦</span>
-                            Master Data
+                            Data Utama
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Kategori Kendaraan</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Merek & Tipe Kendaraan</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Unit Kendaraan</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Lokasi / Cabang</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Customer</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pelanggan & Dokumen</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Driver</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Addon & Layanan</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Harga Rental</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Metode Bayar</li>
                         </ul>
                     </div>
 
-                    {{-- Penjualan --}}
+                    {{-- Reservasi --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">💳</span>
-                            Penjualan
+                            Reservasi & Rental
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Quotation</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Booking</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Rental Order</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Invoice</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Kuotasi & Reservasi</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Kalender Armada & Daftar Tunggu</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Order Sewa & Kontrak</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Tagihan</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pembayaran</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pengembalian</li>
+                        </ul>
+                    </div>
+
+                    {{-- Logistics --}}
+                    <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
+                        <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm">🚚</span>Serah Terima & Logistik</h3>
+                        <ul class="space-y-2 text-sm text-stone-600">
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Serah Terima Kendaraan</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pengiriman & Penjemputan</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Transfer Antar Cabang</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Penilaian Driver</li>
                         </ul>
                     </div>
 
@@ -191,21 +202,32 @@
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Chart of Accounts (COA)</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Journal Entries</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Expense / Pengeluaran</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Payment Methods</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Kategori Pengeluaran & Rekening</li>
                         </ul>
                     </div>
 
-                    {{-- Operasional --}}
+                    {{-- Maintenance --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center text-sm">🔧</span>
-                            Operasional
+                            Perawatan Armada
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Maintenance & Servis</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> KM Logs</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Asuransi & Klaim</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Inspeksi Kendaraan</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Bahan Bakar & Kilometer</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Suku Cadang</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Asuransi Kendaraan</li>
+                        </ul>
+                    </div>
+
+                    {{-- GPS --}}
+                    <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
+                        <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">📡</span>GPS & Monitoring</h3>
+                        <ul class="space-y-2 text-sm text-stone-600">
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pusat Kendali</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Peta Armada</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pelacakan Driver</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Perangkat & Riwayat Posisi</li>
                         </ul>
                     </div>
 
@@ -213,13 +235,14 @@
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-sm">🛡️</span>
-                            Keamanan
+                            Risiko & Keamanan
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Blacklist</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Watch List</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Investigation Cases</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Police Reports</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Laporan Polisi</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Peringatan & Perintah GPS</li>
                         </ul>
                     </div>
 
@@ -241,10 +264,10 @@
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center text-sm">📢</span>
-                            Marketing
+                            Konten & Marketing
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Blog Posts</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Artikel Blog</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Testimonial</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> FAQ</li>
                         </ul>
@@ -254,13 +277,12 @@
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-lg bg-stone-100 text-stone-600 flex items-center justify-center text-sm">⚙️</span>
-                            Sistem
+                            Sistem & Integrasi
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Users & Roles</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Audit Log</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> System Settings</li>
-                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Integrasi Provider</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pengguna & Role</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Provider Dinamis</li>
+                            <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Integrasi GPS BYOK</li>
                         </ul>
                     </div>
                 </div>

@@ -32,8 +32,8 @@ class AccountingService
 
     public function recordRentalIncome(RentalOrder $order): JournalEntry
     {
-        $totalAmount = (float) $order->total_amount;
-        $taxAmount = (float) $order->tax_amount;
+        $totalAmount = (float) $order->final_amount;
+        $taxAmount = (float) $order->tax_total;
         $revenueAmount = $totalAmount - $taxAmount;
 
         $entry = JournalEntry::create([

@@ -98,9 +98,10 @@ class VoucherService
             $taxAmount = round($newSubtotal * $taxRate, 2);
 
             $order->update([
-                'discount_amount' => round((float) $order->discount_amount + $discountAmount, 2),
-                'tax_amount' => $taxAmount,
-                'total_amount' => round($newSubtotal + $taxAmount, 2),
+                'discount_total' => round((float) $order->discount_total + $discountAmount, 2),
+                'tax_total' => $taxAmount,
+                'final_amount' => round($newSubtotal + $taxAmount, 2),
+                'balance_due' => round(max(0, $newSubtotal + $taxAmount - (float) $order->amount_paid), 2),
             ]);
 
             $voucher->increment('used_count');

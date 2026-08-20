@@ -25,6 +25,7 @@
                 <x-filament::button tag="button" wire:click="$refresh" size="sm">
                     Filter
                 </x-filament::button>
+                <x-filament::button tag="button" wire:click="exportExcel" color="success" icon="heroicon-o-table-cells" size="sm">Excel</x-filament::button>
             </div>
         </div>
 

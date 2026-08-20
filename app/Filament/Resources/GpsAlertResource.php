@@ -15,9 +15,9 @@ class GpsAlertResource extends Resource
 {
     protected static ?string $model = GpsAlert::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-bell-alert';
-    protected static \UnitEnum|string|null $navigationGroup = '🛡️ Security';
-    protected static ?string $navigationLabel = 'Alert GPS';
-    protected static ?int $navigationSort = 52;
+    protected static \UnitEnum|string|null $navigationGroup = '🛡️ Risiko & Keamanan';
+    protected static ?string $navigationLabel = 'Peringatan GPS';
+    protected static ?int $navigationSort = 6;
 
     public static function shouldRegisterNavigation(): bool { return in_array(auth()->user()?->role, ['super_admin','owner','admin','manager'], true); }
     public static function canViewAny(): bool { return static::shouldRegisterNavigation(); }

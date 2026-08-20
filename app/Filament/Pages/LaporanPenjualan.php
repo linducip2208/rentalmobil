@@ -144,4 +144,10 @@ class LaporanPenjualan extends Page
             'monthly' => 'Bulanan',
         ];
     }
+
+    public function exportExcel()
+    {
+        $rows = collect($this->getOrders())->map(fn (array $order) => [$order['order_number'], $order['customer']['name'] ?? '-', $order['vehicle']['name'] ?? '-', $order['start_date'], $order['end_date'], $order['status'], (float) $order['final_amount']]);
+        return app(\App\Services\ReportExcelService::class)->download('laporan-penjualan-'.$this->dateFrom.'-'.$this->dateTo, ['No. Order','Customer','Kendaraan','Mulai','Selesai','Status','Nilai'], $rows);
+    }
 }

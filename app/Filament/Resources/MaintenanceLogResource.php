@@ -20,9 +20,9 @@ class MaintenanceLogResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🛠️ Perawatan Armada';
 
-    protected static ?int $navigationSort = 31;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Log Perawatan';
 

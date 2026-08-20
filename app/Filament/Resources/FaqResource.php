@@ -20,9 +20,9 @@ class FaqResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-question-mark-circle';
 
-    protected static string | UnitEnum | null $navigationGroup = '📢 Marketing';
+    protected static string | UnitEnum | null $navigationGroup = '📢 Konten & Marketing';
 
-    protected static ?int $navigationSort = 53;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'FAQ';
 

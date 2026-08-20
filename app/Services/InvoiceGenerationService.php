@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Invoice;
 use App\Models\RentalOrder;
 use App\Models\RentalOrderItem;
+use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +25,7 @@ class InvoiceGenerationService
         $subtotal = $lineItems->sum('total_price');
         $taxRate = (float) ($this->getTaxRate());
         $taxAmount = round($subtotal * $taxRate, 2);
-        $totalAmount = round($subtotal + $taxAmount - (float) $order->discount_amount, 2);
+        $totalAmount = round($subtotal + $taxAmount - (float) $order->discount_total, 2);
 
         $dueDate = $order->start_date->copy()->addDays(
             (int) SystemSetting::get('invoice_due_days', 7)
@@ -36,11 +37,12 @@ class InvoiceGenerationService
                 'customer_id' => $order->customer_id,
                 'subtotal' => $subtotal,
                 'tax_amount' => $taxAmount,
-                'discount_amount' => (float) $order->discount_amount,
+                'discount_amount' => (float) $order->discount_total,
                 'total_amount' => $totalAmount,
                 'amount_paid' => 0.00,
+                'balance_due' => $totalAmount,
                 'due_date' => $dueDate,
-                'status' => 'unpaid',
+                'status' => 'issued',
                 'notes' => "Invoice for order {$order->order_number}",
             ]);
 
@@ -68,7 +70,7 @@ class InvoiceGenerationService
         $totalAmount = round($amount + $taxAmount, 2);
 
         $existingInvoice = Invoice::where('rental_order_id', $order->id)
-            ->whereIn('status', ['unpaid', 'partial'])
+            ->whereIn('status', ['draft', 'issued', 'partially_paid', 'overdue'])
             ->first();
 
         if ($existingInvoice) {
@@ -76,6 +78,7 @@ class InvoiceGenerationService
                 'subtotal' => round((float) $existingInvoice->subtotal + $amount, 2),
                 'tax_amount' => round((float) $existingInvoice->tax_amount + $taxAmount, 2),
                 'total_amount' => round((float) $existingInvoice->total_amount + $totalAmount, 2),
+                'balance_due' => round((float) $existingInvoice->balance_due + $totalAmount, 2),
             ]);
 
             RentalOrderItem::create([
@@ -101,8 +104,10 @@ class InvoiceGenerationService
             'discount_amount' => 0.00,
             'total_amount' => $totalAmount,
             'amount_paid' => 0.00,
+            'balance_due' => $totalAmount,
             'due_date' => $dueDate,
-            'status' => 'unpaid',
+            'status' => 'issued',
+            'type' => 'additional',
             'notes' => "Additional charge: {$description}",
         ]);
 
@@ -139,8 +144,10 @@ class InvoiceGenerationService
             'discount_amount' => 0.00,
             'total_amount' => -$totalAmount,
             'amount_paid' => 0.00,
+            'balance_due' => -$totalAmount,
             'due_date' => $dueDate,
-            'status' => 'unpaid',
+            'status' => 'issued',
+            'type' => 'refund',
             'notes' => "Refund for order {$order->order_number}",
         ]);
 
@@ -171,8 +178,8 @@ class InvoiceGenerationService
             'name' => "Rental {$order->vehicle->name}",
             'description' => "{$days} hari sewa ({$order->start_date->format('d M')} - {$order->end_date->format('d M Y')})",
             'quantity' => (int) $days,
-            'unit_price' => (float) $order->daily_rate,
-            'total_price' => round($days * (float) $order->daily_rate, 2),
+            'unit_price' => (float) $order->daily_rate_snapshot,
+            'total_price' => round($days * (float) $order->daily_rate_snapshot, 2),
             'type' => 'rental',
             'addon_id' => null,
         ]);

@@ -20,9 +20,9 @@ class BlacklistEntryResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-no-symbol';
 
-    protected static string | UnitEnum | null $navigationGroup = '🛡️ Security';
+    protected static string | UnitEnum | null $navigationGroup = '🛡️ Risiko & Keamanan';
 
-    protected static ?int $navigationSort = 41;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Blacklist';
 

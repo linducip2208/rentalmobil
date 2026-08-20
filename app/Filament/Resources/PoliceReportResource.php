@@ -20,9 +20,9 @@ class PoliceReportResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-building-library';
 
-    protected static string | UnitEnum | null $navigationGroup = '🛡️ Security';
+    protected static string | UnitEnum | null $navigationGroup = '🛡️ Risiko & Keamanan';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Laporan Polisi';
 

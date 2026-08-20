@@ -20,11 +20,11 @@ class GpsLogResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '📡 GPS & Monitoring';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 5;
 
-    protected static ?string $navigationLabel = 'GPS Log';
+    protected static ?string $navigationLabel = 'Riwayat Posisi';
 
     public static function form(Schema $schema): Schema
     {

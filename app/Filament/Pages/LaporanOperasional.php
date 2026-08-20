@@ -134,4 +134,9 @@ class LaporanOperasional extends Page
                 return ['name' => $vehicle->name, 'plate_number' => $vehicle->plate_number, 'revenue' => $revenue, 'cost' => $cost, 'profit' => $revenue - $cost, 'margin' => $revenue > 0 ? round((($revenue - $cost) / $revenue) * 100, 1) : 0];
             })->sortByDesc('profit')->values()->take(20)->all();
     }
+
+    public function exportExcel()
+    {
+        return app(\App\Services\ReportExcelService::class)->download('laporan-operasional-'.$this->dateFrom.'-'.$this->dateTo, ['Kendaraan','Plat','Pendapatan','Biaya','Laba','Margin (%)'], $this->getVehicleProfitability());
+    }
 }

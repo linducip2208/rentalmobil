@@ -20,11 +20,11 @@ class AddonResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-plus-circle';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 9;
 
-    protected static ?string $navigationLabel = 'Add-on';
+    protected static ?string $navigationLabel = 'Layanan Tambahan';
 
     public static function form(Schema $schema): Schema
     {

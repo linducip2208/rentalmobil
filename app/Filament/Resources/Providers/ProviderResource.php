@@ -18,9 +18,9 @@ class ProviderResource extends Resource
     protected static ?string $model = Provider::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
-    protected static \UnitEnum|string|null $navigationGroup = '🔌 Integrasi';
+    protected static \UnitEnum|string|null $navigationGroup = '⚙️ Sistem & Integrasi';
     protected static ?string $navigationLabel = 'Provider Dinamis';
-    protected static ?int $navigationSort = 81;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

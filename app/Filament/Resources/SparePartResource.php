@@ -18,13 +18,13 @@ class SparePartResource extends Resource
 {
     protected static ?string $model = SparePart::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-cube';
 
-    protected static string | UnitEnum | null $navigationGroup = '🔧 Operasional';
+    protected static string | UnitEnum | null $navigationGroup = '🛠️ Perawatan Armada';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 5;
 
-    protected static ?string $navigationLabel = 'Spare Part';
+    protected static ?string $navigationLabel = 'Suku Cadang';
 
     public static function form(Schema $schema): Schema
     {

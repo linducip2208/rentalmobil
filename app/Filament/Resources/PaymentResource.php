@@ -13,6 +13,8 @@ use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
 use BackedEnum;
+use App\Services\ApprovalService;
+use App\Services\PaymentService;
 
 class PaymentResource extends Resource
 {
@@ -20,9 +22,9 @@ class PaymentResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static string | UnitEnum | null $navigationGroup = '📋 Penjualan';
+    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
 
-    protected static ?int $navigationSort = 14;
+    protected static ?int $navigationSort = 8;
 
     protected static ?string $navigationLabel = 'Pembayaran';
 
@@ -35,7 +37,7 @@ class PaymentResource extends Resource
                     ->relationship('invoice', 'invoice_number')
                     ->searchable()
                     ->preload()
-                    ->placeholder('— Tanpa invoice —'),
+                    ->required(),
                 Forms\Components\Select::make('rental_order_id')
                     ->label('Order Sewa')
                     ->relationship('rentalOrder', 'order_number')
@@ -65,7 +67,7 @@ class PaymentResource extends Resource
                 Forms\Components\TextInput::make('reference_number')
                     ->label('No. Referensi')
                     ->maxLength(100),
-                Forms\Components\FileUpload::make('proof_path')
+                Forms\Components\FileUpload::make('proof_url')
                     ->label('Bukti Bayar')
                     ->disk('public')
                     ->directory('payments')
@@ -78,7 +80,9 @@ class PaymentResource extends Resource
                         'rejected' => 'Ditolak',
                     ])
                     ->default('pending')
-                    ->required(),
+                    ->default('pending')
+                    ->disabled()
+                    ->dehydrated(false),
                 Forms\Components\Textarea::make('notes')
                     ->label('Catatan')
                     ->rows(2),
@@ -146,6 +150,20 @@ class PaymentResource extends Resource
                     }),
             ])
             ->actions([
+                Actions\Action::make('verify')->label('Verifikasi')->icon('heroicon-o-check-badge')->color('success')->requiresConfirmation()
+                    ->action(function (Payment $record): void {
+                        $approval = app(ApprovalService::class);
+                        if ($approval->checkApprovalRequired('payment', (float) $record->amount)) {
+                            $approval->submitForApproval($record, 'payment', auth()->id());
+                            \Filament\Notifications\Notification::make()->title('Pembayaran dikirim untuk persetujuan')->warning()->send();
+                            return;
+                        }
+                        app(PaymentService::class)->verifyPayment($record, auth()->id());
+                    })->visible(fn (Payment $record): bool => $record->status === 'pending'),
+                Actions\Action::make('reject')->label('Tolak')->icon('heroicon-o-x-circle')->color('danger')
+                    ->modalForm([Forms\Components\Textarea::make('reason')->label('Alasan')->required()])
+                    ->action(fn (Payment $record, array $data) => app(PaymentService::class)->rejectPayment($record, auth()->id(), $data['reason']))
+                    ->visible(fn (Payment $record): bool => $record->status === 'pending'),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

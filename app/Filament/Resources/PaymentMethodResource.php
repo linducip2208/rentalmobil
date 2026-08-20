@@ -20,9 +20,9 @@ class PaymentMethodResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-credit-card';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚗 Master Data';
+    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 8;
 
     protected static ?string $navigationLabel = 'Metode Bayar';
 

@@ -8,6 +8,9 @@ use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use App\Models\Booking;
+use App\Models\Payment;
+use App\Models\Expense;
 
 class ApprovalService
 {
@@ -51,12 +54,13 @@ class ApprovalService
                 ?? 0);
         }
 
-        return ApprovalWorkflow::create([
-            'type' => $entityType,
+        return ApprovalWorkflow::firstOrCreate([
             'reference_type' => get_class($entity),
             'reference_id' => $entity->getKey(),
-            'requested_by' => $submittedBy,
+            'type' => $entityType,
             'status' => 'pending',
+        ], [
+            'requested_by' => $submittedBy,
             'amount' => $amount,
         ]);
     }
@@ -83,6 +87,8 @@ class ApprovalService
             'notes' => $notes,
         ]);
 
+        $this->executeApprovedWorkflow($workflow, $approvedBy);
+
         $approver = User::find($approvedBy);
         $this->createAuditLog(
             'approval_approved',
@@ -97,6 +103,24 @@ class ApprovalService
         );
 
         return true;
+    }
+
+    protected function executeApprovedWorkflow(ApprovalWorkflow $workflow, int $approvedBy): void
+    {
+        $reference = $workflow->reference;
+
+        if ($workflow->type === 'booking' && $reference instanceof Booking && $reference->status !== 'converted') {
+            app(BookingService::class)->convertToOrder($reference);
+        }
+
+        if ($workflow->type === 'payment' && $reference instanceof Payment && $reference->status === 'pending') {
+            app(PaymentService::class)->verifyPayment($reference, $approvedBy);
+        }
+
+        if ($workflow->type === 'expense' && $reference instanceof Expense && $reference->status === 'pending') {
+            $reference->update(['status'=>'approved','approved_by'=>$approvedBy,'approved_at'=>now()]);
+            app(AccountingService::class)->recordExpense($reference);
+        }
     }
 
     /**
@@ -119,6 +143,10 @@ class ApprovalService
             'rejected_at' => now(),
             'reason' => $reason,
         ]);
+
+        if ($workflow->reference instanceof Expense) {
+            $workflow->reference->update(['status'=>'rejected','approved_by'=>$rejectedBy,'rejection_reason'=>$reason]);
+        }
 
         $rejector = User::find($rejectedBy);
         $this->createAuditLog(

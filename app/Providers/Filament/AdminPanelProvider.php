@@ -46,15 +46,16 @@ class AdminPanelProvider extends PanelProvider
             ->topbar(true)
             ->maxContentWidth('full')
             ->navigationGroups([
-                NavigationGroup::make('🚗 Master Data')->collapsed(false),
-                NavigationGroup::make('📋 Penjualan')->collapsed(false),
-                NavigationGroup::make('💰 Keuangan')->collapsed(true),
-                NavigationGroup::make('🔧 Operasional')->collapsed(true),
-                NavigationGroup::make('🛡️ Security')->collapsed(true),
-                NavigationGroup::make('📊 Laporan')->collapsed(true),
-                NavigationGroup::make('📢 Marketing')->collapsed(true),
-                NavigationGroup::make('🔌 Integrasi')->collapsed(true),
-                NavigationGroup::make('⚙️ Sistem')->collapsed(true),
+                NavigationGroup::make('🗂️ Data Utama')->icon('heroicon-o-circle-stack')->collapsed(false),
+                NavigationGroup::make('📅 Reservasi & Rental')->icon('heroicon-o-calendar-days')->collapsed(false),
+                NavigationGroup::make('🚚 Serah Terima & Logistik')->icon('heroicon-o-truck')->collapsed(true),
+                NavigationGroup::make('🛠️ Perawatan Armada')->icon('heroicon-o-wrench-screwdriver')->collapsed(true),
+                NavigationGroup::make('📡 GPS & Monitoring')->icon('heroicon-o-signal')->collapsed(true),
+                NavigationGroup::make('🛡️ Risiko & Keamanan')->icon('heroicon-o-shield-exclamation')->collapsed(true),
+                NavigationGroup::make('💰 Keuangan')->icon('heroicon-o-banknotes')->collapsed(true),
+                NavigationGroup::make('📊 Laporan')->icon('heroicon-o-chart-bar-square')->collapsed(true),
+                NavigationGroup::make('📢 Konten & Marketing')->icon('heroicon-o-megaphone')->collapsed(true),
+                NavigationGroup::make('⚙️ Sistem & Integrasi')->icon('heroicon-o-cog-8-tooth')->collapsed(true),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

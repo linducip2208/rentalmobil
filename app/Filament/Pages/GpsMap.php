@@ -10,11 +10,11 @@ class GpsMap extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';
 
-    protected static \UnitEnum|string|null $navigationGroup = '🔧 Operasional';
+    protected static \UnitEnum|string|null $navigationGroup = '📡 GPS & Monitoring';
 
-    protected static int|null $navigationSort = 9;
+    protected static int|null $navigationSort = 2;
 
-    protected static string|null $navigationLabel = 'GPS Map';
+    protected static string|null $navigationLabel = 'Peta Armada';
 
     protected static string|null $title = 'GPS Tracking Map';
 
