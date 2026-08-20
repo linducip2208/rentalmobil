@@ -17,8 +17,12 @@ class CustomerVerification extends Page
     public array $documents = [];
     public bool $saved = false;
 
-    public function mount(int $customer): void
+    public function mount(?int $customer = null): void
     {
+        if (! $customer) {
+            abort(404);
+        }
+
         $this->customerId = $customer;
 
         $customerModel = Customer::find($customer);

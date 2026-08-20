@@ -20,8 +20,12 @@ class ConvertBookingToOrder extends Page
     public ?int $pickupKm = null;
     public string $notes = '';
 
-    public function mount(int $booking): void
+    public function mount(?int $booking = null): void
     {
+        if (! $booking) {
+            abort(404);
+        }
+
         $this->bookingId = $booking;
 
         $bookingModel = Booking::with(['customer', 'vehicle', 'driver', 'pickupLocation', 'returnLocation'])

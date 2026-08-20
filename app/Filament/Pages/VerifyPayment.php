@@ -17,8 +17,12 @@ class VerifyPayment extends Page
     public string $action = 'approve';
     public string $notes = '';
 
-    public function mount(int $payment): void
+    public function mount(?int $payment = null): void
     {
+        if (! $payment) {
+            abort(404);
+        }
+
         $this->paymentId = $payment;
 
         $paymentModel = Payment::with(['customer', 'paymentMethod', 'invoice', 'rentalOrder'])
