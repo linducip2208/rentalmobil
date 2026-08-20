@@ -1,0 +1,109 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\BankAccountResource\Pages;
+use App\Models\BankAccount;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+
+class BankAccountResource extends Resource
+{
+    protected static ?string $model = BankAccount::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-building-library';
+
+    protected static ?string $navigationGroup = '💰 Keuangan';
+
+    protected static ?int $navigationSort = 25;
+
+    protected static ?string $navigationLabel = 'Rekening Bank';
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            Forms\Components\Section::make('Informasi Rekening')->schema([
+                Forms\Components\TextInput::make('bank_name')
+                    ->label('Nama Bank')
+                    ->required()
+                    ->maxLength(100),
+                Forms\Components\TextInput::make('account_name')
+                    ->label('Nama Rekening')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('account_number')
+                    ->label('No. Rekening')
+                    ->required()
+                    ->maxLength(50),
+                Forms\Components\TextInput::make('name')
+                    ->label('Nama Alias')
+                    ->maxLength(100),
+                Forms\Components\Textarea::make('description')
+                    ->label('Deskripsi')
+                    ->rows(2),
+                Forms\Components\TextInput::make('balance')
+                    ->label('Saldo Saat Ini (Rp)')
+                    ->numeric()
+                    ->prefix('Rp')
+                    ->default(0),
+                Forms\Components\TextInput::make('initial_balance')
+                    ->label('Saldo Awal (Rp)')
+                    ->numeric()
+                    ->prefix('Rp')
+                    ->default(0),
+                Forms\Components\Toggle::make('is_active')
+                    ->label('Aktif')
+                    ->default(true),
+            ])->columns(2),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('bank_name')
+                    ->label('Bank')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('account_name')
+                    ->label('Nama Rekening')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('account_number')
+                    ->label('No. Rekening')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('balance')
+                    ->label('Saldo')
+                    ->money('IDR')
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Aktif')
+                    ->boolean(),
+            ])
+            ->filters([
+                Tables\Filters\TernaryFilter::make('is_active')->label('Aktif'),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListBankAccounts::route('/'),
+            'create' => Pages\CreateBankAccount::route('/create'),
+            'edit' => Pages\EditBankAccount::route('/{record}/edit'),
+            'view' => Pages\ViewBankAccount::route('/{record}'),
+        ];
+    }
+}

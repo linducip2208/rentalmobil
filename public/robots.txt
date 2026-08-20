@@ -1,2 +1,22 @@
 User-agent: *
-Disallow:
+Allow: /$
+Allow: /docs
+Allow: /marketing/
+Allow: /blog
+Allow: /faq
+Allow: /contact
+Allow: /sewa/
+Allow: /sewa-mobil
+Allow: /sewa-mobil-di-
+Allow: /bandingkan/
+Allow: /alternatives-to-
+Allow: /best-
+Allow: /alternatif-
+Disallow: /admin
+Disallow: /api
+Disallow: /portal
+Disallow: /__pair
+Disallow: /webhooks
+Disallow: /storage
+
+Sitemap: /sitemap.xml

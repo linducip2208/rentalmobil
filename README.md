@@ -1,58 +1,135 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# RentalMobil — Sistem Rental Mobil
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi manajemen rental mobil berbasis Laravel dengan admin panel Filament, customer portal, dan fitur lengkap untuk operasional bisnis rental kendaraan.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Master Data
+- Manajemen kendaraan (10+ kategori: SUV, Sedan, MPV, Pickup, Electric)
+- Brand & kategori kendaraan
+- Lokasi (multi-cabang: Jakarta, Bandung, Surabaya)
+- Customer & driver management
+- Addon services (Asuransi, Supir, Baby Seat, GPS)
+- Payment methods (Transfer Bank, Cash, QRIS)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Transaksi
+- Booking & order management
+- Invoice otomatis dari return record
+- Payment processing & tracking
+- Surge pricing rules
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Operasional
+- Return processing dengan inspeksi kendaraan
+- Maintenance log & service scheduling
+- Fuel log & kilometer tracking
+- Delivery management (one-way rental)
+- GPS tracking integration
 
-## Learning Laravel
+### Keamanan
+- Blacklist & watch list
+- Trust score system untuk customer
+- Investigation case management
+- Police report auto-generation
+- Audit log lengkap
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Keuangan
+- Chart of Accounts (COA)
+- Journal entries & accounting
+- Expense management
+- Bank account tracking
+- P&L reports
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Marketing
+- Blog & article management
+- FAQ management
+- Promo voucher system
+- Newsletter subscribers
+- Testimonial management
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Integrasi
+- Dynamic provider system (WhatsApp, SMS, Email, Telegram)
+- Webhook support
+- Notification queue dengan retry mechanism
 
-## Agentic Development
+### Laporan
+- Dashboard per-role (Admin, Manager, Customer)
+- Sales & revenue reports
+- Vehicle utilization reports
+- Financial reports (COA, journal)
+- PDF export
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Backend | Laravel 11 |
+| Admin Panel | Filament v3 |
+| Database | MySQL 8 |
+| Cache | Redis |
+| Queue | Redis + Horizon |
+| Frontend | TailwindCSS + Alpine.js |
+| Charts | Chart.js |
+| PDF | DomPDF |
+| Icons | Heroicons + Font Awesome |
+| PHP | 8.3+ |
+
+## Installation
+
+### Prerequisites
+- PHP 8.3+
+- MySQL 8.0+
+- Redis
+- Composer
+- Node.js 18+
+
+### Setup
 
 ```bash
-composer require laravel/boost --dev
+# Clone repository
+git clone https://github.com/your-repo/rentalmobil.git
+cd rentalmobil
 
-php artisan boost:install
+# Install dependencies
+composer install
+npm install
+
+# Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# Configure database in .env, then run:
+php artisan migrate
+php artisan db:seed
+
+# Build assets
+npm run build
+
+# Start development server
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Default Credentials
 
-## Contributing
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@rentalmobil.test | password |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## API Documentation
 
-## Code of Conduct
+API endpoints available at `/api/` prefix. Authentication via Laravel Sanctum.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Public Endpoints
+- `GET /api/vehicles` — List available vehicles
+- `GET /api/vehicles/{id}` — Vehicle detail
+- `GET /api/locations` — List locations
+- `GET /api/categories` — List categories
+- `GET /api/brands` — List brands
+- `GET /api/faqs` — List FAQs
 
-## Security Vulnerabilities
+## Deployment
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for comprehensive deployment guide.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary — All rights reserved.
