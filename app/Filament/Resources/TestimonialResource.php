@@ -9,6 +9,7 @@ use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
 use BackedEnum;
@@ -97,12 +98,12 @@ class TestimonialResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_featured')->label('Unggulan'),
             ])
             ->actions([
-                Filament\Actions\EditAction::make(),
-                Filament\Actions\DeleteAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Filament\Actions\BulkActionGroup::make([
-                    Filament\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

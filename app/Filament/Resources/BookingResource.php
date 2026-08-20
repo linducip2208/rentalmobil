@@ -9,6 +9,7 @@ use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
 use BackedEnum;
@@ -197,7 +198,7 @@ class BookingResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\Action::make('convertToOrder')
+                Actions\Action::make('convertToOrder')
                     ->label('Konversi ke Order')
                     ->icon('heroicon-o-arrow-right-square')
                     ->color('success')
@@ -234,12 +235,12 @@ class BookingResource extends Resource
                             ->send();
                     })
                     ->visible(fn (Booking $record): bool => $record->status === 'confirmed'),
-                Filament\Actions\EditAction::make(),
-                Filament\Actions\DeleteAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Filament\Actions\BulkActionGroup::make([
-                    Filament\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
