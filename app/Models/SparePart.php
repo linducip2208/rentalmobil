@@ -12,24 +12,22 @@ class SparePart extends Model
 
     protected $fillable = [
         'name',
+        'part_number',
         'category_id',
-        'sku',
-        'description',
         'unit_price',
-        'stock_quantity',
-        'minimum_stock',
+        'stock',
+        'min_stock',
+        'location_in_store',
         'supplier_name',
         'supplier_phone',
-        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
             'unit_price' => 'decimal:2',
-            'stock_quantity' => 'integer',
-            'minimum_stock' => 'integer',
-            'is_active' => 'boolean',
+            'stock' => 'integer',
+            'min_stock' => 'integer',
         ];
     }
 
@@ -38,18 +36,18 @@ class SparePart extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
-
     public function scopeLowStock($query)
     {
-        return $query->whereColumn('stock_quantity', '<=', 'minimum_stock');
+        return $query->whereColumn('stock', '<=', 'min_stock');
+    }
+
+    public function scopeOutOfStock($query)
+    {
+        return $query->where('stock', 0);
     }
 
     public function isLowStock(): bool
     {
-        return $this->stock_quantity <= $this->minimum_stock;
+        return $this->stock <= $this->min_stock;
     }
 }

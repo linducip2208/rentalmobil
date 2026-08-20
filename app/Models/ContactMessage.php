@@ -15,31 +15,28 @@ class ContactMessage extends Model
         'phone',
         'subject',
         'message',
-        'status',
-        'replied_at',
-        'replied_by',
-        'reply_message',
+        'is_read',
     ];
 
     protected function casts(): array
     {
         return [
-            'replied_at' => 'datetime',
+            'is_read' => 'boolean',
         ];
     }
 
     public function scopeUnread($query)
     {
-        return $query->where('status', 'unread');
+        return $query->where('is_read', false);
     }
 
-    public function scopeReplied($query)
+    public function scopeRead($query)
     {
-        return $query->where('status', 'replied');
+        return $query->where('is_read', true);
     }
 
-    public function scopeArchived($query)
+    public function markAsRead(): void
     {
-        return $query->where('status', 'archived');
+        $this->update(['is_read' => true]);
     }
 }

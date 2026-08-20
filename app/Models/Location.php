@@ -18,31 +18,36 @@ class Location extends Model
         'city',
         'province',
         'postal_code',
+        'phone',
+        'email',
         'latitude',
         'longitude',
-        'phone',
-        'is_active',
+        'operating_hours',
         'is_headquarters',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'latitude' => 'decimal:8',
-            'longitude' => 'decimal:8',
-            'is_active' => 'boolean',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
+            'operating_hours' => 'array',
             'is_headquarters' => 'boolean',
+            'is_active' => 'boolean',
         ];
     }
 
     protected static function boot(): void
     {
         parent::boot();
+
         static::creating(function (Location $model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->name);
             }
         });
+
         static::updating(function (Location $model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->name);
@@ -50,54 +55,24 @@ class Location extends Model
         });
     }
 
+    public function drivers(): HasMany
+    {
+        return $this->hasMany(Driver::class);
+    }
+
     public function vehicles(): HasMany
     {
         return $this->hasMany(Vehicle::class);
     }
 
-    public function orders(): HasMany
-    {
-        return $this->hasMany(RentalOrder::class, 'location_id');
-    }
-
-    public function pickupOrders(): HasMany
+    public function pickupBookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'pickup_location_id');
     }
 
-    public function returnOrders(): HasMany
+    public function returnBookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'return_location_id');
-    }
-
-    public function expenses(): HasMany
-    {
-        return $this->hasMany(Expense::class);
-    }
-
-    public function incomingTransfers(): HasMany
-    {
-        return $this->hasMany(Transfer::class, 'to_location_id');
-    }
-
-    public function outgoingTransfers(): HasMany
-    {
-        return $this->hasMany(Transfer::class, 'from_location_id');
-    }
-
-    public function fromDeliveries(): HasMany
-    {
-        return $this->hasMany(Delivery::class, 'from_location_id');
-    }
-
-    public function toDeliveries(): HasMany
-    {
-        return $this->hasMany(Delivery::class, 'to_location_id');
-    }
-
-    public function surgePricingRules(): HasMany
-    {
-        return $this->hasMany(SurgePricingRule::class);
     }
 
     public function scopeActive($query)

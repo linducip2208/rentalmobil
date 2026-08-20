@@ -16,12 +16,10 @@ class FuelLog extends Model
         'fuel_date',
         'fuel_type',
         'liters',
-        'cost_per_liter',
-        'total_cost',
+        'cost',
         'odometer_km',
-        'station_name',
-        'full_tank',
-        'notes',
+        'location',
+        'receipt_url',
     ];
 
     protected function casts(): array
@@ -29,10 +27,8 @@ class FuelLog extends Model
         return [
             'fuel_date' => 'date',
             'liters' => 'decimal:2',
-            'cost_per_liter' => 'decimal:2',
-            'total_cost' => 'decimal:2',
-            'odometer_km' => 'decimal:1',
-            'full_tank' => 'boolean',
+            'cost' => 'decimal:2',
+            'odometer_km' => 'integer',
         ];
     }
 

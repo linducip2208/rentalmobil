@@ -14,10 +14,10 @@ class PromoVoucher extends Model
         'code',
         'name',
         'description',
-        'type',
-        'value',
-        'minimum_amount',
-        'maximum_discount',
+        'discount_type',
+        'discount_value',
+        'min_rental_days',
+        'max_discount',
         'usage_limit',
         'used_count',
         'start_date',
@@ -28,13 +28,13 @@ class PromoVoucher extends Model
     protected function casts(): array
     {
         return [
-            'value' => 'decimal:2',
-            'minimum_amount' => 'decimal:2',
-            'maximum_discount' => 'decimal:2',
+            'discount_value' => 'decimal:2',
+            'min_rental_days' => 'integer',
+            'max_discount' => 'decimal:2',
             'usage_limit' => 'integer',
             'used_count' => 'integer',
-            'start_date' => 'datetime',
-            'end_date' => 'datetime',
+            'start_date' => 'date',
+            'end_date' => 'date',
             'is_active' => 'boolean',
         ];
     }
@@ -52,8 +52,12 @@ class PromoVoucher extends Model
     public function scopeValid($query)
     {
         return $query->where('is_active', true)
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now());
+            ->where(function ($q) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+            });
     }
 
     public function scopeExpired($query)
@@ -63,7 +67,7 @@ class PromoVoucher extends Model
 
     public function isValid(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -84,22 +88,22 @@ class PromoVoucher extends Model
 
     public function calculateDiscount(float $amount): float
     {
-        if (!$this->isValid()) {
+        if (! $this->isValid()) {
             return 0;
         }
 
-        if ($this->minimum_amount && $amount < $this->minimum_amount) {
+        if ($this->min_rental_days) {
             return 0;
         }
 
-        if ($this->type === 'percentage') {
-            $discount = $amount * ($this->value / 100);
-            if ($this->maximum_discount && $discount > $this->maximum_discount) {
-                $discount = $this->maximum_discount;
+        if ($this->discount_type === 'percentage') {
+            $discount = $amount * ($this->discount_value / 100);
+            if ($this->max_discount && $discount > $this->max_discount) {
+                $discount = $this->max_discount;
             }
             return $discount;
         }
 
-        return min($this->value, $amount);
+        return min($this->discount_value, $amount);
     }
 }

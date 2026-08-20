@@ -2,130 +2,109 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
         'name',
+        'customer_type',
         'email',
         'phone',
         'address',
         'city',
         'province',
         'postal_code',
-        'id_card_type',
-        'id_card_number',
-        'id_card_photo',
-        'selfie_photo',
+        'ktp_number',
+        'sim_number',
+        'npwp',
         'company_name',
         'company_address',
+        'company_npwp',
+        'date_of_birth',
+        'gender',
         'emergency_contact_name',
         'emergency_contact_phone',
         'trust_score',
         'total_spent',
         'total_orders',
+        'loyalty_tier',
+        'verification_status',
         'notes',
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'trust_score' => 'decimal:2',
-            'total_spent' => 'decimal:2',
-            'total_orders' => 'integer',
-            'is_active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'trust_score' => 'integer',
+        'total_spent' => 'decimal:2',
+        'total_orders' => 'integer',
+        'is_active' => 'boolean',
+    ];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function documents(): HasMany
-    {
-        return $this->hasMany(CustomerDocument::class);
-    }
-
-    public function orders(): HasMany
-    {
-        return $this->hasMany(RentalOrder::class);
-    }
-
-    public function bookings(): HasMany
+    // Relationships
+    public function bookings()
     {
         return $this->hasMany(Booking::class);
     }
 
-    public function invoices(): HasMany
+    public function rentalOrders()
+    {
+        return $this->hasMany(RentalOrder::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(CustomerDocument::class);
+    }
+
+    public function invoices()
     {
         return $this->hasMany(Invoice::class);
     }
 
-    public function payments(): HasMany
+    public function payments()
     {
         return $this->hasMany(Payment::class);
     }
 
-    public function blacklistEntries(): HasMany
+    public function deposits()
     {
-        return $this->hasMany(BlacklistEntry::class);
+        return $this->hasMany(Deposit::class);
     }
 
-    public function trustScoreLogs(): HasMany
+    public function trustScoreLogs()
     {
         return $this->hasMany(TrustScoreLog::class);
     }
 
-    public function damageReports(): HasMany
+    public function blacklistEntries()
     {
-        return $this->hasMany(DamageReport::class);
+        return $this->hasMany(BlacklistEntry::class);
     }
 
-    public function investigationCases(): HasMany
-    {
-        return $this->hasMany(InvestigationCase::class);
-    }
-
-    public function voucherUsages(): HasMany
-    {
-        return $this->hasMany(VoucherUsage::class);
-    }
-
-    public function testimonials(): HasMany
-    {
-        return $this->hasMany(Testimonial::class);
-    }
-
+    // Scopes
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeBlacklisted($query)
+    public function scopeVerified($query)
     {
-        $customerIds = BlacklistEntry::pluck('customer_id');
-        return $query->whereIn('id', $customerIds);
+        return $query->where('verification_status', 'verified');
     }
 
-    public function isBlacklisted(): bool
+    public function scopeIndividual($query)
     {
-        return $this->blacklistEntries()->where('is_active', true)->exists();
+        return $query->where('customer_type', 'individual');
     }
 
-    public function hasValidDocuments(): bool
+    public function scopeCorporate($query)
     {
-        return $this->documents()
-            ->where('status', 'verified')
-            ->where('expiry_date', '>=', now())
-            ->exists();
+        return $query->where('customer_type', 'corporate');
     }
 }

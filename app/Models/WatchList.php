@@ -14,16 +14,16 @@ class WatchList extends Model
         'vehicle_id',
         'reason',
         'severity',
-        'status',
+        'is_active',
         'added_by',
         'resolved_by',
         'resolved_at',
-        'resolution_notes',
     ];
 
     protected function casts(): array
     {
         return [
+            'is_active' => 'boolean',
             'resolved_at' => 'datetime',
         ];
     }
@@ -45,21 +45,25 @@ class WatchList extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('is_active', true);
     }
 
     public function scopeResolved($query)
     {
-        return $query->where('status', 'resolved');
+        return $query->where('is_active', false)->whereNotNull('resolved_at');
     }
 
-    public function scopeCritical($query)
+    public function scopeBySeverity($query, string $severity)
     {
-        return $query->where('severity', 'critical')->where('status', 'active');
+        return $query->where('severity', $severity);
     }
 
-    public function isActive(): bool
+    public function resolve(int $resolvedByUserId): void
     {
-        return $this->status === 'active';
+        $this->update([
+            'is_active' => false,
+            'resolved_by' => $resolvedByUserId,
+            'resolved_at' => now(),
+        ]);
     }
 }

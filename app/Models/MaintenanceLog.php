@@ -15,26 +15,30 @@ class MaintenanceLog extends Model
         'type',
         'title',
         'description',
-        'performed_at',
-        'performed_by',
-        'cost',
-        'km_at_service',
+        'mechanic_name',
+        'start_date',
+        'end_date',
+        'mileage_at_service',
         'next_service_km',
         'next_service_date',
-        'workshop_name',
-        'workshop_phone',
+        'cost',
+        'parts_used',
         'status',
-        'receipt_path',
+        'performed_by',
+        'receipt_url',
+        'notes',
     ];
 
     protected function casts(): array
     {
         return [
-            'performed_at' => 'datetime',
-            'cost' => 'decimal:2',
-            'km_at_service' => 'decimal:1',
-            'next_service_km' => 'decimal:1',
+            'start_date' => 'date',
+            'end_date' => 'date',
             'next_service_date' => 'date',
+            'mileage_at_service' => 'integer',
+            'next_service_km' => 'integer',
+            'cost' => 'decimal:2',
+            'parts_used' => 'array',
         ];
     }
 
@@ -66,5 +70,11 @@ class MaintenanceLog extends Model
     public function scopeByType($query, string $type)
     {
         return $query->where('type', $type);
+    }
+
+    public function scopeUpcoming($query)
+    {
+        return $query->where('status', 'scheduled')
+            ->where('start_date', '>=', now());
     }
 }

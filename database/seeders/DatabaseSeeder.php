@@ -57,11 +57,11 @@ class DatabaseSeeder extends Seeder
     protected function seedCategories(): void
     {
         $categories = [
-            ['name' => 'SUV', 'description' => 'Sport Utility Vehicle - Cocok untuk perjalanan keluarga dan medan berat', 'sort_order' => 1],
-            ['name' => 'Sedan', 'description' => 'Mobil sedan nyaman untuk perjalanan dalam kota', 'sort_order' => 2],
-            ['name' => 'MPV', 'description' => 'Multi-Purpose Vehicle - Kapasitas besar untuk rombongan', 'sort_order' => 3],
-            ['name' => 'Pickup', 'description' => 'Mobil pickup untuk kebutuhan angkut barang', 'sort_order' => 4],
-            ['name' => 'Electric', 'description' => 'Kendaraan listrik ramah lingkungan', 'sort_order' => 5],
+            ['name' => 'SUV', 'sort_order' => 1],
+            ['name' => 'Sedan', 'sort_order' => 2],
+            ['name' => 'MPV', 'sort_order' => 3],
+            ['name' => 'Pickup', 'sort_order' => 4],
+            ['name' => 'Electric', 'sort_order' => 5],
         ];
 
         foreach ($categories as $category) {
@@ -75,11 +75,11 @@ class DatabaseSeeder extends Seeder
     protected function seedBrands(): void
     {
         $brands = [
-            ['name' => 'Toyota', 'description' => 'Toyota - Mobil Terpercaya di Indonesia'],
-            ['name' => 'Honda', 'description' => 'Honda - The Power of Dreams'],
-            ['name' => 'Daihatsu', 'description' => 'Daihatsu - We Make People Smile'],
-            ['name' => 'Mitsubishi', 'description' => 'Mitsubishi Motors - Drive your Ambition'],
-            ['name' => 'Hyundai', 'description' => 'Hyundai - New Thinking. New Possibilities.'],
+            ['name' => 'Toyota', 'country' => 'Jepang'],
+            ['name' => 'Honda', 'country' => 'Jepang'],
+            ['name' => 'Daihatsu', 'country' => 'Jepang'],
+            ['name' => 'Mitsubishi', 'country' => 'Jepang'],
+            ['name' => 'Hyundai', 'country' => 'Korea Selatan'],
         ];
 
         foreach ($brands as $brand) {
@@ -101,6 +101,7 @@ class DatabaseSeeder extends Seeder
                 'latitude' => -6.2088,
                 'longitude' => 106.8456,
                 'phone' => '021-555-0101',
+                'is_headquarters' => true,
             ],
             [
                 'name' => 'Bandung',
@@ -348,6 +349,7 @@ class DatabaseSeeder extends Seeder
                     'weekly_rate' => $vehicle['weekly_rate'],
                     'monthly_rate' => $vehicle['monthly_rate'],
                     'late_fee_per_hour' => $vehicle['late_fee_per_hour'],
+                    'late_fee_per_day' => $vehicle['late_fee_per_hour'] * 8,
                     'deposit_amount' => $vehicle['deposit_amount'],
                     'status' => 'available',
                     'is_active' => true,
@@ -369,11 +371,14 @@ class DatabaseSeeder extends Seeder
 
         foreach ($customers as $customer) {
             Customer::updateOrCreate(
-                ['email' => $customer['email']],
+                ['phone' => $customer['phone']],
                 array_merge($customer, [
+                    'customer_type' => 'individual',
                     'trust_score' => 80,
                     'total_spent' => 0,
                     'total_orders' => 0,
+                    'loyalty_tier' => 'bronze',
+                    'verification_status' => 'verified',
                     'is_active' => true,
                 ])
             );
@@ -382,10 +387,14 @@ class DatabaseSeeder extends Seeder
 
     protected function seedDrivers(): void
     {
+        $jakarta = Location::where('name', 'Jakarta Pusat')->first();
+        $bandung = Location::where('name', 'Bandung')->first();
+        $surabaya = Location::where('name', 'Surabaya')->first();
+
         $drivers = [
-            ['name' => 'Andi Pratama', 'sim_number' => 'SIM-A-12345', 'phone' => '081987654321', 'address' => 'Jl. Diponegoro No. 5, Jakarta', 'sim_type' => 'A', 'sim_expiry' => '2030-12-31'],
-            ['name' => 'Joko Widodo', 'sim_number' => 'SIM-A-23456', 'phone' => '081987654322', 'address' => 'Jl. Ahmad Yani No. 12, Bandung', 'sim_type' => 'A', 'sim_expiry' => '2030-12-31'],
-            ['name' => 'Hendra Kusuma', 'sim_number' => 'SIM-A-34567', 'phone' => '081987654323', 'address' => 'Jl. Thamrin No. 8, Surabaya', 'sim_type' => 'A', 'sim_expiry' => '2030-12-31'],
+            ['name' => 'Andi Pratama', 'sim_number' => 'SIM-A-12345', 'phone' => '081987654321', 'address' => 'Jl. Diponegoro No. 5, Jakarta', 'sim_type' => 'A', 'sim_expiry' => '2030-12-31', 'location_id' => $jakarta?->id],
+            ['name' => 'Joko Widodo', 'sim_number' => 'SIM-A-23456', 'phone' => '081987654322', 'address' => 'Jl. Ahmad Yani No. 12, Bandung', 'sim_type' => 'A', 'sim_expiry' => '2030-12-31', 'location_id' => $bandung?->id],
+            ['name' => 'Hendra Kusuma', 'sim_number' => 'SIM-A-34567', 'phone' => '081987654323', 'address' => 'Jl. Thamrin No. 8, Surabaya', 'sim_type' => 'A', 'sim_expiry' => '2030-12-31', 'location_id' => $surabaya?->id],
         ];
 
         foreach ($drivers as $driver) {
@@ -393,6 +402,7 @@ class DatabaseSeeder extends Seeder
                 ['sim_number' => $driver['sim_number']],
                 array_merge($driver, [
                     'is_active' => true,
+                    'is_available' => true,
                     'rating' => 5.00,
                     'total_trips' => 0,
                 ])
@@ -403,10 +413,10 @@ class DatabaseSeeder extends Seeder
     protected function seedPaymentMethods(): void
     {
         $methods = [
-            ['name' => 'Transfer Bank BCA', 'code' => 'BCA', 'type' => 'bank_transfer', 'icon' => 'fas fa-university', 'instructions' => 'Transfer ke rekening BCA, konfirmasi via WhatsApp', 'sort_order' => 1],
-            ['name' => 'Transfer Bank Mandiri', 'code' => 'MANDIRI', 'type' => 'bank_transfer', 'icon' => 'fas fa-university', 'instructions' => 'Transfer ke rekening Mandiri, konfirmasi via WhatsApp', 'sort_order' => 2],
-            ['name' => 'Cash', 'code' => 'CASH', 'type' => 'cash', 'icon' => 'fas fa-money-bill-wave', 'instructions' => 'Pembayaran tunai saat pengambilan kendaraan', 'sort_order' => 3],
-            ['name' => 'QRIS', 'code' => 'QRIS', 'type' => 'qris', 'icon' => 'fas fa-qrcode', 'instructions' => 'Scan QR Code yang tersedia, konfirmasi via WhatsApp', 'sort_order' => 4],
+            ['name' => 'Transfer Bank BCA', 'code' => 'BCA', 'type' => 'bank_transfer', 'icon' => 'fas fa-university', 'sort_order' => 1],
+            ['name' => 'Transfer Bank Mandiri', 'code' => 'MANDIRI', 'type' => 'bank_transfer', 'icon' => 'fas fa-university', 'sort_order' => 2],
+            ['name' => 'Cash', 'code' => 'CASH', 'type' => 'cash', 'icon' => 'fas fa-money-bill-wave', 'sort_order' => 3],
+            ['name' => 'QRIS', 'code' => 'QRIS', 'type' => 'qris', 'icon' => 'fas fa-qrcode', 'sort_order' => 4],
         ];
 
         foreach ($methods as $method) {
@@ -420,10 +430,10 @@ class DatabaseSeeder extends Seeder
     protected function seedAddons(): void
     {
         $addons = [
-            ['name' => 'Asuransi Kendaraan', 'slug' => 'asuransi-kendaraan', 'description' => 'Perlindungan asuransi all-risk untuk kendaraan', 'price_type' => 'daily', 'price' => 50000, 'sort_order' => 1],
-            ['name' => 'Supir', 'slug' => 'supir', 'description' => 'Layanan supir berpengalaman', 'price_type' => 'daily', 'price' => 150000, 'sort_order' => 2],
-            ['name' => 'Baby Seat', 'slug' => 'baby-seat', 'description' => 'Kursi bayi untuk perjalanan aman', 'price_type' => 'fixed', 'price' => 25000, 'sort_order' => 3],
-            ['name' => 'GPS Navigator', 'slug' => 'gps-navigator', 'description' => 'Perangkat GPS untuk navigasi', 'price_type' => 'daily', 'price' => 15000, 'sort_order' => 4],
+            ['name' => 'Asuransi Kendaraan', 'slug' => 'asuransi-kendaraan', 'description' => 'Perlindungan asuransi all-risk untuk kendaraan', 'price_type' => 'daily', 'price' => 50000],
+            ['name' => 'Supir', 'slug' => 'supir', 'description' => 'Layanan supir berpengalaman', 'price_type' => 'daily', 'price' => 150000, 'requires_driver' => true],
+            ['name' => 'Baby Seat', 'slug' => 'baby-seat', 'description' => 'Kursi bayi untuk perjalanan aman', 'price_type' => 'fixed', 'price' => 25000],
+            ['name' => 'GPS Navigator', 'slug' => 'gps-navigator', 'description' => 'Perangkat GPS untuk navigasi', 'price_type' => 'daily', 'price' => 15000],
         ];
 
         foreach ($addons as $addon) {
@@ -580,21 +590,21 @@ class DatabaseSeeder extends Seeder
     protected function seedChartOfAccounts(): void
     {
         $accounts = [
-            ['code' => '1100', 'name' => 'Kas', 'type' => 'asset'],
-            ['code' => '1110', 'name' => 'Bank BCA', 'type' => 'asset'],
-            ['code' => '1120', 'name' => 'Bank Mandiri', 'type' => 'asset'],
-            ['code' => '1200', 'name' => 'Piutang Usaha', 'type' => 'asset'],
-            ['code' => '1500', 'name' => 'Kendaraan', 'type' => 'asset'],
-            ['code' => '2100', 'name' => 'Hutang Usaha', 'type' => 'liability'],
-            ['code' => '2200', 'name' => 'Hutang Pajak', 'type' => 'liability'],
-            ['code' => '3100', 'name' => 'Modal Disetor', 'type' => 'equity'],
-            ['code' => '4100', 'name' => 'Pendapatan Sewa', 'type' => 'revenue'],
-            ['code' => '4200', 'name' => 'Pendapatan Supir', 'type' => 'revenue'],
-            ['code' => '4300', 'name' => 'Pendapatan Addon', 'type' => 'revenue'],
-            ['code' => '5100', 'name' => 'Biaya BBM', 'type' => 'expense'],
-            ['code' => '5200', 'name' => 'Biaya Perawatan', 'type' => 'expense'],
-            ['code' => '5300', 'name' => 'Biaya Gaji Supir', 'type' => 'expense'],
-            ['code' => '5400', 'name' => 'Biaya Asuransi', 'type' => 'expense'],
+            ['code' => '1100', 'name' => 'Kas', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1110', 'name' => 'Bank BCA', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1120', 'name' => 'Bank Mandiri', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1200', 'name' => 'Piutang Usaha', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1500', 'name' => 'Kendaraan', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '2100', 'name' => 'Hutang Usaha', 'type' => 'liability', 'normal_balance' => 'credit'],
+            ['code' => '2200', 'name' => 'Hutang Pajak', 'type' => 'liability', 'normal_balance' => 'credit'],
+            ['code' => '3100', 'name' => 'Modal Disetor', 'type' => 'equity', 'normal_balance' => 'credit'],
+            ['code' => '4100', 'name' => 'Pendapatan Sewa', 'type' => 'revenue', 'normal_balance' => 'credit'],
+            ['code' => '4200', 'name' => 'Pendapatan Supir', 'type' => 'revenue', 'normal_balance' => 'credit'],
+            ['code' => '4300', 'name' => 'Pendapatan Addon', 'type' => 'revenue', 'normal_balance' => 'credit'],
+            ['code' => '5100', 'name' => 'Biaya BBM', 'type' => 'expense', 'normal_balance' => 'debit'],
+            ['code' => '5200', 'name' => 'Biaya Perawatan', 'type' => 'expense', 'normal_balance' => 'debit'],
+            ['code' => '5300', 'name' => 'Biaya Gaji Supir', 'type' => 'expense', 'normal_balance' => 'debit'],
+            ['code' => '5400', 'name' => 'Biaya Asuransi', 'type' => 'expense', 'normal_balance' => 'debit'],
         ];
 
         foreach ($accounts as $account) {

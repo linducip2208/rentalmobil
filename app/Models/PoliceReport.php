@@ -17,23 +17,17 @@ class PoliceReport extends Model
         'report_number',
         'police_station',
         'officer_name',
-        'officer_badge',
         'report_date',
-        'incident_date',
-        'incident_location',
-        'description',
+        'report_text',
         'status',
-        'document_path',
-        'follow_up_date',
-        'notes',
+        'documents',
     ];
 
     protected function casts(): array
     {
         return [
             'report_date' => 'date',
-            'incident_date' => 'datetime',
-            'follow_up_date' => 'date',
+            'documents' => 'array',
         ];
     }
 
@@ -52,18 +46,23 @@ class PoliceReport extends Model
         return $this->belongsTo(RentalOrder::class);
     }
 
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
     public function scopeFiled($query)
     {
         return $query->where('status', 'filed');
     }
 
+    public function scopeInvestigating($query)
+    {
+        return $query->where('status', 'investigating');
+    }
+
     public function scopeResolved($query)
     {
         return $query->where('status', 'resolved');
+    }
+
+    public function scopeNoAction($query)
+    {
+        return $query->where('status', 'no_action');
     }
 }

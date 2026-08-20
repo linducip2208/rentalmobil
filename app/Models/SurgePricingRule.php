@@ -11,10 +11,9 @@ class SurgePricingRule extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category_id',
+        'vehicle_category_id',
         'location_id',
         'name',
-        'description',
         'multiplier',
         'start_date',
         'end_date',
@@ -37,9 +36,9 @@ class SurgePricingRule extends Model
         ];
     }
 
-    public function category(): BelongsTo
+    public function vehicleCategory(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'vehicle_category_id');
     }
 
     public function location(): BelongsTo
@@ -76,7 +75,7 @@ class SurgePricingRule extends Model
 
     public function isActiveForDateTime(\DateTime $dateTime): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -88,7 +87,7 @@ class SurgePricingRule extends Model
             return false;
         }
 
-        if (!empty($this->days_of_week) && !in_array($dateTime->dayOfWeekIso, $this->days_of_week)) {
+        if (! empty($this->days_of_week) && ! in_array($dateTime->dayOfWeekIso, $this->days_of_week)) {
             return false;
         }
 

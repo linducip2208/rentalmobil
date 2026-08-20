@@ -4,69 +4,64 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Driver extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
+        'location_id',
         'name',
-        'license_number',
-        'license_expiry',
         'phone',
+        'email',
         'address',
-        'emergency_contact',
-        'status',
-        'is_active',
+        'ktp_number',
+        'sim_type',
+        'sim_number',
+        'sim_expiry',
+        'photo',
         'rating',
         'total_trips',
-        'notes',
+        'is_available',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'license_expiry' => 'date',
-            'is_active' => 'boolean',
+            'sim_expiry' => 'date',
             'rating' => 'decimal:2',
             'total_trips' => 'integer',
+            'is_available' => 'boolean',
+            'is_active' => 'boolean',
         ];
     }
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function location(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Location::class);
     }
 
-    public function orders(): HasMany
+    public function bookings(): HasMany
     {
-        return $this->hasMany(RentalOrder::class, 'driver_id');
-    }
-
-    public function deliveries(): HasMany
-    {
-        return $this->hasMany(Delivery::class, 'driver_id');
+        return $this->hasMany(Booking::class);
     }
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'active')->where('is_active', true);
+        return $query->where('is_active', true);
     }
 
     public function scopeAvailable($query)
     {
-        return $query->where('status', 'active')->where('is_active', true);
+        return $query->where('is_available', true)->where('is_active', true);
     }
 
-    public function isAvailable(): bool
+    public function hasValidSim(): bool
     {
-        return $this->status === 'active' && $this->is_active;
-    }
-
-    public function hasValidLicense(): bool
-    {
-        return $this->license_expiry && $this->license_expiry->isFuture();
+        return $this->sim_expiry && $this->sim_expiry->isFuture();
     }
 }

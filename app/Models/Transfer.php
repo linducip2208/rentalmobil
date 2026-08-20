@@ -15,11 +15,10 @@ class Transfer extends Model
         'from_location_id',
         'to_location_id',
         'vehicle_id',
-        'transfer_date',
-        'reason',
+        'scheduled_date',
+        'completed_date',
         'status',
-        'start_km',
-        'end_km',
+        'reason',
         'notes',
         'created_by',
     ];
@@ -27,9 +26,8 @@ class Transfer extends Model
     protected function casts(): array
     {
         return [
-            'transfer_date' => 'date',
-            'start_km' => 'decimal:1',
-            'end_km' => 'decimal:1',
+            'scheduled_date' => 'date',
+            'completed_date' => 'date',
         ];
     }
 
@@ -83,6 +81,11 @@ class Transfer extends Model
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    public function scopeInTransit($query)
+    {
+        return $query->where('status', 'in_transit');
     }
 
     public function scopeCompleted($query)

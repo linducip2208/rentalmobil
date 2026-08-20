@@ -14,12 +14,13 @@ class CustomerDocument extends Model
         'customer_id',
         'document_type',
         'document_number',
-        'document_path',
+        'document_url',
         'expiry_date',
         'status',
         'verified_by',
         'verified_at',
         'rejection_reason',
+        'notes',
     ];
 
     protected function casts(): array
@@ -50,7 +51,17 @@ class CustomerDocument extends Model
         return $query->where('status', 'pending');
     }
 
-    public function scopeExpiringSoon($query, $days = 30)
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeExpired($query)
+    {
+        return $query->where('status', 'expired');
+    }
+
+    public function scopeExpiringSoon($query, int $days = 30)
     {
         return $query->where('expiry_date', '<=', now()->addDays($days))
             ->where('expiry_date', '>=', now());

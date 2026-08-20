@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Addon extends Model
 {
@@ -12,20 +13,39 @@ class Addon extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'price',
-        'type',
+        'price_type',
+        'icon',
+        'requires_driver',
         'is_active',
-        'sort_order',
     ];
 
     protected function casts(): array
     {
         return [
             'price' => 'decimal:2',
+            'requires_driver' => 'boolean',
             'is_active' => 'boolean',
-            'sort_order' => 'integer',
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Addon $model) {
+            if (empty($model->slug)) {
+                $model->slug = Str::slug($model->name);
+            }
+        });
+
+        static::updating(function (Addon $model) {
+            if (empty($model->slug)) {
+                $model->slug = Str::slug($model->name);
+            }
+        });
     }
 
     public function orderItems(): HasMany

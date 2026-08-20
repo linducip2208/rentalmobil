@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class RentalOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'order_number',
@@ -21,49 +23,76 @@ class RentalOrder extends Model
         'start_date',
         'end_date',
         'actual_return_date',
+        'rental_type',
         'duration_days',
-        'daily_rate',
+        'daily_rate_snapshot',
         'subtotal',
         'addon_total',
-        'discount_amount',
-        'tax_amount',
+        'discount_total',
+        'tax_total',
         'late_fee',
         'damage_fee',
-        'total_amount',
+        'fuel_charge',
+        'km_charge',
+        'final_amount',
         'amount_paid',
+        'balance_due',
         'deposit_amount',
-        'deposit_refunded',
+        'amount_refunded',
         'status',
         'payment_status',
+        'pickup_km',
+        'return_km',
+        'pickup_fuel_level',
+        'return_fuel_level',
         'notes',
         'internal_notes',
+        'cancellation_reason',
+        'cancelled_at',
+        'dispatched_at',
+        'checked_out_at',
+        'checked_in_at',
+        'completed_at',
         'created_by',
     ];
 
     protected function casts(): array
     {
         return [
-            'start_date' => 'datetime',
-            'end_date' => 'datetime',
-            'actual_return_date' => 'datetime',
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'actual_return_date' => 'date',
             'duration_days' => 'integer',
-            'daily_rate' => 'decimal:2',
+            'daily_rate_snapshot' => 'decimal:2',
             'subtotal' => 'decimal:2',
             'addon_total' => 'decimal:2',
-            'discount_amount' => 'decimal:2',
-            'tax_amount' => 'decimal:2',
+            'discount_total' => 'decimal:2',
+            'tax_total' => 'decimal:2',
             'late_fee' => 'decimal:2',
             'damage_fee' => 'decimal:2',
-            'total_amount' => 'decimal:2',
+            'fuel_charge' => 'decimal:2',
+            'km_charge' => 'decimal:2',
+            'final_amount' => 'decimal:2',
             'amount_paid' => 'decimal:2',
+            'balance_due' => 'decimal:2',
             'deposit_amount' => 'decimal:2',
-            'deposit_refunded' => 'boolean',
+            'amount_refunded' => 'decimal:2',
+            'pickup_km' => 'integer',
+            'return_km' => 'integer',
+            'pickup_fuel_level' => 'integer',
+            'return_fuel_level' => 'integer',
+            'cancelled_at' => 'datetime',
+            'dispatched_at' => 'datetime',
+            'checked_out_at' => 'datetime',
+            'checked_in_at' => 'datetime',
+            'completed_at' => 'datetime',
         ];
     }
 
     protected static function boot(): void
     {
         parent::boot();
+
         static::creating(function (RentalOrder $model) {
             if (empty($model->order_number)) {
                 $model->order_number = static::generateOrderNumber();
@@ -74,8 +103,9 @@ class RentalOrder extends Model
     public static function generateOrderNumber(): string
     {
         $prefix = 'RO';
-        $date = now()->format('ymd');
-        $last = static::where('order_number', 'like', "{$prefix}{$date}%")
+        $date = now()->format('Ymd');
+        $last = static::withTrashed()
+            ->where('order_number', 'like', "{$prefix}-{$date}-%")
             ->orderByDesc('order_number')
             ->value('order_number');
 
@@ -85,7 +115,7 @@ class RentalOrder extends Model
             $sequence = 1;
         }
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix . '-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function booking(): BelongsTo
@@ -148,19 +178,14 @@ class RentalOrder extends Model
         return $this->hasMany(DamageReport::class);
     }
 
-    public function deliveries(): HasMany
+    public function handovers(): HasMany
     {
-        return $this->hasMany(Delivery::class);
+        return $this->hasMany(HandoverRecord::class);
     }
 
-    public function voucherUsages(): HasMany
+    public function contract(): HasMany
     {
-        return $this->hasMany(VoucherUsage::class);
-    }
-
-    public function investigationCases(): HasMany
-    {
-        return $this->hasMany(InvestigationCase::class);
+        return $this->hasMany(Contract::class);
     }
 
     public function scopeDraft($query)
@@ -168,9 +193,19 @@ class RentalOrder extends Model
         return $query->where('status', 'draft');
     }
 
-    public function scopeConfirmed($query)
+    public function scopeReadyForPreparation($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->where('status', 'ready_for_preparation');
+    }
+
+    public function scopePreparing($query)
+    {
+        return $query->where('status', 'preparing');
+    }
+
+    public function scopeCheckedOut($query)
+    {
+        return $query->where('status', 'checked_out');
     }
 
     public function scopeActive($query)
@@ -183,8 +218,13 @@ class RentalOrder extends Model
         return $query->where('status', 'overdue')
             ->orWhere(function ($q) {
                 $q->where('status', 'active')
-                    ->where('end_date', '<', now());
+                    ->where('end_date', '<', Carbon::today());
             });
+    }
+
+    public function scopeReturnDue($query)
+    {
+        return $query->where('status', 'return_due');
     }
 
     public function scopeCompleted($query)
@@ -214,11 +254,11 @@ class RentalOrder extends Model
 
     public function hasOutstandingBalance(): bool
     {
-        return $this->total_amount > $this->amount_paid;
+        return (float) $this->final_amount > (float) $this->amount_paid;
     }
 
     public function getOutstandingBalanceAttribute(): float
     {
-        return (float) $this->total_amount - (float) $this->amount_paid;
+        return (float) $this->final_amount - (float) $this->amount_paid;
     }
 }

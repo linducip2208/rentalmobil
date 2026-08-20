@@ -19,6 +19,7 @@ class RentalOrderItem extends Model
         'unit_price',
         'total_price',
         'type',
+        'notes',
     ];
 
     protected function casts(): array

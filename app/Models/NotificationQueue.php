@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class NotificationQueue extends Model
@@ -12,32 +11,29 @@ class NotificationQueue extends Model
     use HasFactory;
 
     protected $fillable = [
-        'provider_id',
-        'template_id',
         'notifiable_type',
         'notifiable_id',
+        'event_type',
         'channel',
-        'subject',
-        'body',
-        'data',
+        'payload',
         'status',
         'scheduled_at',
         'sent_at',
         'failed_at',
         'error_message',
-        'retry_count',
-        'max_retries',
+        'attempts',
+        'max_attempts',
     ];
 
     protected function casts(): array
     {
         return [
-            'data' => 'array',
+            'payload' => 'array',
             'scheduled_at' => 'datetime',
             'sent_at' => 'datetime',
             'failed_at' => 'datetime',
-            'retry_count' => 'integer',
-            'max_retries' => 'integer',
+            'attempts' => 'integer',
+            'max_attempts' => 'integer',
         ];
     }
 
@@ -46,19 +42,14 @@ class NotificationQueue extends Model
         return $this->morphTo();
     }
 
-    public function provider(): BelongsTo
-    {
-        return $this->belongsTo(Provider::class);
-    }
-
-    public function template(): BelongsTo
-    {
-        return $this->belongsTo(NotificationTemplate::class, 'template_id');
-    }
-
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    public function scopeSending($query)
+    {
+        return $query->where('status', 'sending');
     }
 
     public function scopeSent($query)
@@ -71,15 +62,33 @@ class NotificationQueue extends Model
         return $query->where('status', 'failed');
     }
 
-    public function scopeScheduled($query)
+    public function scopeReady($query)
     {
-        return $query->where('status', 'scheduled')
-            ->where('scheduled_at', '<=', now());
+        return $query->where('status', 'pending')
+            ->where(function ($q) {
+                $q->whereNull('scheduled_at')
+                    ->orWhere('scheduled_at', '<=', now());
+            });
     }
 
     public function scopeRetryable($query)
     {
         return $query->where('status', 'failed')
-            ->whereColumn('retry_count', '<', 'max_retries');
+            ->whereColumn('attempts', '<', 'max_attempts');
+    }
+
+    public function markAsSent(): void
+    {
+        $this->update(['status' => 'sent', 'sent_at' => now()]);
+    }
+
+    public function markAsFailed(string $error): void
+    {
+        $this->update([
+            'status' => 'failed',
+            'failed_at' => now(),
+            'error_message' => $error,
+            'attempts' => $this->attempts + 1,
+        ]);
     }
 }

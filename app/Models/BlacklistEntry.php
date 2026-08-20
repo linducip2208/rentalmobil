@@ -12,18 +12,21 @@ class BlacklistEntry extends Model
 
     protected $fillable = [
         'customer_id',
+        'name',
+        'id_number',
+        'phone',
         'reason',
-        'severity',
-        'evidence_path',
+        'level',
+        'evidence',
         'added_by',
         'is_active',
         'expires_at',
-        'notes',
     ];
 
     protected function casts(): array
     {
         return [
+            'evidence' => 'array',
             'is_active' => 'boolean',
             'expires_at' => 'datetime',
         ];
@@ -52,9 +55,14 @@ class BlacklistEntry extends Model
         });
     }
 
+    public function scopeByLevel($query, string $level)
+    {
+        return $query->where('level', $level);
+    }
+
     public function isCurrentlyActive(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 

@@ -14,10 +14,9 @@ class KmLog extends Model
         'vehicle_id',
         'logged_by',
         'log_date',
-        'reading_km',
-        'previous_km',
-        'difference_km',
-        'source',
+        'start_km',
+        'end_km',
+        'purpose',
         'notes',
     ];
 
@@ -25,9 +24,8 @@ class KmLog extends Model
     {
         return [
             'log_date' => 'date',
-            'reading_km' => 'decimal:1',
-            'previous_km' => 'decimal:1',
-            'difference_km' => 'decimal:1',
+            'start_km' => 'integer',
+            'end_km' => 'integer',
         ];
     }
 
@@ -49,5 +47,10 @@ class KmLog extends Model
     public function scopeLatest($query)
     {
         return $query->orderByDesc('log_date')->orderByDesc('id');
+    }
+
+    public function getDistanceAttribute(): int
+    {
+        return $this->end_km - $this->start_km;
     }
 }

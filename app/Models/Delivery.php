@@ -16,31 +16,25 @@ class Delivery extends Model
         'vehicle_id',
         'from_location_id',
         'to_location_id',
-        'delivery_type',
+        'type',
         'status',
         'scheduled_date',
+        'scheduled_time',
         'actual_date',
-        'start_km',
-        'end_km',
-        'distance_km',
-        'estimated_duration',
-        'actual_duration',
+        'actual_time',
+        'from_address',
+        'to_address',
         'notes',
-        'proof_photos',
-        'customer_signature',
+        'photos',
+        'signature_url',
     ];
 
     protected function casts(): array
     {
         return [
-            'scheduled_date' => 'datetime',
-            'actual_date' => 'datetime',
-            'start_km' => 'decimal:1',
-            'end_km' => 'decimal:1',
-            'distance_km' => 'decimal:1',
-            'estimated_duration' => 'integer',
-            'actual_duration' => 'integer',
-            'proof_photos' => 'array',
+            'scheduled_date' => 'date',
+            'actual_date' => 'date',
+            'photos' => 'array',
         ];
     }
 
@@ -74,9 +68,14 @@ class Delivery extends Model
         return $query->where('status', 'pending');
     }
 
-    public function scopeInProgress($query)
+    public function scopeDispatched($query)
     {
-        return $query->where('status', 'in_progress');
+        return $query->where('status', 'dispatched');
+    }
+
+    public function scopeInTransit($query)
+    {
+        return $query->where('status', 'in_transit');
     }
 
     public function scopeCompleted($query)
@@ -84,8 +83,13 @@ class Delivery extends Model
         return $query->where('status', 'completed');
     }
 
-    public function scopeScheduled($query)
+    public function scopeDeliveries($query)
     {
-        return $query->where('status', 'scheduled');
+        return $query->where('type', 'delivery');
+    }
+
+    public function scopePickups($query)
+    {
+        return $query->where('type', 'pickup');
     }
 }

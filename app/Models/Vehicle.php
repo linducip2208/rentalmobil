@@ -2,159 +2,161 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Vehicle extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'slug',
         'category_id',
         'brand_id',
         'location_id',
-        'license_plate',
+        'name',
+        'slug',
+        'description',
+        'plate_number',
         'year',
         'color',
-        'transmission',
+        'mileage',
         'fuel_type',
-        'seats',
+        'transmission',
+        'seat_count',
         'engine_cc',
         'daily_rate',
         'weekly_rate',
         'monthly_rate',
         'late_fee_per_hour',
+        'late_fee_per_day',
         'deposit_amount',
-        'current_km',
         'status',
+        'features',
+        'photo_url',
         'is_active',
         'is_insured',
-        'description',
-        'features',
-        'image',
         'last_serviced_at',
         'last_km_at',
+        'created_by',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'year' => 'integer',
+        'mileage' => 'integer',
+        'seat_count' => 'integer',
+        'engine_cc' => 'integer',
+        'daily_rate' => 'decimal:2',
+        'weekly_rate' => 'decimal:2',
+        'monthly_rate' => 'decimal:2',
+        'late_fee_per_hour' => 'decimal:2',
+        'late_fee_per_day' => 'decimal:2',
+        'deposit_amount' => 'decimal:2',
+        'features' => 'array',
+        'is_active' => 'boolean',
+        'is_insured' => 'boolean',
+        'last_serviced_at' => 'datetime',
+        'last_km_at' => 'datetime',
+    ];
+
+    protected static function boot()
     {
-        return [
-            'year' => 'integer',
-            'seats' => 'integer',
-            'engine_cc' => 'integer',
-            'daily_rate' => 'decimal:2',
-            'weekly_rate' => 'decimal:2',
-            'monthly_rate' => 'decimal:2',
-            'late_fee_per_hour' => 'decimal:2',
-            'deposit_amount' => 'decimal:2',
-            'current_km' => 'decimal:1',
-            'is_active' => 'boolean',
-            'is_insured' => 'boolean',
-            'features' => 'array',
-            'last_serviced_at' => 'datetime',
-            'last_km_at' => 'datetime',
-            'status' => 'string',
-        ];
+        parent::boot();
+        static::creating(function ($vehicle) {
+            if (empty($vehicle->slug)) {
+                $vehicle->slug = Str::slug($vehicle->name . '-' . $vehicle->plate_number);
+            }
+        });
     }
 
-    public function category(): BelongsTo
+    // Relationships
+    public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function brand(): BelongsTo
+    public function brand()
     {
         return $this->belongsTo(Brand::class);
     }
 
-    public function location(): BelongsTo
+    public function location()
     {
         return $this->belongsTo(Location::class);
     }
 
-    public function photos(): HasMany
+    public function photos()
     {
         return $this->hasMany(VehiclePhoto::class);
     }
 
-    public function orders(): HasMany
-    {
-        return $this->hasMany(RentalOrder::class);
-    }
-
-    public function bookings(): HasMany
+    public function bookings()
     {
         return $this->hasMany(Booking::class);
     }
 
-    public function maintenanceLogs(): HasMany
+    public function rentalOrders()
+    {
+        return $this->hasMany(RentalOrder::class);
+    }
+
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
+    }
+
+    public function maintenanceLogs()
     {
         return $this->hasMany(MaintenanceLog::class);
     }
 
-    public function fuelLogs(): HasMany
-    {
-        return $this->hasMany(FuelLog::class);
-    }
-
-    public function insurancePolicies(): HasMany
-    {
-        return $this->hasMany(InsurancePolicy::class);
-    }
-
-    public function kmLogs(): HasMany
-    {
-        return $this->hasMany(KmLog::class);
-    }
-
-    public function serviceSchedules(): HasMany
+    public function serviceSchedules()
     {
         return $this->hasMany(ServiceSchedule::class);
     }
 
-    public function transfers(): HasMany
+    public function fuelLogs()
     {
-        return $this->hasMany(Transfer::class);
+        return $this->hasMany(FuelLog::class);
     }
 
-    public function watchLists(): HasMany
+    public function kmLogs()
     {
-        return $this->hasMany(WatchList::class);
+        return $this->hasMany(KmLog::class);
     }
 
-    public function damageReports(): HasMany
-    {
-        return $this->hasMany(DamageReport::class);
-    }
-
-    public function deliveries(): HasMany
-    {
-        return $this->hasMany(Delivery::class);
-    }
-
-    public function gpsLogs(): HasMany
+    public function gpsLogs()
     {
         return $this->hasMany(GpsLog::class);
     }
 
-    public function activeInsurancePolicy()
+    public function deliveries()
     {
-        return $this->insurancePolicies()
-            ->where('status', 'active')
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())
-            ->first();
+        return $this->hasMany(Delivery::class);
     }
 
-    public function latestMaintenanceLog()
+    public function transfers()
     {
-        return $this->maintenanceLogs()->latest('performed_at')->first();
+        return $this->hasMany(Transfer::class);
     }
 
+    public function insurancePolicies()
+    {
+        return $this->hasMany(InsurancePolicy::class);
+    }
+
+    public function damageReports()
+    {
+        return $this->hasMany(DamageReport::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // Scopes
     public function scopeAvailable($query)
     {
         return $query->where('status', 'available')->where('is_active', true);
@@ -165,33 +167,13 @@ class Vehicle extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeByCategory($query, $categoryId)
+    public function scopeRented($query)
     {
-        return $query->where('category_id', $categoryId);
+        return $query->where('status', 'rented');
     }
 
-    public function scopeByBrand($query, $brandId)
+    public function scopeMaintenance($query)
     {
-        return $query->where('brand_id', $brandId);
-    }
-
-    public function scopeByLocation($query, $locationId)
-    {
-        return $query->where('location_id', $locationId);
-    }
-
-    public function isAvailable(): bool
-    {
-        return $this->status === 'available' && $this->is_active;
-    }
-
-    public function isRented(): bool
-    {
-        return $this->status === 'rented';
-    }
-
-    public function isUnderMaintenance(): bool
-    {
-        return $this->status === 'maintenance';
+        return $query->where('status', 'maintenance');
     }
 }

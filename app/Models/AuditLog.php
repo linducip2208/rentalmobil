@@ -13,15 +13,15 @@ class AuditLog extends Model
 
     protected $fillable = [
         'user_id',
+        'action',
         'auditable_type',
         'auditable_id',
-        'event',
         'old_values',
         'new_values',
         'url',
         'ip_address',
         'user_agent',
-        'tags',
+        'branch_id',
     ];
 
     protected function casts(): array
@@ -36,13 +36,13 @@ class AuditLog extends Model
     {
         parent::boot();
         static::creating(function (AuditLog $model) {
-            if (!$model->ip_address) {
+            if (! $model->ip_address) {
                 $model->ip_address = request()->ip();
             }
-            if (!$model->user_agent) {
+            if (! $model->user_agent) {
                 $model->user_agent = request()->userAgent();
             }
-            if (!$model->url) {
+            if (! $model->url) {
                 $model->url = request()->url();
             }
         });
@@ -58,9 +58,14 @@ class AuditLog extends Model
         return $this->morphTo();
     }
 
-    public function scopeByEvent($query, string $event)
+    public function branch(): BelongsTo
     {
-        return $query->where('event', $event);
+        return $this->belongsTo(Location::class, 'branch_id');
+    }
+
+    public function scopeByAction($query, string $action)
+    {
+        return $query->where('action', $action);
     }
 
     public function scopeByUser($query, int $userId)
@@ -80,5 +85,10 @@ class AuditLog extends Model
     public function scopeRecent($query, int $days = 30)
     {
         return $query->where('created_at', '>=', now()->subDays($days));
+    }
+
+    public function scopeByBranch($query, int $branchId)
+    {
+        return $query->where('branch_id', $branchId);
     }
 }

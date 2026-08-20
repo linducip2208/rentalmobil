@@ -11,23 +11,12 @@ class SystemSetting extends Model
     use HasFactory;
 
     protected $fillable = [
-        'group',
+        'group_name',
         'key',
         'value',
         'type',
-        'label',
         'description',
-        'options',
-        'sort_order',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'options' => 'array',
-            'sort_order' => 'integer',
-        ];
-    }
 
     public static function get(string $key, $default = null)
     {
@@ -46,11 +35,10 @@ class SystemSetting extends Model
         Cache::forget("setting_{$key}");
     }
 
-    public static function getGroup(string $group): array
+    public static function getGroup(string $groupName): array
     {
-        return Cache::remember("setting_group_{$group}", 3600, function () use ($group) {
-            return static::where('group', $group)
-                ->orderBy('sort_order')
+        return Cache::remember("setting_group_{$groupName}", 3600, function () use ($groupName) {
+            return static::where('group_name', $groupName)
                 ->pluck('value', 'key')
                 ->toArray();
         });
@@ -59,10 +47,9 @@ class SystemSetting extends Model
     public static function getAll(): array
     {
         return Cache::remember('settings_all', 3600, function () {
-            return static::orderBy('group')
-                ->orderBy('sort_order')
+            return static::orderBy('group_name')
                 ->get()
-                ->groupBy('group')
+                ->groupBy('group_name')
                 ->map(fn ($items) => $items->pluck('value', 'key')->toArray())
                 ->toArray();
         });
@@ -77,9 +64,9 @@ class SystemSetting extends Model
         Cache::forget('settings_all');
     }
 
-    public function scopeByGroup($query, string $group)
+    public function scopeByGroup($query, string $groupName)
     {
-        return $query->where('group', $group)->orderBy('sort_order');
+        return $query->where('group_name', $groupName);
     }
 
     public function getValueByTypeAttribute()
@@ -87,7 +74,7 @@ class SystemSetting extends Model
         return match ($this->type) {
             'boolean' => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
             'integer' => (int) $this->value,
-            'float' => (float) $this->value,
+            'decimal' => (float) $this->value,
             'json' => json_decode($this->value, true),
             default => $this->value,
         };

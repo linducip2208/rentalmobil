@@ -18,11 +18,14 @@ class Payment extends Model
         'payment_method_id',
         'amount',
         'payment_date',
+        'payment_time',
         'reference_number',
-        'proof_path',
+        'proof_url',
         'status',
         'verified_by',
         'verified_at',
+        'voided_at',
+        'void_reason',
         'notes',
     ];
 
@@ -32,12 +35,14 @@ class Payment extends Model
             'amount' => 'decimal:2',
             'payment_date' => 'date',
             'verified_at' => 'datetime',
+            'voided_at' => 'datetime',
         ];
     }
 
     protected static function boot(): void
     {
         parent::boot();
+
         static::creating(function (Payment $model) {
             if (empty($model->payment_number)) {
                 $model->payment_number = static::generatePaymentNumber();
@@ -48,8 +53,8 @@ class Payment extends Model
     public static function generatePaymentNumber(): string
     {
         $prefix = 'PAY';
-        $date = now()->format('ymd');
-        $last = static::where('payment_number', 'like', "{$prefix}{$date}%")
+        $date = now()->format('Ymd');
+        $last = static::where('payment_number', 'like', "{$prefix}-{$date}-%")
             ->orderByDesc('payment_number')
             ->value('payment_number');
 
@@ -59,7 +64,7 @@ class Payment extends Model
             $sequence = 1;
         }
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix . '-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function invoice(): BelongsTo
@@ -102,8 +107,23 @@ class Payment extends Model
         return $query->where('status', 'rejected');
     }
 
+    public function scopeVoided($query)
+    {
+        return $query->where('status', 'voided');
+    }
+
+    public function scopeRefunded($query)
+    {
+        return $query->where('status', 'refunded');
+    }
+
     public function isVerified(): bool
     {
         return $this->status === 'verified';
+    }
+
+    public function isVoided(): bool
+    {
+        return $this->status === 'voided';
     }
 }

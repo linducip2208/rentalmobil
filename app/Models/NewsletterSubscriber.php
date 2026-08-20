@@ -12,32 +12,35 @@ class NewsletterSubscriber extends Model
     protected $fillable = [
         'email',
         'name',
-        'status',
+        'is_active',
         'subscribed_at',
-        'unsubscribed_at',
-        'unsubscribe_token',
     ];
 
     protected function casts(): array
     {
         return [
+            'is_active' => 'boolean',
             'subscribed_at' => 'datetime',
-            'unsubscribed_at' => 'datetime',
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function (NewsletterSubscriber $model) {
+            if (! $model->subscribed_at) {
+                $model->subscribed_at = now();
+            }
+        });
     }
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
-    }
-
-    public function scopeUnsubscribed($query)
-    {
-        return $query->where('status', 'unsubscribed');
+        return $query->where('is_active', true);
     }
 
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return $this->is_active;
     }
 }

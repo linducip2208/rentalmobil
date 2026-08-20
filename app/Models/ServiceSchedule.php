@@ -19,6 +19,7 @@ class ServiceSchedule extends Model
         'last_service_date',
         'next_service_km',
         'next_service_date',
+        'estimated_cost',
         'is_active',
         'notes',
     ];
@@ -26,12 +27,13 @@ class ServiceSchedule extends Model
     protected function casts(): array
     {
         return [
-            'interval_km' => 'decimal:0',
+            'interval_km' => 'integer',
             'interval_days' => 'integer',
-            'last_service_km' => 'decimal:0',
+            'last_service_km' => 'integer',
             'last_service_date' => 'date',
-            'next_service_km' => 'decimal:0',
+            'next_service_km' => 'integer',
             'next_service_date' => 'date',
+            'estimated_cost' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }
@@ -63,7 +65,7 @@ class ServiceSchedule extends Model
         return $this->is_active && $this->next_service_date && $this->next_service_date->lte(now());
     }
 
-    public function isDueByKm(float $currentKm): bool
+    public function isDueByKm(int $currentKm): bool
     {
         return $this->is_active && $this->next_service_km && $currentKm >= $this->next_service_km;
     }

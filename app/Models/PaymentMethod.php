@@ -12,21 +12,22 @@ class PaymentMethod extends Model
 
     protected $fillable = [
         'name',
+        'code',
         'type',
         'icon',
-        'account_name',
-        'account_number',
-        'bank_name',
-        'is_active',
+        'provider_config',
+        'additional_fee',
         'sort_order',
-        'instructions',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'provider_config' => 'array',
+            'additional_fee' => 'decimal:2',
             'sort_order' => 'integer',
+            'is_active' => 'boolean',
         ];
     }
 

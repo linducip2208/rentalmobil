@@ -43,7 +43,7 @@ class BlogCategory extends Model
     public function publishedPosts(): HasMany
     {
         return $this->hasMany(BlogPost::class, 'category_id')
-            ->where('status', 'published');
+            ->where('is_published', true);
     }
 
     public function scopeActive($query)

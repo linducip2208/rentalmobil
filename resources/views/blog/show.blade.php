@@ -1,4 +1,4 @@
-﻿@extends('portal.layout')
+﻿@extends('pseo._layout')
 @section('content')
 @php $pageTitle = $post->meta_title ?? $post->title; @endphp
 

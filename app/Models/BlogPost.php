@@ -5,34 +5,34 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class BlogPost extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'title',
         'slug',
-        'excerpt',
         'content',
+        'excerpt',
         'featured_image',
         'category_id',
         'author_id',
-        'status',
+        'is_published',
         'published_at',
         'meta_title',
         'meta_description',
-        'views_count',
-        'is_featured',
+        'views',
     ];
 
     protected function casts(): array
     {
         return [
+            'is_published' => 'boolean',
             'published_at' => 'datetime',
-            'views_count' => 'integer',
-            'is_featured' => 'boolean',
+            'views' => 'integer',
         ];
     }
 
@@ -63,13 +63,13 @@ class BlogPost extends Model
 
     public function scopePublished($query)
     {
-        return $query->where('status', 'published')
+        return $query->where('is_published', true)
             ->where('published_at', '<=', now());
     }
 
     public function scopeDraft($query)
     {
-        return $query->where('status', 'draft');
+        return $query->where('is_published', false);
     }
 
     public function scopeByCategory($query, int $categoryId)
@@ -77,13 +77,8 @@ class BlogPost extends Model
         return $query->where('category_id', $categoryId);
     }
 
-    public function scopeFeatured($query)
-    {
-        return $query->where('is_featured', true);
-    }
-
     public function isPublished(): bool
     {
-        return $this->status === 'published' && $this->published_at && $this->published_at->lte(now());
+        return $this->is_published && $this->published_at && $this->published_at->lte(now());
     }
 }

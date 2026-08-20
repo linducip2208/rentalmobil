@@ -16,21 +16,20 @@ class GpsLog extends Model
         'longitude',
         'speed',
         'heading',
-        'altitude',
         'accuracy',
+        'battery_level',
         'recorded_at',
-        'source',
     ];
 
     protected function casts(): array
     {
         return [
-            'latitude' => 'decimal:8',
-            'longitude' => 'decimal:8',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
             'speed' => 'decimal:2',
-            'heading' => 'decimal:2',
-            'altitude' => 'decimal:2',
+            'heading' => 'integer',
             'accuracy' => 'decimal:2',
+            'battery_level' => 'integer',
             'recorded_at' => 'datetime',
         ];
     }

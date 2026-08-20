@@ -14,9 +14,9 @@ class InsurancePolicy extends Model
         'vehicle_id',
         'policy_number',
         'provider_name',
-        'policy_type',
-        'coverage_amount',
-        'premium_amount',
+        'coverage_type',
+        'max_claim',
+        'premium',
         'start_date',
         'end_date',
         'status',
@@ -27,8 +27,8 @@ class InsurancePolicy extends Model
     protected function casts(): array
     {
         return [
-            'coverage_amount' => 'decimal:2',
-            'premium_amount' => 'decimal:2',
+            'max_claim' => 'decimal:2',
+            'premium' => 'decimal:2',
             'start_date' => 'date',
             'end_date' => 'date',
         ];

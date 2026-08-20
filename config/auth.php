@@ -14,20 +14,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'customer' => [
-            'driver' => 'session',
-            'provider' => 'customer_logins',
-        ],
     ],
 
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
-        ],
-        'customer_logins' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\CustomerLogin::class,
         ],
     ],
 

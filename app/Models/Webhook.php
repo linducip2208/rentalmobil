@@ -15,27 +15,21 @@ class Webhook extends Model
         'secret',
         'events',
         'is_active',
-        'headers',
         'last_triggered_at',
-        'last_status_code',
-        'failure_count',
+    ];
+
+    protected $hidden = [
+        'secret',
     ];
 
     protected function casts(): array
     {
         return [
             'events' => 'array',
-            'headers' => 'array',
             'is_active' => 'boolean',
             'last_triggered_at' => 'datetime',
-            'last_status_code' => 'integer',
-            'failure_count' => 'integer',
         ];
     }
-
-    protected $hidden = [
-        'secret',
-    ];
 
     public function scopeActive($query)
     {
@@ -51,5 +45,10 @@ class Webhook extends Model
     public function listensToEvent(string $event): bool
     {
         return $this->is_active && in_array($event, $this->events ?? []);
+    }
+
+    public function markTriggered(): void
+    {
+        $this->update(['last_triggered_at' => now()]);
     }
 }

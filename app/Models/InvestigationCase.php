@@ -17,23 +17,19 @@ class InvestigationCase extends Model
         'customer_id',
         'rental_order_id',
         'assigned_to',
-        'type',
         'priority',
         'status',
         'title',
         'description',
-        'evidence_files',
-        'findings',
+        'evidence',
         'resolution',
-        'opened_at',
         'resolved_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'evidence_files' => 'array',
-            'opened_at' => 'datetime',
+            'evidence' => 'array',
             'resolved_at' => 'datetime',
         ];
     }
@@ -44,9 +40,6 @@ class InvestigationCase extends Model
         static::creating(function (InvestigationCase $model) {
             if (empty($model->case_number)) {
                 $model->case_number = static::generateCaseNumber();
-            }
-            if (!$model->opened_at) {
-                $model->opened_at = now();
             }
         });
     }
@@ -116,5 +109,10 @@ class InvestigationCase extends Model
     public function scopeHighPriority($query)
     {
         return $query->where('priority', 'high');
+    }
+
+    public function scopeCritical($query)
+    {
+        return $query->where('priority', 'critical');
     }
 }

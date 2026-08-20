@@ -15,7 +15,7 @@ class Brand extends Model
         'name',
         'slug',
         'logo',
-        'description',
+        'country',
         'is_active',
     ];
 
@@ -29,11 +29,13 @@ class Brand extends Model
     protected static function boot(): void
     {
         parent::boot();
+
         static::creating(function (Brand $model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->name);
             }
         });
+
         static::updating(function (Brand $model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->name);

@@ -13,7 +13,7 @@ class NotificationTemplate extends Model
     protected $fillable = [
         'provider_id',
         'name',
-        'type',
+        'event_type',
         'channel',
         'subject',
         'body',
@@ -44,9 +44,9 @@ class NotificationTemplate extends Model
         return $query->where('channel', $channel);
     }
 
-    public function scopeByType($query, string $type)
+    public function scopeByEventType($query, string $eventType)
     {
-        return $query->where('type', $type);
+        return $query->where('event_type', $eventType);
     }
 
     public function render(array $data = []): string

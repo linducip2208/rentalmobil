@@ -17,17 +17,18 @@ class DamageReport extends Model
         'customer_id',
         'reported_by',
         'damage_type',
-        'damage_location',
+        'location_on_vehicle',
         'severity',
         'description',
         'estimated_cost',
         'actual_cost',
+        'charged_to_customer',
+        'charge_amount',
         'photos',
         'status',
         'assessed_by',
         'assessed_at',
-        'assessment_notes',
-        'charged_to_customer',
+        'notes',
     ];
 
     protected function casts(): array
@@ -35,9 +36,10 @@ class DamageReport extends Model
         return [
             'estimated_cost' => 'decimal:2',
             'actual_cost' => 'decimal:2',
+            'charged_to_customer' => 'boolean',
+            'charge_amount' => 'decimal:2',
             'photos' => 'array',
             'assessed_at' => 'datetime',
-            'charged_to_customer' => 'boolean',
         ];
     }
 
@@ -71,9 +73,9 @@ class DamageReport extends Model
         return $this->belongsTo(User::class, 'assessed_by');
     }
 
-    public function scopePending($query)
+    public function scopeReported($query)
     {
-        return $query->where('status', 'pending');
+        return $query->where('status', 'reported');
     }
 
     public function scopeAssessed($query)
@@ -81,8 +83,28 @@ class DamageReport extends Model
         return $query->where('status', 'assessed');
     }
 
+    public function scopeCharged($query)
+    {
+        return $query->where('status', 'charged');
+    }
+
+    public function scopeRepaired($query)
+    {
+        return $query->where('status', 'repaired');
+    }
+
+    public function scopeClosed($query)
+    {
+        return $query->where('status', 'closed');
+    }
+
     public function scopeCritical($query)
     {
         return $query->where('severity', 'critical');
+    }
+
+    public function isClosed(): bool
+    {
+        return $this->status === 'closed';
     }
 }
