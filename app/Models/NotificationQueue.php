@@ -13,8 +13,12 @@ class NotificationQueue extends Model
     protected $fillable = [
         'notifiable_type',
         'notifiable_id',
+        'provider_id',
+        'template_id',
         'event_type',
         'channel',
+        'subject',
+        'body',
         'payload',
         'status',
         'scheduled_at',
@@ -40,6 +44,16 @@ class NotificationQueue extends Model
     public function notifiable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function provider(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Provider::class);
+    }
+
+    public function template(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(NotificationTemplate::class);
     }
 
     public function scopePending($query)

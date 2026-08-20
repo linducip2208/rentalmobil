@@ -97,10 +97,16 @@
                             </thead>
                             <tbody class="divide-y divide-stone-100">
                                 <tr class="hover:bg-stone-50 transition-colors">
-                                    <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 font-semibold text-stone-900"><span class="w-2 h-2 bg-brand-500 rounded-full"></span> Admin</span></td>
+                                    <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 font-semibold text-stone-900"><span class="w-2 h-2 bg-brand-500 rounded-full"></span> Owner</span></td>
                                     <td class="px-6 py-4 font-mono text-xs text-stone-600">admin@rentalmobil.test</td>
                                     <td class="px-6 py-4 font-mono text-xs text-stone-600">password</td>
-                                    <td class="px-6 py-4 text-stone-500 hidden sm:table-cell">Semua akses admin panel</td>
+                                    <td class="px-6 py-4 text-stone-500 hidden sm:table-cell">Semua akses, integrasi, sistem, dan laporan</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50 transition-colors">
+                                    <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 font-semibold text-stone-900"><span class="w-2 h-2 bg-blue-500 rounded-full"></span> Admin</span></td>
+                                    <td class="px-6 py-4 font-mono text-xs text-stone-600">admin2@rentalmobil.test</td>
+                                    <td class="px-6 py-4 font-mono text-xs text-stone-600">password</td>
+                                    <td class="px-6 py-4 text-stone-500 hidden sm:table-cell">Data master, transaksi, dan operasional</td>
                                 </tr>
                                 <tr class="hover:bg-stone-50 transition-colors">
                                     <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 font-semibold text-stone-900"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Manager</span></td>

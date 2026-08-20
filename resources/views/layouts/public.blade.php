@@ -67,6 +67,9 @@
         </div>
     </footer>
 
+    {{-- WhatsApp CTA --}}
+    <x-purchase-cta />
+
     {{-- Scroll reveal --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {

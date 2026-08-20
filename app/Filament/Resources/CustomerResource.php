@@ -37,7 +37,13 @@ class CustomerResource extends Resource
                 Forms\Components\TextInput::make('email')
                     ->label('Email')
                     ->email()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true),
+                Forms\Components\TextInput::make('password')
+                    ->label('Password portal')
+                    ->password()->revealable()
+                    ->dehydrated(fn (?string $state) => filled($state))
+                    ->helperText('Kosongkan saat edit bila password tidak berubah.'),
                 Forms\Components\TextInput::make('phone')
                     ->label('Telepon')
                     ->tel()
@@ -55,29 +61,11 @@ class CustomerResource extends Resource
                 Forms\Components\TextInput::make('postal_code')
                     ->label('Kode Pos')
                     ->maxLength(10),
-                Forms\Components\TextInput::make('id_card_type')
-                    ->label('Jenis ID')
-                    ->options([
-                        'ktp' => 'KTP',
-                        'sim' => 'SIM',
-                        'passport' => 'Paspor',
-                    ])
-                    ->maxLength(20),
-                Forms\Components\TextInput::make('id_card_number')
-                    ->label('No. Identitas')
+                Forms\Components\TextInput::make('ktp_number')
+                    ->label('Nomor KTP')
                     ->maxLength(50),
-                Forms\Components\FileUpload::make('id_card_photo')
-                    ->label('Foto ID')
-                    ->image()
-                    ->disk('public')
-                    ->directory('customers/ids')
-                    ->maxSize(2048),
-                Forms\Components\FileUpload::make('selfie_photo')
-                    ->label('Foto Selfie')
-                    ->image()
-                    ->disk('public')
-                    ->directory('customers/selfies')
-                    ->maxSize(2048),
+                Forms\Components\TextInput::make('sim_number')->label('Nomor SIM')->maxLength(50),
+                Forms\Components\Select::make('customer_type')->label('Jenis customer')->options(['individual'=>'Perorangan','corporate'=>'Perusahaan'])->default('individual'),
             ])->columns(2),
 
             Schemas\Components\Section::make('Perusahaan & Kontak Darurat')->schema([

@@ -37,8 +37,8 @@ class RevenueChartWidget extends ChartWidget
                 [
                     'label' => 'Pendapatan (Rp)',
                     'data' => $values,
-                    'borderColor' => '#6366f1',
-                    'backgroundColor' => 'rgba(99, 102, 241, 0.1)',
+                    'borderColor' => '#2563eb',
+                    'backgroundColor' => 'rgba(37, 99, 235, 0.10)',
                     'fill' => true,
                     'tension' => 0.4,
                 ],

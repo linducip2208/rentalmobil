@@ -56,7 +56,7 @@ class ApprovalServiceTest extends TestCase
         ]);
 
         $workflow = ApprovalWorkflow::create([
-            'type' => 'rental_order',
+            'type' => 'expense',
             'reference_type' => 'App\\Models\\RentalOrder',
             'reference_id' => 1,
             'requested_by' => $user->id,
@@ -86,7 +86,7 @@ class ApprovalServiceTest extends TestCase
         ]);
 
         $workflow = ApprovalWorkflow::create([
-            'type' => 'rental_order',
+            'type' => 'expense',
             'reference_type' => 'App\\Models\\RentalOrder',
             'reference_id' => 1,
             'requested_by' => $user->id,
@@ -117,7 +117,7 @@ class ApprovalServiceTest extends TestCase
         ]);
 
         $workflow = ApprovalWorkflow::create([
-            'type' => 'rental_order',
+            'type' => 'expense',
             'reference_type' => 'App\\Models\\RentalOrder',
             'reference_id' => 1,
             'requested_by' => $user->id,

@@ -72,7 +72,7 @@ class RentalBookingTest extends TestCase
             'subtotal' => 1500000,
             'total_amount' => 1500000,
             'deposit_amount' => $vehicle->deposit_amount,
-            'status' => 'pending',
+            'status' => 'pending_verification',
             'source' => 'admin',
         ]);
 
@@ -80,7 +80,7 @@ class RentalBookingTest extends TestCase
             'id' => $booking->id,
             'customer_id' => $customer->id,
             'vehicle_id' => $vehicle->id,
-            'status' => 'pending',
+            'status' => 'pending_verification',
         ]);
     }
 
@@ -98,7 +98,7 @@ class RentalBookingTest extends TestCase
             'duration_days' => 3,
             'subtotal' => 1500000,
             'total_amount' => 1500000,
-            'status' => 'pending',
+            'status' => 'pending_verification',
         ]);
 
         $booking2 = Booking::create([
@@ -110,7 +110,7 @@ class RentalBookingTest extends TestCase
             'duration_days' => 3,
             'subtotal' => 1500000,
             'total_amount' => 1500000,
-            'status' => 'pending',
+            'status' => 'pending_verification',
         ]);
 
         $this->assertMatchesRegularExpression('/^BKG-\d{8}-[A-Z0-9]{6}$/', $booking1->booking_number);

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Crypt;
 
 class Provider extends Model
 {
@@ -17,6 +19,7 @@ class Provider extends Model
         'base_url',
         'api_key_encrypted',
         'extra_headers',
+        'config',
         'is_active',
         'notes',
     ];
@@ -25,6 +28,7 @@ class Provider extends Model
     {
         return [
             'extra_headers' => 'array',
+            'config' => 'array',
             'is_active' => 'boolean',
         ];
     }
@@ -32,6 +36,24 @@ class Provider extends Model
     protected $hidden = [
         'api_key_encrypted',
     ];
+
+    public function setApiKeyAttribute(?string $value): void
+    {
+        $this->attributes['api_key_encrypted'] = filled($value) ? Crypt::encryptString($value) : null;
+    }
+
+    public function getApiKeyAttribute(): ?string
+    {
+        if (blank($this->api_key_encrypted)) {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($this->api_key_encrypted);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
 
     public function credentials(): HasMany
     {
@@ -41,6 +63,11 @@ class Provider extends Model
     public function notificationQueues(): HasMany
     {
         return $this->hasMany(NotificationQueue::class, 'provider_id');
+    }
+
+    public function gpsIntegration(): HasOne
+    {
+        return $this->hasOne(GpsIntegration::class);
     }
 
     public function scopeActive($query)

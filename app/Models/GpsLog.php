@@ -12,6 +12,9 @@ class GpsLog extends Model
 
     protected $fillable = [
         'vehicle_id',
+        'gps_tracker_id',
+        'external_event_id',
+        'payload_hash',
         'latitude',
         'longitude',
         'speed',
@@ -37,6 +40,11 @@ class GpsLog extends Model
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class);
+    }
+
+    public function tracker(): BelongsTo
+    {
+        return $this->belongsTo(GpsTracker::class, 'gps_tracker_id');
     }
 
     public function scopeRecent($query, int $minutes = 60)

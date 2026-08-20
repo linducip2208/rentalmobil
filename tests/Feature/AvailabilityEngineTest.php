@@ -15,10 +15,17 @@ class AvailabilityEngineTest extends TestCase
 
     protected Vehicle $vehicle;
     protected AvailabilityEngine $engine;
+    protected int $customerId;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $customer = \App\Models\Customer::create([
+            'name' => 'Customer Test', 'email' => 'availability@test.local',
+            'phone' => '080000000001', 'verification_status' => 'verified', 'is_active' => true,
+        ]);
+        $this->customerId = $customer->id;
 
         $this->vehicle = Vehicle::create([
             'name' => 'Honda Brio',
@@ -60,7 +67,7 @@ class AvailabilityEngineTest extends TestCase
     public function test_vehicle_not_available_with_conflict(): void
     {
         Booking::create([
-            'customer_id' => 1,
+            'customer_id' => $this->customerId,
             'vehicle_id' => $this->vehicle->id,
             'start_date' => '2026-10-01',
             'end_date' => '2026-10-05',
@@ -84,7 +91,7 @@ class AvailabilityEngineTest extends TestCase
     public function test_can_exclude_booking_from_check(): void
     {
         $booking = Booking::create([
-            'customer_id' => 1,
+            'customer_id' => $this->customerId,
             'vehicle_id' => $this->vehicle->id,
             'start_date' => '2026-10-01',
             'end_date' => '2026-10-05',
@@ -156,7 +163,7 @@ class AvailabilityEngineTest extends TestCase
         ]);
 
         Booking::create([
-            'customer_id' => 1,
+            'customer_id' => $this->customerId,
             'vehicle_id' => $vehicleBooked->id,
             'start_date' => '2026-10-01',
             'end_date' => '2026-10-05',

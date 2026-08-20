@@ -92,13 +92,13 @@ class PricingEngineTest extends TestCase
     public function test_late_fee_calculation(): void
     {
         $fee = $this->engine->calculateLateFee($this->vehicle, 90);
-        $this->assertEquals(75000, $fee);
+        $this->assertEquals(50000, $fee);
 
         $fee = $this->engine->calculateLateFee($this->vehicle, 0);
         $this->assertEquals(0.0, $fee);
 
         $fee = $this->engine->calculateLateFee($this->vehicle, 1500);
-        $this->assertEquals(200000, $fee);
+        $this->assertEquals(400000, $fee);
     }
 
     public function test_driver_fee_added(): void

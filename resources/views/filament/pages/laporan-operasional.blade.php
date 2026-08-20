@@ -160,6 +160,14 @@
             </div>
         </div>
 
+        {{-- Profitability --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-gray-500 mb-4">Profitabilitas per Kendaraan</h3>
+            <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left text-xs text-gray-500 uppercase border-b"><th class="py-2">Kendaraan</th><th>Pendapatan</th><th>Biaya langsung</th><th>Laba kontribusi</th><th>Margin</th></tr></thead><tbody>
+            @forelse($this->vehicleProfitability as $row)<tr class="border-b border-gray-100 dark:border-gray-700"><td class="py-3 font-medium">{{ $row['name'] }} <span class="block text-xs text-gray-400">{{ $row['plate_number'] }}</span></td><td>Rp {{ number_format($row['revenue'],0,',','.') }}</td><td>Rp {{ number_format($row['cost'],0,',','.') }}</td><td class="font-bold {{ $row['profit'] < 0 ? 'text-red-600' : 'text-emerald-600' }}">Rp {{ number_format($row['profit'],0,',','.') }}</td><td>{{ $row['margin'] }}%</td></tr>@empty<tr><td colspan="5" class="py-6 text-center text-gray-400">Belum ada data periode ini</td></tr>@endforelse
+            </tbody></table></div>
+        </div>
+
         {{-- Upcoming Service --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
             <h3 class="font-bold text-sm uppercase tracking-wider text-gray-500 mb-4">Service Mendatang (14 Hari)</h3>

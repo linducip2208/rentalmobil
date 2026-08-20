@@ -78,22 +78,10 @@ class HandoverRecordResource extends Resource
                 Forms\Components\Textarea::make('interior_condition')
                     ->label('Kondisi Interior')
                     ->rows(2),
-                Forms\Components\Textarea::make('odometer_readings')
-                    ->label('Odometer (JSON)')
-                    ->rows(2)
-                    ->placeholder('{"start": 12345, "end": 12400}'),
-                Forms\Components\Textarea::make('accessories')
-                    ->label('Aksesoris (JSON)')
-                    ->rows(2)
-                    ->placeholder('["stereo", "charger", "toolkit"]'),
-                Forms\Components\Textarea::make('checklist')
-                    ->label('Checklist (JSON)')
-                    ->rows(2)
-                    ->placeholder('{"tire": true, "brake": true}'),
-                Forms\Components\Textarea::make('photos')
-                    ->label('Foto (JSON)')
-                    ->rows(2)
-                    ->placeholder('["path/photo1.jpg"]'),
+                Forms\Components\KeyValue::make('odometer_readings')->label('Odometer')->keyLabel('Tahap')->valueLabel('KM'),
+                Forms\Components\CheckboxList::make('accessories')->label('Aksesoris')->options(['stnk' => 'STNK', 'kunci_cadangan' => 'Kunci cadangan', 'dongkrak' => 'Dongkrak', 'ban_serep' => 'Ban serep', 'segitiga' => 'Segitiga pengaman']),
+                Forms\Components\CheckboxList::make('checklist')->label('Checklist kondisi')->options(['body' => 'Body terdokumentasi', 'interior' => 'Interior terdokumentasi', 'ban' => 'Ban diperiksa', 'lampu' => 'Lampu diperiksa', 'ac' => 'AC diperiksa', 'dokumen' => 'Dokumen lengkap']),
+                Forms\Components\FileUpload::make('photos')->label('Foto serah-terima')->image()->multiple()->directory('handovers')->minFiles(4)->maxFiles(12)->helperText('Minimal 4 foto: depan, belakang, sisi kiri, sisi kanan.'),
             ])->columns(2),
 
             Schemas\Components\Section::make('Tanda Tangan & Catatan')->schema([

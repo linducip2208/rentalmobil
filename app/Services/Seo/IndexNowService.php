@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 class IndexNowService
 {
-    protected string $apiEndpoint = 'https://api.indexnow.org/indexnow';
     protected int $batchSize = 50;
     protected string $cacheKey = 'indexnow_submitted_urls';
     protected int $cacheTtl = 86400;
@@ -49,7 +48,7 @@ class IndexNowService
             try {
                 $response = Http::timeout(10)
                     ->withHeaders(['Content-Type' => 'application/json'])
-                    ->post($this->apiEndpoint, $payload);
+                    ->post((string) config('seo.indexnow_endpoint'), $payload);
 
                 if ($response->successful() || $response->status() === 202) {
                     $submittedCount += count($batch);

@@ -50,6 +50,11 @@ class Driver extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(DriverRating::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

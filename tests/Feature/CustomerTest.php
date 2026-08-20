@@ -54,7 +54,7 @@ class CustomerTest extends TestCase
             'trust_score' => 100,
             'total_spent' => 0,
             'total_orders' => 0,
-            'verification_status' => 'pending',
+            'verification_status' => 'submitted',
             'is_active' => true,
         ]);
 
@@ -89,7 +89,7 @@ class CustomerTest extends TestCase
             'trust_score' => 50,
             'total_spent' => 0,
             'total_orders' => 0,
-            'verification_status' => 'pending',
+            'verification_status' => 'submitted',
             'is_active' => false,
         ]);
 

@@ -230,13 +230,7 @@
                             <div class="dot bg-emerald-400"></div>
                             <div class="url-bar">rentalmobil.id/admin/bookings</div>
                         </div>
-                        <div class="bg-gradient-to-br from-brand-50 to-brand-100 aspect-[4/3] flex items-center justify-center p-8">
-                            <div class="text-center">
-                                <div class="text-7xl mb-4">📋</div>
-                                <div class="text-brand-700 font-bold text-lg">Booking Management</div>
-                                <div class="text-brand-400 text-sm mt-1">Screenshot placeholder</div>
-                            </div>
-                        </div>
+                        <x-marketing-screen file="bookings.png" label="Booking Management" icon="📋" />
                     </div>
                 </div>
                 <div class="w-full lg:w-1/2">
@@ -263,13 +257,7 @@
                             <div class="dot bg-emerald-400"></div>
                             <div class="url-bar">rentalmobil.id/admin/vehicles</div>
                         </div>
-                        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 aspect-[4/3] flex items-center justify-center p-8">
-                            <div class="text-center">
-                                <div class="text-7xl mb-4">🚗</div>
-                                <div class="text-emerald-700 font-bold text-lg">Fleet Management</div>
-                                <div class="text-emerald-400 text-sm mt-1">Screenshot placeholder</div>
-                            </div>
-                        </div>
+                        <x-marketing-screen file="vehicles.png" label="Fleet Management" icon="🚗" />
                     </div>
                 </div>
                 <div class="w-full lg:w-1/2">
@@ -296,13 +284,7 @@
                             <div class="dot bg-emerald-400"></div>
                             <div class="url-bar">rentalmobil.id/admin/invoices</div>
                         </div>
-                        <div class="bg-gradient-to-br from-amber-50 to-amber-100 aspect-[4/3] flex items-center justify-center p-8">
-                            <div class="text-center">
-                                <div class="text-7xl mb-4">💰</div>
-                                <div class="text-amber-700 font-bold text-lg">Financial Management</div>
-                                <div class="text-amber-400 text-sm mt-1">Screenshot placeholder</div>
-                            </div>
-                        </div>
+                        <x-marketing-screen file="invoices.png" label="Financial Management" icon="💰" />
                     </div>
                 </div>
                 <div class="w-full lg:w-1/2">
@@ -329,13 +311,7 @@
                             <div class="dot bg-emerald-400"></div>
                             <div class="url-bar">rentalmobil.id/admin/customers</div>
                         </div>
-                        <div class="bg-gradient-to-br from-violet-50 to-violet-100 aspect-[4/3] flex items-center justify-center p-8">
-                            <div class="text-center">
-                                <div class="text-7xl mb-4">👥</div>
-                                <div class="text-violet-700 font-bold text-lg">Customer Management</div>
-                                <div class="text-violet-400 text-sm mt-1">Screenshot placeholder</div>
-                            </div>
-                        </div>
+                        <x-marketing-screen file="customers.png" label="Customer Management" icon="👥" />
                     </div>
                 </div>
                 <div class="w-full lg:w-1/2">
@@ -362,13 +338,7 @@
                             <div class="dot bg-emerald-400"></div>
                             <div class="url-bar">rentalmobil.id/admin/security</div>
                         </div>
-                        <div class="bg-gradient-to-br from-rose-50 to-rose-100 aspect-[4/3] flex items-center justify-center p-8">
-                            <div class="text-center">
-                                <div class="text-7xl mb-4">🛡️</div>
-                                <div class="text-rose-700 font-bold text-lg">Security & Anti-Fraud</div>
-                                <div class="text-rose-400 text-sm mt-1">Screenshot placeholder</div>
-                            </div>
-                        </div>
+                        <x-marketing-screen file="gps-alerts.png" label="Security & Anti-Fraud" icon="🛡️" />
                     </div>
                 </div>
                 <div class="w-full lg:w-1/2">
@@ -395,13 +365,7 @@
                             <div class="dot bg-emerald-400"></div>
                             <div class="url-bar">rentalmobil.id/admin/reports</div>
                         </div>
-                        <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 aspect-[4/3] flex items-center justify-center p-8">
-                            <div class="text-center">
-                                <div class="text-7xl mb-4">📊</div>
-                                <div class="text-cyan-700 font-bold text-lg">Reports & Analytics</div>
-                                <div class="text-cyan-400 text-sm mt-1">Screenshot placeholder</div>
-                            </div>
-                        </div>
+                        <x-marketing-screen file="operations-report.png" label="Reports & Analytics" icon="📊" />
                     </div>
                 </div>
                 <div class="w-full lg:w-1/2">
@@ -429,12 +393,12 @@
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach([
-                    ['icon' => '🏠', 'title' => 'Dashboard', 'color' => 'from-brand-50 to-brand-100', 'text' => 'brand'],
-                    ['icon' => '📋', 'title' => 'Manajemen Booking', 'color' => 'from-emerald-50 to-emerald-100', 'text' => 'emerald'],
-                    ['icon' => '🚗', 'title' => 'Fleet / Armada', 'color' => 'from-amber-50 to-amber-100', 'text' => 'amber'],
-                    ['icon' => '👥', 'title' => 'Pelanggan', 'color' => 'from-violet-50 to-violet-100', 'text' => 'violet'],
-                    ['icon' => '💰', 'title' => 'Invoice & Pembayaran', 'color' => 'from-rose-50 to-rose-100', 'text' => 'rose'],
-                    ['icon' => '📊', 'title' => 'Laporan', 'color' => 'from-cyan-50 to-cyan-100', 'text' => 'cyan'],
+                    ['icon' => '🏠', 'title' => 'Dashboard', 'file' => 'dashboard.png'],
+                    ['icon' => '📋', 'title' => 'Manajemen Booking', 'file' => 'bookings.png'],
+                    ['icon' => '🚗', 'title' => 'Fleet / Armada', 'file' => 'vehicles.png'],
+                    ['icon' => '👥', 'title' => 'Pelanggan', 'file' => 'customers.png'],
+                    ['icon' => '💰', 'title' => 'Invoice & Pembayaran', 'file' => 'invoices.png'],
+                    ['icon' => '📊', 'title' => 'Laporan', 'file' => 'operations-report.png'],
                 ] as $screen)
                 <div class="group card-lift reveal">
                     <div class="relative rounded-2xl overflow-hidden shadow-lg">
@@ -444,13 +408,7 @@
                             <div class="dot bg-emerald-400"></div>
                             <div class="url-bar">rentalmobil.id/admin/...</div>
                         </div>
-                        <div class="bg-gradient-to-br {{ $screen['color'] }} aspect-[16/10] flex items-center justify-center">
-                            <div class="text-center group-hover:scale-105 transition-transform duration-300">
-                                <div class="text-6xl mb-3">{{ $screen['icon'] }}</div>
-                                <div class="text-{{ $screen['text'] }}-700 font-bold">{{ $screen['title'] }}</div>
-                                <div class="text-{{ $screen['text'] }}-400 text-xs mt-1">Screenshot</div>
-                            </div>
-                        </div>
+                        <x-marketing-screen :file="$screen['file']" :label="$screen['title']" :icon="$screen['icon']" class="aspect-[16/10]" />
                     </div>
                     <p class="mt-3 text-sm font-medium text-stone-600 text-center">{{ $screen['title'] }}</p>
                 </div>
@@ -512,7 +470,7 @@
                         <tbody class="divide-y divide-stone-100">
                             <tr class="hover:bg-stone-50 transition-colors">
                                 <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 font-semibold text-stone-900"><span class="w-2 h-2 bg-brand-500 rounded-full"></span> Owner</span></td>
-                                <td class="px-6 py-4 font-mono text-stone-600">owner@rentalmobil.test</td>
+                                <td class="px-6 py-4 font-mono text-stone-600">admin@rentalmobil.test</td>
                                 <td class="px-6 py-4 font-mono text-stone-600">password</td>
                                 <td class="px-6 py-4 text-stone-500 hidden sm:table-cell">Semua akses, pengaturan sistem, laporan keuangan</td>
                             </tr>
@@ -524,7 +482,7 @@
                             </tr>
                             <tr class="hover:bg-stone-50 transition-colors">
                                 <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 font-semibold text-stone-900"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> Admin</span></td>
-                                <td class="px-6 py-4 font-mono text-stone-600">admin@rentalmobil.test</td>
+                                <td class="px-6 py-4 font-mono text-stone-600">admin2@rentalmobil.test</td>
                                 <td class="px-6 py-4 font-mono text-stone-600">password</td>
                                 <td class="px-6 py-4 text-stone-500 hidden sm:table-cell">Data master, booking, pelanggan</td>
                             </tr>

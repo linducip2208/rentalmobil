@@ -8,7 +8,6 @@ use App\Models\NotificationQueue;
 use App\Models\NotificationTemplate;
 use App\Models\Provider;
 use App\Models\RentalOrder;
-use App\Services\NotificationDispatcher;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
@@ -17,7 +16,7 @@ class NotificationDispatcher
     public function dispatch(string $event, Model $notifiable, array $data = []): ?NotificationQueue
     {
         $template = NotificationTemplate::active()
-            ->byType($event)
+            ->byEventType($event)
             ->first();
 
         if (!$template) {
@@ -42,14 +41,15 @@ class NotificationDispatcher
             'channel' => $template->channel,
             'subject' => $renderedSubject,
             'body' => $renderedBody,
-            'data' => array_merge($data, [
+            'event_type' => $event,
+            'payload' => array_merge($data, [
                 'event' => $event,
                 'notifiable_name' => $notifiable->name ?? $notifiable->email ?? 'Unknown',
             ]),
             'status' => 'pending',
             'scheduled_at' => now(),
-            'retry_count' => 0,
-            'max_retries' => 3,
+            'attempts' => 0,
+            'max_attempts' => 3,
         ]);
 
         return $notification;
@@ -176,7 +176,7 @@ class NotificationDispatcher
                     'status' => 'failed',
                     'failed_at' => now(),
                     'error_message' => $e->getMessage(),
-                    'retry_count' => $notification->retry_count + 1,
+                    'attempts' => $notification->attempts + 1,
                 ]);
                 $results['failed']++;
             }
@@ -197,7 +197,7 @@ class NotificationDispatcher
             } catch (\Exception $e) {
                 Log::error("Retry failed for notification #{$notification->id}: {$e->getMessage()}");
                 $notification->update([
-                    'retry_count' => $notification->retry_count + 1,
+                    'attempts' => $notification->attempts + 1,
                     'error_message' => $e->getMessage(),
                 ]);
             }
@@ -301,10 +301,20 @@ class NotificationDispatcher
 
     protected function callProviderApi(Provider $provider, array $payload): void
     {
-        $config = json_decode($provider->config ?? '{}', true);
-
         $baseUrl = $provider->base_url;
         $apiKey = $provider->api_key;
+
+        if (blank($baseUrl)) {
+            throw new \RuntimeException('Provider base URL belum dikonfigurasi.');
+        }
+
+        $headers = ['Content-Type: application/json'];
+        if (filled($apiKey)) {
+            $headers[] = "Authorization: Bearer {$apiKey}";
+        }
+        foreach (($provider->extra_headers ?? []) as $name => $value) {
+            $headers[] = "{$name}: {$value}";
+        }
 
         $ch = curl_init();
 
@@ -312,10 +322,7 @@ class NotificationDispatcher
             CURLOPT_URL => $baseUrl,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                "Authorization: Bearer {$apiKey}",
-            ],
+            CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 30,
         ]);

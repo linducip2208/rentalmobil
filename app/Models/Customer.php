@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Customer extends Model
+class Customer extends Authenticatable
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -36,6 +37,8 @@ class Customer extends Model
         'verification_status',
         'notes',
         'is_active',
+        'password',
+        'last_login_at',
     ];
 
     protected $casts = [
@@ -43,7 +46,9 @@ class Customer extends Model
         'trust_score' => 'integer',
         'total_spent' => 'decimal:2',
         'total_orders' => 'integer',
-        'is_active' => 'boolean',
+            'is_active' => 'boolean',
+            'password' => 'hashed',
+            'last_login_at' => 'datetime',
     ];
 
     // Relationships
@@ -51,6 +56,8 @@ class Customer extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    protected $hidden = ['password', 'remember_token'];
 
     public function rentalOrders()
     {

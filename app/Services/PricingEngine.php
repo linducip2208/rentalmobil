@@ -49,7 +49,7 @@ class PricingEngine
 
         $baseTotal = round($effectiveDailyRate * $durationDays, 2);
 
-        $driverFeePerDay = $this->getDriverFee(1, $rentalType);
+        $driverFeePerDay = $this->calculateDriverFee(1);
         $rentalTypeMultiplier = $this->getRentalTypeMultiplier($rentalType);
         if ($rentalType === 'with_driver') {
             $baseTotal += round($driverFeePerDay * $durationDays, 2);

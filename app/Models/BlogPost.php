@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class BlogPost extends Model
 {
@@ -49,6 +50,13 @@ class BlogPost extends Model
                 $model->slug = Str::slug($model->title);
             }
         });
+        static::saved(function (BlogPost $model) {
+            Cache::forget('sitemap_xml');
+            if ($model->isPublished()) {
+                app(\App\Services\Seo\IndexNowService::class)->ping('blog', $model->slug);
+            }
+        });
+        static::deleted(fn () => Cache::forget('sitemap_xml'));
     }
 
     public function category(): BelongsTo

@@ -76,9 +76,9 @@ class VehicleTest extends TestCase
 
     public function test_available_scope(): void
     {
-        $this->createVehicle(['status' => 'available', 'is_active' => true]);
-        $this->createVehicle(['status' => 'rented', 'is_active' => true]);
-        $this->createVehicle(['status' => 'available', 'is_active' => false]);
+        $this->createVehicle(['slug' => 'vehicle-available', 'plate_number' => 'B 1001 TS', 'status' => 'available', 'is_active' => true]);
+        $this->createVehicle(['slug' => 'vehicle-rented', 'plate_number' => 'B 1002 TS', 'status' => 'rented', 'is_active' => true]);
+        $this->createVehicle(['slug' => 'vehicle-inactive', 'plate_number' => 'B 1003 TS', 'status' => 'available', 'is_active' => false]);
 
         $available = Vehicle::available()->get();
         $this->assertCount(1, $available);

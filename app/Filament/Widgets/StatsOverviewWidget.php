@@ -28,13 +28,13 @@ class StatsOverviewWidget extends BaseWidget
         $todayRevenue = Payment::where('status', 'verified')
             ->whereDate('payment_date', now()->toDateString())
             ->sum('amount');
-        $pendingBookings = Booking::whereIn('status', ['pending', 'hold'])->count();
+        $pendingBookings = Booking::whereIn('status', ['inquiry', 'quoted', 'hold', 'pending_verification', 'pending_payment'])->count();
 
         return [
             Stat::make('Total Kendaraan', $totalVehicles)
                 ->description("{$availableVehicles} tersedia")
                 ->descriptionIcon('heroicon-o-truck')
-                ->color('indigo'),
+                ->color('info'),
             Stat::make('Rental Aktif', $activeRentals)
                 ->description('Sedang berlangsung')
                 ->descriptionIcon('heroicon-o-key')

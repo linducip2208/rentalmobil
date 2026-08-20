@@ -25,11 +25,12 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(\App\Filament\Pages\Auth\Login::class)
+            ->simplePageMaxContentWidth('full')
             ->brandName('RentalMobil')
             ->favicon(asset('favicon.ico'))
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::Blue,
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
                 'danger' => Color::Rose,
@@ -71,6 +72,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\EnsureAdminRoleAccess::class,
             ]);
     }
 }

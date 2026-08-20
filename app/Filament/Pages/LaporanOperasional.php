@@ -122,4 +122,16 @@ class LaporanOperasional extends Page
             ->get()
             ->toArray();
     }
+
+    public function getVehicleProfitability(): array
+    {
+        return Vehicle::query()->select(['id', 'name', 'plate_number'])
+            ->withSum(['rentalOrders as revenue' => fn ($q) => $q->whereBetween('start_date', [$this->dateFrom, $this->dateTo])->whereNotIn('status', ['cancelled'])], 'final_amount')
+            ->withSum(['maintenanceLogs as maintenance_cost' => fn ($q) => $q->whereBetween('start_date', [$this->dateFrom, $this->dateTo])], 'cost')
+            ->withSum(['fuelLogs as fuel_cost' => fn ($q) => $q->whereBetween('fuel_date', [$this->dateFrom, $this->dateTo])], 'cost')
+            ->get()->map(function ($vehicle) {
+                $revenue = (float) ($vehicle->revenue ?? 0); $cost = (float) ($vehicle->maintenance_cost ?? 0) + (float) ($vehicle->fuel_cost ?? 0);
+                return ['name' => $vehicle->name, 'plate_number' => $vehicle->plate_number, 'revenue' => $revenue, 'cost' => $cost, 'profit' => $revenue - $cost, 'margin' => $revenue > 0 ? round((($revenue - $cost) / $revenue) * 100, 1) : 0];
+            })->sortByDesc('profit')->values()->take(20)->all();
+    }
 }

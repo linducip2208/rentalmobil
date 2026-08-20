@@ -54,13 +54,13 @@ class BookingService
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
                 'duration_days' => $durationDays,
-                'daily_rate' => $pricing['base_daily_rate'],
+                'daily_rate_snapshot' => $pricing['base_daily_rate'],
                 'subtotal' => $pricing['subtotal'],
                 'discount_amount' => $pricing['discount_amount'],
                 'tax_amount' => $pricing['tax_amount'],
                 'total_amount' => $pricing['total'],
                 'deposit_amount' => $data['deposit_amount'] ?? $vehicle->deposit_amount,
-                'status' => 'pending',
+                'status' => 'pending_verification',
                 'notes' => $data['notes'] ?? null,
                 'created_by' => $data['created_by'] ?? auth()->id(),
             ]);
@@ -75,7 +75,7 @@ class BookingService
 
     public function confirmBooking(Booking $booking): Booking
     {
-        if ($booking->status !== 'pending') {
+        if ($booking->status !== 'pending_verification') {
             throw new \RuntimeException("Cannot confirm booking with status '{$booking->status}'.");
         }
 
@@ -95,7 +95,7 @@ class BookingService
 
     public function cancelBooking(Booking $booking, ?string $reason = null): Booking
     {
-        if (in_array($booking->status, ['completed', 'cancelled'])) {
+        if (in_array($booking->status, ['converted', 'cancelled'])) {
             throw new \RuntimeException("Cannot cancel booking with status '{$booking->status}'.");
         }
 
@@ -118,7 +118,7 @@ class BookingService
 
     public function convertToOrder(Booking $booking): RentalOrder
     {
-        if (!in_array($booking->status, ['pending', 'confirmed'])) {
+        if (!in_array($booking->status, ['pending_verification', 'confirmed'])) {
             throw new \RuntimeException("Cannot convert booking with status '{$booking->status}' to order.");
         }
 
@@ -132,19 +132,20 @@ class BookingService
                 'start_date' => $booking->start_date,
                 'end_date' => $booking->end_date,
                 'duration_days' => $booking->duration_days,
-                'daily_rate' => $booking->daily_rate,
+                'daily_rate_snapshot' => $booking->daily_rate_snapshot,
                 'subtotal' => $booking->subtotal,
-                'discount_amount' => $booking->discount_amount,
-                'tax_amount' => $booking->tax_amount,
-                'total_amount' => $booking->total_amount,
+                'discount_total' => $booking->discount_amount,
+                'tax_total' => $booking->tax_amount,
+                'final_amount' => $booking->total_amount,
+                'balance_due' => $booking->total_amount,
                 'deposit_amount' => $booking->deposit_amount,
-                'status' => 'confirmed',
+                'status' => 'ready_for_preparation',
                 'payment_status' => 'unpaid',
                 'notes' => $booking->notes,
                 'created_by' => auth()->id(),
             ]);
 
-            $booking->update(['status' => 'completed']);
+            $booking->update(['status' => 'converted']);
 
             Vehicle::where('id', $booking->vehicle_id)
                 ->update(['status' => 'reserved']);
@@ -156,7 +157,7 @@ class BookingService
     public function checkAvailability(int $vehicleId, Carbon $startDate, Carbon $endDate, ?int $excludeBookingId = null): bool
     {
         $query = RentalOrder::where('vehicle_id', $vehicleId)
-            ->whereIn('status', ['confirmed', 'active'])
+            ->whereIn('status', ['ready_for_preparation', 'preparing', 'ready_for_handover', 'checked_out', 'active', 'extension_requested', 'return_due', 'overdue'])
             ->where(function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('start_date', [$startDate, $endDate])
                     ->orWhereBetween('end_date', [$startDate, $endDate])
@@ -177,7 +178,7 @@ class BookingService
         }
 
         $bookingQuery = Booking::where('vehicle_id', $vehicleId)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['pending_verification', 'pending_payment', 'confirmed', 'hold'])
             ->where(function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('start_date', [$startDate, $endDate])
                     ->orWhereBetween('end_date', [$startDate, $endDate])

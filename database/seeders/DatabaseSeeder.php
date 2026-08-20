@@ -41,17 +41,20 @@ class DatabaseSeeder extends Seeder
 
     protected function seedUsers(): void
     {
-        User::updateOrCreate(
-            ['email' => 'admin@rentalmobil.test'],
-            [
-                'name' => 'Admin RentalMobil',
-                'password' => 'password',
-                'phone' => '081234567890',
-                'role' => 'owner',
-                'is_active' => true,
-                'email_verified_at' => now(),
-            ]
-        );
+        $users = [
+            ['name' => 'Owner RentalMobil', 'email' => 'admin@rentalmobil.test', 'phone' => '081234567890', 'role' => 'owner'],
+            ['name' => 'Manager Demo', 'email' => 'manager@rentalmobil.test', 'phone' => '081234567801', 'role' => 'manager'],
+            ['name' => 'Admin Demo', 'email' => 'admin2@rentalmobil.test', 'phone' => '081234567802', 'role' => 'admin'],
+            ['name' => 'Kasir Demo', 'email' => 'kasir@rentalmobil.test', 'phone' => '081234567803', 'role' => 'cashier'],
+            ['name' => 'Driver Demo', 'email' => 'driver@rentalmobil.test', 'phone' => '081234567804', 'role' => 'driver'],
+            ['name' => 'Finance Demo', 'email' => 'finance@rentalmobil.test', 'phone' => '081234567805', 'role' => 'finance'],
+            ['name' => 'Mekanik Demo', 'email' => 'mekanik@rentalmobil.test', 'phone' => '081234567806', 'role' => 'mechanic'],
+        ];
+        foreach ($users as $user) {
+            User::updateOrCreate(['email' => $user['email']], array_merge($user, [
+                'password' => 'password', 'is_active' => true, 'email_verified_at' => now(),
+            ]));
+        }
     }
 
     protected function seedCategories(): void
@@ -362,7 +365,7 @@ class DatabaseSeeder extends Seeder
     protected function seedCustomers(): void
     {
         $customers = [
-            ['name' => 'Budi Santoso', 'email' => 'budi@gmail.com', 'phone' => '081234567891', 'address' => 'Jl. Gatot Subroto No. 10, Jakarta', 'city' => 'Jakarta', 'province' => 'DKI Jakarta', 'ktp_number' => '3171234567890001'],
+            ['name' => 'Budi Santoso', 'email' => 'customer@rentalmobil.test', 'phone' => '081234567891', 'address' => 'Jl. Gatot Subroto No. 10, Jakarta', 'city' => 'Jakarta', 'province' => 'DKI Jakarta', 'ktp_number' => '3171234567890001'],
             ['name' => 'Siti Rahayu', 'email' => 'siti@gmail.com', 'phone' => '081234567892', 'address' => 'Jl. Merdeka No. 25, Bandung', 'city' => 'Bandung', 'province' => 'Jawa Barat', 'ktp_number' => '3273456789010002'],
             ['name' => 'Ahmad Fauzi', 'email' => 'ahmad@gmail.com', 'phone' => '081234567893', 'address' => 'Jl. Pahlawan No. 30, Surabaya', 'city' => 'Surabaya', 'province' => 'Jawa Timur', 'ktp_number' => '3578901234560003'],
             ['name' => 'Dewi Lestari', 'email' => 'dewi@gmail.com', 'phone' => '081234567894', 'address' => 'Jl. Asia Afrika No. 15, Bandung', 'city' => 'Bandung', 'province' => 'Jawa Barat', 'ktp_number' => '3273123456780004'],
@@ -379,6 +382,7 @@ class DatabaseSeeder extends Seeder
                     'total_orders' => 0,
                     'loyalty_tier' => 'bronze',
                     'verification_status' => 'verified',
+                    'password' => 'password',
                     'is_active' => true,
                 ])
             );
