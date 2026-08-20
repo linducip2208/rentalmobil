@@ -131,7 +131,7 @@ class ExpenseResource extends Resource
                     ]),
                 Tables\Filters\Filter::make('expense_date')
                     ->label('Tanggal')
-                    ->form([
+                    ->modalForm([
                         Forms\Components\DatePicker::make('date_from')->label('Dari'),
                         Forms\Components\DatePicker::make('date_until')->label('Sampai'),
                     ])

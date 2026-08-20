@@ -108,7 +108,7 @@ class FuelLogResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('fuel_date')
                     ->label('Tanggal')
-                    ->form([
+                    ->modalForm([
                         Forms\Components\DatePicker::make('date_from')->label('Dari'),
                         Forms\Components\DatePicker::make('date_until')->label('Sampai'),
                     ])

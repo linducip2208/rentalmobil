@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use Filament\Actions;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -67,7 +68,7 @@ class PendingApprovalsWidget extends BaseWidget
                     ->limit(50),
             ])
             ->actions([
-                Tables\Actions\Action::make('approve')
+                Actions\Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check')
                     ->color('success')
@@ -76,14 +77,14 @@ class PendingApprovalsWidget extends BaseWidget
                     ->modalDescription('Apakah Anda yakin ingin menyetujui permintaan ini?')
                     ->action(fn (ApprovalWorkflow $record) => $record->approve(Auth::id()))
                     ->visible(fn (ApprovalWorkflow $record): bool => $record->status === 'pending'),
-                Tables\Actions\Action::make('reject')
+                Actions\Action::make('reject')
                     ->label('Tolak')
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading('Tolak Permintaan')
-                    ->form([
-                        \Filament\Forms\Components\Textarea::make('reason')
+                    ->modalForm([
+                        \Filament\Schemas\Components\Textarea::make('reason')
                             ->label('Alasan Penolakan')
                             ->required(),
                     ])

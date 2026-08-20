@@ -7,7 +7,7 @@ use App\Models\Vehicle;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Forms\Get;
+use Filament\Schemas\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Actions;

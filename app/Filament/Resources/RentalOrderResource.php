@@ -230,7 +230,7 @@ class RentalOrderResource extends Resource
                     ]),
                 Tables\Filters\Filter::make('start_date')
                     ->label('Tanggal')
-                    ->form([
+                    ->modalForm([
                         Forms\Components\DatePicker::make('start_from')->label('Dari'),
                         Forms\Components\DatePicker::make('start_until')->label('Sampai'),
                     ])

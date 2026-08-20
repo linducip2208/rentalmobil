@@ -136,7 +136,7 @@ class PaymentResource extends Resource
                     ]),
                 Tables\Filters\Filter::make('payment_date')
                     ->label('Tanggal')
-                    ->form([
+                    ->modalForm([
                         Forms\Components\DatePicker::make('date_from')->label('Dari'),
                         Forms\Components\DatePicker::make('date_until')->label('Sampai'),
                     ])
