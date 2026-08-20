@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@rentalmobil.test'],
             [
                 'name' => 'Admin RentalMobil',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'phone' => '081234567890',
                 'role' => 'owner',
                 'is_active' => true,
