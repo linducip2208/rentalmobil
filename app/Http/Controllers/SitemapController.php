@@ -4,18 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
 use App\Models\Category;
+use App\Models\Faq;
 use App\Models\SitemapEntry;
 use App\Models\Vehicle;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class SitemapController extends Controller
 {
     public function index(): Response
     {
-        $xml = $this->buildSitemap();
+        $xml = Cache::remember('sitemap_xml', 86400, fn () => $this->buildSitemap());
 
         return response($xml, 200, [
             'Content-Type' => 'application/xml',
+            'X-Robots-Tag' => 'noindex',
         ]);
     }
 
@@ -25,24 +28,52 @@ class SitemapController extends Controller
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 
-        $staticPages = ['/', '/blog', '/faq', '/contact', '/docs'];
-        foreach ($staticPages as $page) {
-            $xml .= $this->urlEntry($url . $page, 'weekly', '0.80');
+        $staticPages = [
+            '/' => ['freq' => 'weekly', 'priority' => '0.80'],
+            '/blog' => ['freq' => 'weekly', 'priority' => '0.70'],
+            '/faq' => ['freq' => 'monthly', 'priority' => '0.60'],
+            '/contact' => ['freq' => 'monthly', 'priority' => '0.50'],
+            '/docs' => ['freq' => 'monthly', 'priority' => '0.60'],
+        ];
+
+        foreach ($staticPages as $page => $meta) {
+            $xml .= $this->urlEntry($url . $page, $meta['freq'], $meta['priority']);
         }
 
         $categories = Category::active()->get();
         foreach ($categories as $category) {
-            $xml .= $this->urlEntry($url . '/kategori/' . $category->slug, 'weekly', '0.70');
+            $xml .= $this->urlEntry(
+                $url . '/sewa-mobil-di-' . str_replace(' ', '-', strtolower($category->name)),
+                'weekly',
+                '0.70',
+                $category->updated_at
+            );
         }
 
-        $vehicles = Vehicle::available()->active()->get();
+        $xml .= $this->urlEntry($url . '/sewa-mobil', 'weekly', '0.80');
+
+        $vehicles = Vehicle::where('is_active', true)->get();
         foreach ($vehicles as $vehicle) {
-            $xml .= $this->urlEntry($url . '/mobil/' . $vehicle->slug, 'weekly', '0.90');
+            $xml .= $this->urlEntry($url . '/sewa/' . $vehicle->slug, 'weekly', '0.90', $vehicle->updated_at);
         }
 
         $posts = BlogPost::published()->get();
         foreach ($posts as $post) {
-            $xml .= $this->urlEntry($url . '/blog/' . $post->slug, 'monthly', '0.60');
+            $xml .= $this->urlEntry($url . '/blog/' . $post->slug, 'monthly', '0.60', $post->updated_at);
+        }
+
+        $faqs = Faq::active()->pluck('question', 'id');
+        if ($faqs->isNotEmpty()) {
+            $xml .= $this->urlEntry($url . '/faq', 'monthly', '0.60');
+        }
+
+        foreach ($categories as $cat) {
+            $xml .= $this->urlEntry(
+                $url . '/best-' . str_replace(' ', '-', strtolower($cat->name)),
+                'monthly',
+                '0.65',
+                $cat->updated_at
+            );
         }
 
         $entries = SitemapEntry::active()->get();
@@ -50,7 +81,8 @@ class SitemapController extends Controller
             $xml .= $this->urlEntry(
                 $url . $entry->url,
                 $entry->change_frequency ?? 'monthly',
-                $entry->priority ?? '0.50'
+                $entry->priority ?? '0.50',
+                $entry->last_modified
             );
         }
 
@@ -58,11 +90,17 @@ class SitemapController extends Controller
         return $xml;
     }
 
-    protected function urlEntry(string $loc, string $changefreq = 'monthly', string $priority = '0.50'): string
+    protected function urlEntry(string $loc, string $changefreq = 'monthly', string $priority = '0.50', $lastmod = null): string
     {
+        $lastmodStr = '';
+        if ($lastmod) {
+            $lastmodStr = "\n    <lastmod>" . $lastmod->format('Y-m-d\TH:i:sP') . "</lastmod>";
+        }
+
         return sprintf(
-            "  <url>\n    <loc>%s</loc>\n    <changefreq>%s</changefreq>\n    <priority>%s</priority>\n  </url>\n",
+            "  <url>\n    <loc>%s</loc>%s\n    <changefreq>%s</changefreq>\n    <priority>%s</priority>\n  </url>\n",
             htmlspecialchars($loc, ENT_XML1),
+            $lastmodStr,
             $changefreq,
             $priority
         );

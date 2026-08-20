@@ -1,4 +1,4 @@
-﻿@extends('portal.layout')
+﻿@extends('layouts.public')
 @section('content')
 @php $pageTitle = 'FAQ'; @endphp
 

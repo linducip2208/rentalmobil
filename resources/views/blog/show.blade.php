@@ -1,4 +1,4 @@
-﻿@extends('pseo._layout')
+﻿@extends('layouts.public')
 @section('content')
 @php $pageTitle = $post->meta_title ?? $post->title; @endphp
 

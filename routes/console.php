@@ -2,8 +2,11 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('orders:escalate-overdue')->hourly();
+Schedule::command('rental:expire-overdue')->everyFifteenMinutes();
+Schedule::command('rental:release-holds')->everyFiveMinutes();
+Schedule::command('rental:send-reminders')->dailyAt('20:00');
+Schedule::command('rental:escalate-overdue')->hourly();
+Schedule::command('seo:indexnow')->dailyAt('02:45');
 Schedule::command('notifications:send-pending')->everyFiveMinutes();
-Schedule::command('notifications:send-reminders')->dailyAt('08:00');
-Schedule::command('db:backup')->dailyAt('02:00');
+Schedule::command('db:backup')->dailyAt('03:00');
 Schedule::command('invoices:generate-from-returns')->dailyAt('06:00');

@@ -4,38 +4,49 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\RentalOrder;
 use App\Models\Vehicle;
-use App\Models\Customer;
+use App\Models\RentalOrder;
+use App\Models\Payment;
+use App\Models\Booking;
 
 class StatsOverviewWidget extends BaseWidget
 {
+    protected ?string $heading = 'Ringkasan';
+
     protected static ?int $sort = 0;
+
+    public static function canView(): bool
+    {
+        return true;
+    }
 
     protected function getStats(): array
     {
-        $totalRevenue = RentalOrder::where('payment_status', 'paid')->sum('total_amount');
-        $activeOrders = RentalOrder::whereIn('status', ['active', 'confirmed'])->count();
         $totalVehicles = Vehicle::where('is_active', true)->count();
         $availableVehicles = Vehicle::where('status', 'available')->where('is_active', true)->count();
+        $activeRentals = RentalOrder::whereIn('status', ['active', 'checked_out'])->count();
+        $todayRevenue = Payment::where('status', 'verified')
+            ->whereDate('payment_date', now()->toDateString())
+            ->sum('amount');
+        $pendingBookings = Booking::whereIn('status', ['pending', 'hold'])->count();
 
         return [
-            Stat::make('Total Pendapatan', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
-                ->description('Dari order yang sudah dibayar')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success'),
-            Stat::make('Order Aktif', $activeOrders)
-                ->description('Sedang berlangsung')
-                ->descriptionIcon('heroicon-m-calendar')
-                ->color('info'),
             Stat::make('Total Kendaraan', $totalVehicles)
                 ->description("{$availableVehicles} tersedia")
-                ->descriptionIcon('heroicon-m-truck')
-                ->color('primary'),
-            Stat::make('Total Customer', Customer::where('is_active', true)->count())
-                ->description('Terdaftar aktif')
-                ->descriptionIcon('heroicon-m-users')
-                ->color('warning'),
+                ->descriptionIcon('heroicon-o-truck')
+                ->color('indigo'),
+            Stat::make('Rental Aktif', $activeRentals)
+                ->description('Sedang berlangsung')
+                ->descriptionIcon('heroicon-o-key')
+                ->color('emerald'),
+            Stat::make('Pendapatan Hari Ini', 'Rp ' . number_format($todayRevenue, 0, ',', '.'))
+                ->description('Pembayaran terverifikasi')
+                ->descriptionIcon('heroicon-o-banknotes')
+                ->color('amber'),
+            Stat::make('Booking Pending', $pendingBookings)
+                ->description('Menunggu konfirmasi')
+                ->descriptionIcon('heroicon-o-clock')
+                ->color('rose'),
         ];
     }
 }

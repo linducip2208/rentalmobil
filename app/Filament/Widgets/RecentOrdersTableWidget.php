@@ -11,15 +11,23 @@ class RecentOrdersTableWidget extends BaseWidget
 {
     protected static ?string $heading = 'Order Terbaru';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        return true;
+    }
 
     public function table(Table $table): Table
     {
         return $table
             ->query(
-                RentalOrder::query()->latest()->limit(10)
+                RentalOrder::query()
+                    ->with(['customer', 'vehicle'])
+                    ->latest()
+                    ->limit(10)
             )
             ->columns([
                 Tables\Columns\TextColumn::make('order_number')
@@ -35,30 +43,43 @@ class RecentOrdersTableWidget extends BaseWidget
                     ->label('Mulai')
                     ->date('d M Y')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('end_date')
+                    ->label('Selesai')
+                    ->date('d M Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
                         'confirmed' => 'info',
+                        'preparing' => 'info',
+                        'ready_for_preparation' => 'info',
+                        'checked_out' => 'primary',
                         'active' => 'success',
+                        'return_due' => 'warning',
                         'overdue' => 'danger',
-                        'completed' => 'primary',
+                        'completed' => 'success',
                         'cancelled' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'draft' => 'Draft',
                         'confirmed' => 'Dikonfirmasi',
+                        'preparing' => 'Disiapkan',
+                        'ready_for_preparation' => 'Siap',
+                        'checked_out' => 'Checked Out',
                         'active' => 'Aktif',
+                        'return_due' => 'Jatuh Tempo',
                         'overdue' => 'Terlambat',
                         'completed' => 'Selesai',
                         'cancelled' => 'Dibatalkan',
                         default => ucfirst($state),
                     }),
-                Tables\Columns\TextColumn::make('total_amount')
+                Tables\Columns\TextColumn::make('final_amount')
                     ->label('Total')
-                    ->money('IDR'),
+                    ->formatStateUsing(fn ($state): string => 'Rp ' . number_format((float) $state, 0, ',', '.'))
+                    ->sortable(),
             ])
             ->poll('30s');
     }

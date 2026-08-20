@@ -1,254 +1,184 @@
 # Deployment Guide — RentalMobil
 
-## Server Requirements
+Panduan lengkap deploy aplikasi RentalMobil ke production server.
 
-| Component | Version |
-|-----------|---------|
-| OS | Ubuntu 22.04 LTS |
-| PHP | 8.3+ |
-| MySQL | 8.0+ |
-| Redis | 7.0+ |
-| Nginx | 1.24+ |
-| Node.js | 18+ |
-| Composer | 2.7+ |
+---
 
-## Step-by-Step Setup
+## 1. Server Requirements
 
-### 1. Install System Dependencies
+| Komponen | Minimum | Recommended |
+|----------|---------|-------------|
+| **PHP** | 8.3+ | 8.3+ |
+| **Extensions** | mbstring, xml, ctype, json, bcmath, pdo, mysql, zip, gd, curl, fileinfo | + opcache, redis |
+| **MySQL** | 8.0+ | 8.0+ |
+| **Composer** | 2.x | 2.x |
+| **Node.js** | 18+ | 20 LTS |
+| **Nginx** | 1.18+ | 1.24+ |
+| **Supervisor** | 4.x | 4.x |
+| **OS** | Ubuntu 22.04 LTS | Ubuntu 24.04 LTS |
+| **RAM** | 2 GB | 4 GB+ |
+
+---
+
+## 2. Installation Steps
+
+### 2.1 Install system dependencies
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y software-properties-common curl git unzip
-
-# PHP 8.3
-sudo add-apt-repository ppa:ondrej/php -y
-sudo apt update
-sudo apt install -y php8.3 php8.3-fpm php8.3-mysql php8.3-xml php8.3-mbstring php8.3-curl php8.3-zip php8.3-gd php8.3-bcmath php8.3-intl php8.3-redis php8.3-imagick
-
-# MySQL 8
-sudo apt install -y mysql-server
-sudo mysql_secure_installation
-
-# Redis
-sudo apt install -y redis-server
-sudo systemctl enable redis-server
-
-# Nginx
-sudo apt install -y nginx
-
-# Node.js
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs
-
-# Composer
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
+sudo apt install -y php8.3-fpm php8.3-mysql php8.3-mbstring php8.3-xml \
+  php8.3-bcmath php8.3-gd php8.3-curl php8.3-zip php8.3-redis \
+  nginx supervisor mysql-server composer nodejs npm certbot python3-certbot-nginx
 ```
 
-### 2. Create Database
+### 2.2 Clone project
 
 ```bash
-sudo mysql -u root -p
-```
-
-```sql
-CREATE DATABASE rentalmobil CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'rentalmobil'@'localhost' IDENTIFIED BY 'your_secure_password';
-GRANT ALL PRIVILEGES ON rentalmobil.* TO 'rentalmobil'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-### 3. Setup Application
-
-```bash
-# Clone repository
 cd /var/www
-sudo git clone https://github.com/your-repo/rentalmobil.git
+sudo git clone https://github.com/your-org/rentalmobil.git
 sudo chown -R www-data:www-data rentalmobil
 cd rentalmobil
-
-# Install PHP dependencies
-composer install --optimize-autoloader --no-dev
-
-# Install JS dependencies
-npm ci
-
-# Build assets
-npm run build
-
-# Setup environment
-cp .env.example .env
-php artisan key:generate
 ```
 
-### 4. Configure Environment
-
-Edit `.env` with production values:
-
-```env
-APP_NAME="RentalMobil"
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://your-domain.com
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=rentalmobil
-DB_USERNAME=rentalmobil
-DB_PASSWORD=your_secure_password
-
-SESSION_DRIVER=redis
-SESSION_LIFETIME=120
-
-QUEUE_CONNECTION=redis
-
-CACHE_STORE=redis
-
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=587
-MAIL_USERNAME=your_username
-MAIL_PASSWORD=your_password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="noreply@your-domain.com"
-MAIL_FROM_NAME="${APP_NAME}"
-
-FILESYSTEM_DISK=local
-```
-
-### 5. Run Migrations & Seed
+### 2.3 Install PHP dependencies
 
 ```bash
-php artisan migrate --force
-php artisan db:seed --force
+sudo -u www-data composer install --no-dev --optimize-autoloader
 ```
 
-### 6. Setup Storage Link
+### 2.4 Install Node dependencies & build
 
 ```bash
-php artisan storage:link
+sudo -u www-data npm ci
+sudo -u www-data npm run build
 ```
 
-### 7. Set Permissions
+### 2.5 Environment configuration
 
 ```bash
+sudo -u www-data cp .env.example .env
+sudo -u www-data php artisan key:generate
+```
+
+Edit `.env` sesuai konfigurasi production (lihat Section 8 — Environment Variables).
+
+### 2.6 Database setup
+
+```bash
+# Buat database
+sudo mysql -u root -e "CREATE DATABASE rentalmobil CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -u root -e "CREATE USER 'rentalmobil'@'localhost' IDENTIFIED BY 'YOUR_SECURE_PASSWORD';"
+sudo mysql -u root -e "GRANT ALL PRIVILEGES ON rentalmobil.* TO 'rentalmobil'@'localhost';"
+sudo mysql -u root -e "FLUSH PRIVILEGES;"
+```
+
+Update `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` di `.env`, lalu:
+
+```bash
+sudo -u www-data php artisan migrate --force
+sudo -u www-data php artisan db:seed --force
+```
+
+### 2.7 Storage & permissions
+
+```bash
+sudo -u www-data php artisan storage:link
 sudo chown -R www-data:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
-sudo find storage -type d -exec chmod 775 {} \;
-sudo find bootstrap/cache -type d -exec chmod 775 {} \;
 ```
 
-## Nginx Configuration
+### 2.8 Optimize
 
-Copy the nginx config:
+```bash
+sudo -u www-data php artisan config:cache
+sudo -u www-data php artisan route:cache
+sudo -u www-data php artisan view:cache
+sudo -u www-data php artisan icons:cache
+```
+
+---
+
+## 3. Web Server Configuration (Nginx)
+
+### 3.1 Copy nginx config
 
 ```bash
 sudo cp deploy/nginx.conf /etc/nginx/sites-available/rentalmobil
+```
+
+Edit `/etc/nginx/sites-available/rentalmobil`:
+- Ganti `your-domain.com` dengan domain production
+- Pastikan path `fastcgi_pass` sesuai versi PHP-FPM yang terinstall
+
+### 3.2 Enable site
+
+```bash
 sudo ln -s /etc/nginx/sites-available/rentalmobil /etc/nginx/sites-enabled/
 sudo rm /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## SSL Setup (Let's Encrypt)
+---
 
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
-sudo certbot renew --dry-run
-```
+## 4. Queue & Scheduler Setup
 
-## Queue Worker Setup
-
-### Using Supervisor
+### 4.1 Supervisor config
 
 ```bash
 sudo cp deploy/supervisor.conf /etc/supervisor/conf.d/rentalmobil.conf
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl start rentalmobil-*
+sudo supervisorctl start rentalmobil-queue:*
+sudo supervisorctl start rentalmobil-scheduler
 ```
 
-### Verify Workers
+### 4.2 Cron (alternative scheduler)
 
 ```bash
-sudo supervisorctl status
+sudo -u www-data crontab -e
 ```
 
-## Scheduler Setup
-
-Add to crontab:
-
-```bash
-sudo crontab -e
-```
+Tambah baris:
 
 ```
 * * * * * cd /var/www/rentalmobil && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-## Backup Configuration
-
-### Automated Backups
-
-The application includes a `db:backup` command that runs daily at 02:00 via the scheduler. Backups are stored in `storage/backups/` and automatically clean up files older than 7 days.
-
-### Manual Backup
+### 4.3 Verify
 
 ```bash
-php artisan db:backup
-```
-
-### Setup Remote Backup (Optional)
-
-```bash
-# Add to crontab for off-site backup
-0 3 * * * cd /var/www/rentalmobil && php artisan db:backup && rclone copy storage/backups/ remote:rentalmobil-backups/ --max-age 7d
-```
-
-## Monitoring
-
-### Log Monitoring
-
-```bash
-# Application logs
-tail -f storage/logs/laravel.log
-
-# Nginx logs
-sudo tail -f /var/log/nginx/error.log
-sudo tail -f /var/log/nginx/access.log
-
-# PHP-FPM logs
-sudo tail -f /var/log/php8.3-fpm.log
-```
-
-### Process Monitoring
-
-```bash
-# Check all services
-sudo systemctl status nginx
-sudo systemctl status mysql
-sudo systemctl status redis-server
 sudo supervisorctl status
+# rentalmobil-queue:001    RUNNING   pid 1234
+# rentalmobil-scheduler    RUNNING   pid 1235
 ```
 
-### Health Check
+---
+
+## 5. SSL / HTTPS Setup
+
+### 5.1 Certbot
 
 ```bash
-curl -s https://your-domain.com/health || echo "Application is down!"
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot renew --dry-run
 ```
 
-## Performance Optimization
+### 5.2 Auto-renew cron
 
-### OPcache
+Certbot sudah install cron otomatis. Verify:
 
-Edit `/etc/php/8.3/fpm/php.ini`:
+```bash
+sudo certbot certificates
+```
+
+---
+
+## 6. Performance Optimization
+
+### 6.1 PHP OPcache
+
+Edit `/etc/php/8.3/fpm/conf.d/10-opcache.ini`:
 
 ```ini
 opcache.enable=1
@@ -257,43 +187,129 @@ opcache.interned_strings_buffer=16
 opcache.max_accelerated_files=20000
 opcache.revalidate_freq=0
 opcache.validate_timestamps=0
+opcache.save_comments=1
+opcache.jit=1255
+opcache.jit_buffer_size=128M
 ```
+
+Restart PHP-FPM:
 
 ```bash
 sudo systemctl restart php8.3-fpm
 ```
 
-### Redis Cache
-
-Ensure Redis is configured for session and cache:
+### 6.2 Laravel cache
 
 ```bash
-redis-cli ping
-# Should return: PONG
+sudo -u www-data php artisan config:cache
+sudo -u www-data php artisan route:cache
+sudo -u www-data php artisan view:cache
 ```
 
-## Troubleshooting
+### 6.3 Redis
 
-| Issue | Solution |
-|-------|----------|
-| 502 Bad Gateway | Check PHP-FPM: `sudo systemctl status php8.3-fpm` |
-| Permission denied | Run `sudo chown -R www-data:www-data storage bootstrap/cache` |
-| Migration fails | Check `.env` DB credentials and ensure MySQL is running |
-| Queue not processing | Check Supervisor: `sudo supervisorctl status` |
-| Assets not loading | Run `npm run build` and verify `public/build/` exists |
-| SSL not working | Verify certbot: `sudo certbot certificates` |
+Install Redis untuk session, cache, dan queue:
 
-## Post-Deployment Checklist
+```bash
+sudo apt install -y redis-server
+sudo systemctl enable redis-server
+```
 
-- [ ] Set `APP_DEBUG=false` in `.env`
-- [ ] Generate `APP_KEY`
-- [ ] Configure SSL certificate
-- [ ] Set up queue workers with Supervisor
-- [ ] Set up scheduler in crontab
-- [ ] Configure backup strategy
-- [ ] Set correct file permissions
-- [ ] Test all payment methods
-- [ ] Verify notification channels
-- [ ] Set up monitoring/alerting
-- [ ] Submit sitemap to Google Search Console
-- [ ] Test robots.txt access
+Update `.env`:
+
+```
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+```
+
+Rebuild cache:
+
+```bash
+sudo -u www-data php artisan config:cache
+```
+
+### 6.4 Nginx gzip & caching
+
+Sudah include di `deploy/nginx.conf`:
+- gzip level 6
+- Static file caching 30 hari
+- Brotli (opsional, install `ngx_brotli` module)
+
+---
+
+## 7. Troubleshooting
+
+### Common issues
+
+| Masalah | Solusi |
+|---------|--------|
+| 500 Internal Server Error | Cek `storage/logs/laravel.log`, pastikan `.env` benar |
+| CSS/JS tidak load | Jalankan `npm run build`, pastikan symlink storage ada |
+| Queue tidak jalan | `sudo supervisorctl restart rentalmobil-queue:*` |
+| Scheduler tidak jalan | Cek cron `crontab -l`, restart supervisor |
+| Permission denied | `sudo chown -R www-data:www-data storage bootstrap/cache` |
+| Migration fails | Pastikan database user punya privilege GRANT ALL |
+| CSRF token mismatch | Clear browser cookies, pastikan APP_URL benar |
+
+### Logs location
+
+```bash
+# Laravel log
+tail -f storage/logs/laravel.log
+
+# Nginx log
+tail -f /var/log/nginx/rentalmobil_error.log
+
+# Supervisor log
+tail -f /var/log/supervisor/rentalmobil-queue.log
+tail -f /var/log/supervisor/rentalmobil-scheduler.log
+```
+
+---
+
+## 8. Environment Variables
+
+Lihat file `.env.example` di root project untuk daftar lengkap variabel.
+
+### Variables wajib di-set:
+
+| Variable | Deskripsi | Contoh |
+|----------|-----------|--------|
+| `APP_URL` | URL production | `https://rentalmobil.example.com` |
+| `APP_KEY` | Auto-generated | `base64:...` |
+| `DB_HOST` | Database host | `127.0.0.1` |
+| `DB_DATABASE` | Nama database | `rentalmobil` |
+| `DB_USERNAME` | Database user | `rentalmobil` |
+| `DB_PASSWORD` | Database password | *(secure password)* |
+| `REDIS_HOST` | Redis host | `127.0.0.1` |
+| `MAIL_MAILER` | Mail transport | `smtp` |
+| `MAIL_HOST` | SMTP host | `smtp.mailtrap.io` |
+| `QUEUE_CONNECTION` | Queue driver | `redis` |
+| `CACHE_STORE` | Cache driver | `redis` |
+| `SESSION_DRIVER` | Session driver | `redis` |
+| `INDEXNOW_KEY` | IndexNow API key | *(random 32 chars)* |
+
+---
+
+## 9. Post-Deploy Checklist
+
+- [ ] `.env` sudah dikonfigurasi dengan benar
+- [ ] `APP_KEY` sudah di-generate
+- [ ] `APP_URL` sudah benar (https)
+- [ ] Database sudah di-migrate
+- [ ] Database sudah di-seed (opsional)
+- [ ] `npm run build` sudah dijalankan
+- [ ] Storage symlink sudah dibuat
+- [ ] File permissions sudah benar
+- [ ] OPcache sudah aktif
+- [ ] Supervisor queue worker running
+- [ ] Supervisor scheduler running
+- [ ] SSL certificate installed
+- [ ] `certbot renew` cron aktif
+- [ ] `robots.txt` accessible
+- [ ] `sitemap.xml` accessible
+- [ ] IndexNow key configured
+- [ ] Mail sending test passed
+- [ ] Payment gateway sandbox tested
+- [ ] WhatsApp integration tested

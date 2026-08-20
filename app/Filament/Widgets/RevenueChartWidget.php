@@ -3,45 +3,52 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
-use App\Models\RentalOrder;
+use App\Models\Payment;
 use Illuminate\Support\Carbon;
 
 class RevenueChartWidget extends ChartWidget
 {
-    protected ?string $heading = 'Pendapatan 7 Hari Terakhir';
+    protected ?string $heading = 'Pendapatan 12 Bulan Terakhir';
 
     protected static ?int $sort = 1;
 
+    public static function canView(): bool
+    {
+        return in_array(auth()->user()?->role, ['owner', 'manager', 'finance']);
+    }
+
     protected function getData(): array
     {
-        $data = collect();
-        $labels = collect();
-        $values = collect();
+        $labels = [];
+        $values = [];
 
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
-            $labels->push($date->format('d M'));
-            $revenue = RentalOrder::where('payment_status', 'paid')
-                ->whereDate('created_at', $date)
-                ->sum('total_amount');
-            $values->push((float) $revenue);
+        for ($i = 11; $i >= 0; $i--) {
+            $month = Carbon::now()->subMonths($i);
+            $labels[] = $month->format('M Y');
+            $revenue = Payment::where('status', 'verified')
+                ->whereYear('payment_date', $month->year)
+                ->whereMonth('payment_date', $month->month)
+                ->sum('amount');
+            $values[] = (float) $revenue;
         }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Pendapatan (Rp)',
-                    'data' => $values->toArray(),
-                    'backgroundColor' => '#6366f1',
-                    'borderColor' => '#4f46e5',
+                    'data' => $values,
+                    'borderColor' => '#6366f1',
+                    'backgroundColor' => 'rgba(99, 102, 241, 0.1)',
+                    'fill' => true,
+                    'tension' => 0.4,
                 ],
             ],
-            'labels' => $labels->toArray(),
+            'labels' => $labels,
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'line';
     }
 }
