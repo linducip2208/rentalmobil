@@ -1,0 +1,1 @@
+<?php namespace App\Filament\Resources\GpsGeofenceResource\Pages; use App\Filament\Resources\GpsGeofenceResource; use Filament\Actions\DeleteAction; use Filament\Resources\Pages\EditRecord; class EditGpsGeofence extends EditRecord { protected static string $resource = GpsGeofenceResource::class; protected function getHeaderActions(): array { return [DeleteAction::make()]; } }

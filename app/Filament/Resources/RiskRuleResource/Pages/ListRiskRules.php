@@ -1,0 +1,1 @@
+<?php namespace App\Filament\Resources\RiskRuleResource\Pages;use App\Filament\Resources\RiskRuleResource;use Filament\Actions\CreateAction;use Filament\Resources\Pages\ListRecords;class ListRiskRules extends ListRecords{protected static string $resource=RiskRuleResource::class;protected function getHeaderActions():array{return[CreateAction::make()];}}

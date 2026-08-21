@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Portal Pelanggan') — {{ config('app.name') }}</title>
+    <link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#1d4ed8">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root{color-scheme:light} body{font-family:Inter,ui-sans-serif,system-ui;background:#f5f7fa}
@@ -21,4 +22,4 @@
     </div>
 </header>
 <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">@yield('content')</main>
-</body></html>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/service-worker.js')}</script></body></html>

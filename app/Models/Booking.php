@@ -36,6 +36,8 @@ class Booking extends Model
         'hold_expires_at',
         'notes',
         'source',
+        'addon_ids',
+        'pricing_snapshot',
         'created_by',
     ];
 
@@ -53,6 +55,8 @@ class Booking extends Model
         'cancelled_at' => 'datetime',
         'confirmed_at' => 'datetime',
         'hold_expires_at' => 'datetime',
+        'addon_ids' => 'array',
+        'pricing_snapshot' => 'array',
     ];
 
     protected static function boot()

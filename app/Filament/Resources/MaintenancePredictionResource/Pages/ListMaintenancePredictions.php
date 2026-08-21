@@ -1,0 +1,1 @@
+<?php namespace App\Filament\Resources\MaintenancePredictionResource\Pages;use App\Filament\Resources\MaintenancePredictionResource;use Filament\Resources\Pages\ListRecords;class ListMaintenancePredictions extends ListRecords{protected static string $resource=MaintenancePredictionResource::class;}

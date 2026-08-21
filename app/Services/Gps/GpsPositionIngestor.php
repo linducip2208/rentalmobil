@@ -45,6 +45,7 @@ class GpsPositionIngestor
         if (!$log->wasRecentlyCreated) return null;
         $tracker->updateLocation((float) $latitude, (float) $longitude, $this->numeric($speed), $this->integer($heading), $this->integer($battery));
         $this->alerts->evaluate($tracker, ['latitude' => $latitude, 'longitude' => $longitude, 'speed' => $speed, 'battery_level' => $battery], $recordedAt);
+        app(GpsIntelligenceService::class)->evaluate($log);
         return $log;
     }
 

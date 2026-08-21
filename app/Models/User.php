@@ -16,6 +16,7 @@ class User extends Authenticatable implements FilamentUser
 
     protected $fillable = [
         'name',
+        'location_id',
         'email',
         'password',
         'phone',
@@ -44,6 +45,8 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(RentalOrder::class, 'driver_id', 'id');
     }
+
+    public function location(){return $this->belongsTo(Location::class);}
 
     public function managedOrders(): HasMany
     {

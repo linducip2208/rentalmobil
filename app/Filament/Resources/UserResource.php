@@ -59,6 +59,7 @@ class UserResource extends Resource
                         'viewer' => 'Viewer',
                     ])
                     ->required(),
+                Forms\Components\Select::make('location_id')->label('Cabang akses')->relationship('location','name')->searchable()->preload()->helperText('Kosongkan untuk akses seluruh cabang.'),
                 Forms\Components\TextInput::make('phone')
                     ->label('Telepon')
                     ->tel()

@@ -38,16 +38,7 @@ class BookingService
         }
 
         $durationDays = max(1, $startDate->diffInDays($endDate));
-        $pricing = $this->pricing->calculateOrderTotal(
-            $vehicle,
-            $startDate,
-            $endDate,
-            $data['rental_type'] ?? 'self_drive',
-            $data['driver_daily_cost'] ?? null,
-            $data['addon_ids'] ?? null,
-            null,
-            (float) ($data['tax_rate'] ?? 0.11)
-        );
+        $pricing = app(PricingEngine::class)->calculateRentalPrice($vehicle,$startDate->toDateString(),$endDate->toDateString(),$data['rental_type']??'self_drive',$data['addon_ids']??[],$data['promo_code']??null);
 
         return DB::transaction(function () use ($data, $pricing, $durationDays, $vehicle) {
             $booking = Booking::create([
@@ -59,7 +50,7 @@ class BookingService
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
                 'duration_days' => $durationDays,
-                'daily_rate_snapshot' => $pricing['base_daily_rate'],
+                'daily_rate_snapshot' => $pricing['effective_daily_rate'],
                 'subtotal' => $pricing['subtotal'],
                 'discount_amount' => $pricing['discount_amount'],
                 'tax_amount' => $pricing['tax_amount'],
@@ -67,6 +58,9 @@ class BookingService
                 'deposit_amount' => $data['deposit_amount'] ?? $vehicle->deposit_amount,
                 'status' => 'pending_verification',
                 'notes' => $data['notes'] ?? null,
+                'source' => $data['source'] ?? 'admin',
+                'addon_ids' => array_values($data['addon_ids'] ?? []),
+                'pricing_snapshot' => $pricing,
                 'created_by' => $data['created_by'] ?? auth()->id(),
             ]);
 
@@ -151,6 +145,17 @@ class BookingService
             ]);
 
             $booking->update(['status' => 'converted']);
+
+            foreach (($booking->pricing_snapshot['addon_details'] ?? []) as $addon) {
+                $order->items()->create([
+                    'addon_id' => $addon['id'],
+                    'name' => $addon['name'],
+                    'quantity' => 1,
+                    'unit_price' => $addon['unit_price'],
+                    'total_price' => $addon['total'],
+                    'type' => 'addon',
+                ]);
+            }
 
             Vehicle::where('id', $booking->vehicle_id)
                 ->update(['status' => 'reserved']);

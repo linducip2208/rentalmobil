@@ -15,3 +15,4 @@ Schedule::command('gps:monitor-health')->everyFiveMinutes()->withoutOverlapping(
 Schedule::command('gps:prune')->dailyAt('03:30')->withoutOverlapping();
 Schedule::command('rental:expire-operational-records')->hourly()->withoutOverlapping();
 Schedule::command('approvals:escalate-stale')->hourly()->withoutOverlapping();
+Schedule::command('maintenance:predict')->dailyAt('01:30')->withoutOverlapping();

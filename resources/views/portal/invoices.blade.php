@@ -14,6 +14,7 @@
   <div class="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row">
     <a class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-bold hover:bg-slate-50" href="{{ route('portal.invoices.download',$i) }}">Unduh PDF</a>
     @if((float)$i->balance_due > 0)
+    @if($paymentProviders->isNotEmpty())<form method="post" action="{{ route('portal.invoices.pay',$i) }}" class="flex flex-1 gap-2">@csrf<select name="provider_id" required class="min-h-11 flex-1 rounded-xl border px-3">@foreach($paymentProviders as $provider)<option value="{{ $provider->id }}">{{ $provider->name }}</option>@endforeach</select><button class="rounded-xl bg-emerald-600 px-4 font-bold text-white">Bayar online</button></form>@endif
     <details class="flex-1 rounded-xl bg-slate-50 p-3"><summary class="cursor-pointer text-sm font-bold text-blue-700">Kirim bukti pembayaran</summary>
       <form class="mt-4 grid gap-3 sm:grid-cols-2" method="post" enctype="multipart/form-data" action="{{ route('portal.invoices.payment-proof',$i) }}">@csrf
         <input class="min-h-11 rounded-lg border px-3" name="amount" type="number" min="1" max="{{ $i->balance_due }}" placeholder="Nominal" required>

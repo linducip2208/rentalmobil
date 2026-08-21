@@ -8,6 +8,10 @@ use App\Models\RentalOrder;
 use Illuminate\Http\Request;
 use App\Models\Payment;
 use App\Services\ReportPdfService;
+use App\Models\Provider;
+use App\Models\RentalExtension;
+use App\Services\PaymentGatewayService;
+use App\Services\PricingEngine;
 
 class DashboardController extends Controller
 {
@@ -30,7 +34,8 @@ class DashboardController extends Controller
     public function invoices(Request $request)
     {
         $invoices = Invoice::where('customer_id', $request->user('customer')->id)->latest()->paginate(15);
-        return view('portal.invoices', compact('invoices'));
+        $paymentProviders = Provider::active()->where('type','payment')->get();
+        return view('portal.invoices', compact('invoices','paymentProviders'));
     }
 
     public function downloadInvoice(Request $request, Invoice $invoice, ReportPdfService $pdfs)
@@ -56,5 +61,23 @@ class DashboardController extends Controller
             'notes' => 'Diupload mandiri melalui portal pelanggan.',
         ]);
         return back()->with('status', 'Bukti pembayaran terkirim dan menunggu verifikasi admin.');
+    }
+
+    public function requestExtension(Request $request, RentalOrder $order, PricingEngine $pricing)
+    {
+        $customer=$request->user('customer'); abort_unless($order->customer_id===$customer->id,404);
+        $data=$request->validate(['requested_end_date'=>['required','date','after:'.$order->end_date->toDateString()],'reason'=>['nullable','string','max:1000']]);
+        abort_if(RentalExtension::where('rental_order_id',$order->id)->where('status','pending')->exists(),422,'Masih ada permintaan perpanjangan yang menunggu.');
+        $quote=$pricing->calculateRentalPrice($order->vehicle,$order->end_date->toDateString(),$data['requested_end_date'],$order->rental_type);
+        RentalExtension::create(['rental_order_id'=>$order->id,'customer_id'=>$customer->id,'requested_end_date'=>$data['requested_end_date'],'additional_amount'=>$quote['total'],'reason'=>$data['reason']??null]);
+        $order->update(['status'=>'extension_requested']); return back()->with('status','Permintaan perpanjangan dikirim.');
+    }
+
+    public function checkoutPayment(Request $request, Invoice $invoice, PaymentGatewayService $gateway)
+    {
+        abort_unless($invoice->customer_id===$request->user('customer')->id,404);
+        $data=$request->validate(['provider_id'=>'required|exists:providers,id']); $provider=Provider::findOrFail($data['provider_id']);
+        $transaction=$gateway->create($provider,$invoice); abort_if(blank($transaction->checkout_url),422,'Provider tidak mengembalikan checkout URL.');
+        return redirect()->away($transaction->checkout_url);
     }
 }

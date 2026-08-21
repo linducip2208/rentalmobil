@@ -1,0 +1,1 @@
+<?php namespace App\Filament\Resources\DriverBehaviorEventResource\Pages;use App\Filament\Resources\DriverBehaviorEventResource;use Filament\Resources\Pages\ListRecords;class ListDriverBehaviorEvents extends ListRecords{protected static string $resource=DriverBehaviorEventResource::class;}

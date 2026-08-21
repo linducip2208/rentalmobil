@@ -37,6 +37,11 @@ Route::get('/sitemap/{section}-{page}.xml', [SitemapController::class, 'show'])-
 Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']));
+Route::get('/booking', [\App\Http\Controllers\PublicBookingController::class,'index'])->name('booking.index');
+Route::post('/booking/quote', [\App\Http\Controllers\PublicBookingController::class,'quote'])->middleware('throttle:30,1')->name('booking.quote');
+Route::post('/booking', [\App\Http\Controllers\PublicBookingController::class,'store'])->middleware('throttle:10,1')->name('booking.store');
+Route::get('/booking/{booking}/berhasil', [\App\Http\Controllers\PublicBookingController::class,'success'])->middleware('signed')->name('booking.success');
+Route::post('/payments/callback/{provider}', \App\Http\Controllers\PaymentCallbackController::class)->middleware('throttle:300,1')->name('payments.callback');
 
 Route::middleware('auth')->get('/internal/gps/trackers', [\App\Http\Controllers\Api\GpsTrackingController::class, 'getActiveTrackers'])
     ->name('internal.gps.trackers');
@@ -52,6 +57,8 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('/invoice', [\App\Http\Controllers\Portal\DashboardController::class, 'invoices'])->name('invoices');
         Route::get('/invoice/{invoice}/download', [\App\Http\Controllers\Portal\DashboardController::class, 'downloadInvoice'])->name('invoices.download');
         Route::post('/invoice/{invoice}/bukti-bayar', [\App\Http\Controllers\Portal\DashboardController::class, 'uploadPaymentProof'])->middleware('throttle:10,1')->name('invoices.payment-proof');
+        Route::post('/invoice/{invoice}/bayar', [\App\Http\Controllers\Portal\DashboardController::class, 'checkoutPayment'])->middleware('throttle:10,1')->name('invoices.pay');
+        Route::post('/pesanan/{order}/perpanjang', [\App\Http\Controllers\Portal\DashboardController::class, 'requestExtension'])->middleware('throttle:5,1')->name('orders.extend');
         Route::post('/logout', [\App\Http\Controllers\Portal\AuthController::class, 'destroy'])->name('logout');
     });
 });
