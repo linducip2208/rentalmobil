@@ -55,6 +55,12 @@ class BookingService
             throw new \RuntimeException('Dokumen kendaraan kedaluwarsa selama periode sewa: '.implode(', ', $expiredDocs).'. Perbarui dokumen terlebih dahulu.');
         }
 
+        // SIM penyewa harus berlaku sampai selesai sewa (self-drive maupun dengan supir).
+        $bookingCustomer = Customer::find($data['customer_id']);
+        if ($bookingCustomer?->sim_expiry_date && $bookingCustomer->sim_expiry_date->lt($endDate)) {
+            throw new \RuntimeException("SIM penyewa kedaluwarsa pada {$bookingCustomer->sim_expiry_date->format('d/m/Y')} — perpanjang SIM sebelum booking.");
+        }
+
         $durationDays = max(1, $startDate->diffInDays($endDate));
         $pricing = app(PricingEngine::class)->calculateRentalPrice($vehicle,$startDate->toDateString(),$endDate->toDateString(),$data['rental_type']??'self_drive',$data['addon_ids']??[],$data['promo_code']??null);
 

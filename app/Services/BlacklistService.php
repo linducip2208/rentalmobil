@@ -218,13 +218,13 @@ class BlacklistService
             return ['blocked' => true, 'reason' => 'Customer not found'];
         }
 
-        if ($customer->isBlacklisted()) {
-            $entry = BlacklistEntry::where('customer_id', $customerId)
-                ->active()
-                ->notExpired()
-                ->first();
+        $entry = BlacklistEntry::where('customer_id', $customerId)
+            ->active()
+            ->notExpired()
+            ->first();
 
-            $level = $entry ? $entry->severity : 'high';
+        if ($entry) {
+            $level = $entry->severity;
             $actions = $this->getLevelActions($level);
 
             return [

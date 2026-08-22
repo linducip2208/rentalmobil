@@ -185,7 +185,7 @@ class Vehicle extends Model
      * Dokumen kendaraan (STNK/pajak/KIR) yang kedaluwarsa sebelum tanggal tertentu.
      * Dipakai untuk blok booking + reminder H-30/H-7.
      */
-    public function expiredDocuments(?\Illuminate\Support\Carbon $until = null): array
+    public function expiredDocuments(?\Carbon\CarbonInterface $until = null): array
     {
         $until ??= now();
         $docs = [

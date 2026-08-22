@@ -29,6 +29,8 @@ class Customer extends Authenticatable
         'company_npwp',
         'date_of_birth',
         'gender',
+        'ktp_expiry_date',
+        'sim_expiry_date',
         'emergency_contact_name',
         'emergency_contact_phone',
         'trust_score',
@@ -44,6 +46,8 @@ class Customer extends Authenticatable
 
     protected $casts = [
         'date_of_birth' => 'date',
+        'ktp_expiry_date' => 'date',
+        'sim_expiry_date' => 'date',
         'trust_score' => 'integer',
         'total_spent' => 'decimal:2',
         'total_orders' => 'integer',

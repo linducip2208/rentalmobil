@@ -61,6 +61,8 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Portal\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/pesanan', [\App\Http\Controllers\Portal\DashboardController::class, 'orders'])->name('orders');
         Route::get('/langganan', [\App\Http\Controllers\Portal\DashboardController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('/inspeksi', [\App\Http\Controllers\Portal\DashboardController::class, 'inspections'])->name('inspections');
+        Route::post('/pesanan/{order}/jadwal-ulang', [\App\Http\Controllers\Portal\DashboardController::class, 'reschedule'])->middleware('throttle:5,1')->name('orders.reschedule');
         Route::get('/invoice', [\App\Http\Controllers\Portal\DashboardController::class, 'invoices'])->name('invoices');
         Route::get('/invoice/{invoice}/download', [\App\Http\Controllers\Portal\DashboardController::class, 'downloadInvoice'])->name('invoices.download');
         Route::post('/invoice/{invoice}/bukti-bayar', [\App\Http\Controllers\Portal\DashboardController::class, 'uploadPaymentProof'])->middleware('throttle:10,1')->name('invoices.payment-proof');

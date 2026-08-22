@@ -39,6 +39,89 @@ class DashboardController extends Controller
         return view('portal.subscriptions', compact('subscriptions'));
     }
 
+    public function inspections(Request $request)
+    {
+        $customer = $request->user('customer');
+        $orderIds = RentalOrder::where('customer_id', $customer->id)->pluck('id');
+        $inspections = \App\Models\VehicleInspection::with(['vehicle'])
+            ->whereIn('rental_order_id', $orderIds)
+            ->latest('inspected_at')
+            ->paginate(10);
+
+        return view('portal.inspections', compact('inspections'));
+    }
+
+    public function reschedule(Request $request, RentalOrder $order, \App\Services\PricingEngine $pricing)
+    {
+        $customer = $request->user('customer');
+        abort_unless($order->customer_id === $customer->id, 404);
+
+        abort_unless(in_array($order->status, ['draft', 'ready_for_preparation', 'preparing', 'ready_for_handover'], true), 422, 'Pesanan sudah berjalan atau selesai — tidak bisa dijadwalkan ulang.');
+
+        $data = $request->validate([
+            'start_date' => ['required', 'date', 'after_or_equal:today'],
+            'end_date' => ['required', 'date', 'after:start_date'],
+        ]);
+
+        $start = \Illuminate\Support\Carbon::parse($data['start_date']);
+        $end = \Illuminate\Support\Carbon::parse($data['end_date']);
+
+        // Kendaraan harus bebas pada rentang baru (abaikan order ini sendiri).
+        $conflict = RentalOrder::where('vehicle_id', $order->vehicle_id)
+            ->where('id', '!=', $order->id)
+            ->whereIn('status', ['ready_for_preparation', 'preparing', 'ready_for_handover', 'checked_out', 'active', 'extension_requested', 'return_due', 'overdue'])
+            ->where(function ($q) use ($start, $end) {
+                $q->whereBetween('start_date', [$start, $end])
+                    ->orWhereBetween('end_date', [$start, $end])
+                    ->orWhere(fn ($qq) => $qq->where('start_date', '<=', $start)->where('end_date', '>=', $end));
+            })->exists();
+        abort_if($conflict, 422, 'Kendaraan tidak tersedia pada tanggal baru tersebut.');
+
+        if ($order->vehicle->expiredDocuments($end) !== []) {
+            abort(422, 'Dokumen kendaraan kedaluwarsa pada rentang tanggal baru.');
+        }
+
+        $quote = $pricing->calculateRentalPrice($order->vehicle, $start->toDateString(), $end->toDateString(), $order->rental_type);
+
+        $oldFinal = (float) $order->final_amount;
+        $newFinal = (float) $quote['total'];
+        $delta = round($newFinal - $oldFinal, 2);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $data, $quote, $newFinal, $delta) {
+            $order->update([
+                'start_date' => $data['start_date'],
+                'end_date' => $data['end_date'],
+                'duration_days' => (int) $quote['duration_days'],
+                'daily_rate_snapshot' => $quote['effective_daily_rate'],
+                'subtotal' => $quote['subtotal'],
+                'tax_total' => $quote['tax_amount'],
+                'final_amount' => $newFinal,
+                'balance_due' => max(0, $newFinal - (float) $order->amount_paid),
+            ]);
+
+            if ($delta > 0) {
+                Invoice::create([
+                    'rental_order_id' => $order->id,
+                    'customer_id' => $order->customer_id,
+                    'type' => 'additional',
+                    'subtotal' => $delta,
+                    'total_amount' => $delta,
+                    'balance_due' => $delta,
+                    'due_date' => $order->start_date,
+                    'status' => 'issued',
+                    'notes' => 'Selisih penjadwalan ulang pesanan '.$order->order_number,
+                ]);
+            }
+        });
+
+        return back()->with(
+            'status',
+            $delta > 0
+                ? 'Jadwal diperbarui. Invoice selisih Rp '.number_format($delta, 0, ',', '.').' telah diterbitkan.'
+                : 'Jadwal berhasil diperbarui.'
+        );
+    }
+
     public function invoices(Request $request)
     {
         $invoices = Invoice::where('customer_id', $request->user('customer')->id)->latest()->paginate(15);
