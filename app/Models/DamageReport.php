@@ -25,6 +25,8 @@ class DamageReport extends Model
         'charged_to_customer',
         'charge_amount',
         'photos',
+        'ai_findings',
+        'ai_confidence',
         'status',
         'assessed_by',
         'assessed_at',
@@ -39,6 +41,8 @@ class DamageReport extends Model
             'charged_to_customer' => 'boolean',
             'charge_amount' => 'decimal:2',
             'photos' => 'array',
+            'ai_findings' => 'array',
+            'ai_confidence' => 'decimal:2',
             'assessed_at' => 'datetime',
         ];
     }
