@@ -18,3 +18,5 @@ Schedule::command('approvals:escalate-stale')->hourly()->withoutOverlapping();
 Schedule::command('maintenance:predict')->dailyAt('01:30')->withoutOverlapping();
 Schedule::command('subscriptions:bill')->dailyAt('05:00')->withoutOverlapping();
 Schedule::command('vehicles:remind-documents')->dailyAt('07:30')->withoutOverlapping();
+Schedule::command('marketing:generate-vouchers')->dailyAt('06:30')->withoutOverlapping();
+Schedule::command('marketing:request-reviews')->dailyAt('10:00')->withoutOverlapping();

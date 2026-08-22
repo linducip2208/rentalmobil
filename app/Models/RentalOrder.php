@@ -165,6 +165,11 @@ class RentalOrder extends Model
         return $this->hasMany(Deposit::class);
     }
 
+    public function notifications(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(NotificationQueue::class, 'notifiable');
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);

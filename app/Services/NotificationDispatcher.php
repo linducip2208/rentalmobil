@@ -31,8 +31,8 @@ class NotificationDispatcher
             return null;
         }
 
-        $renderedSubject = $this->renderTemplate($template->subject, $data);
-        $renderedBody = $this->renderTemplate($template->body, $data);
+        $renderedSubject = $template->subject !== null ? $this->renderTemplate($template->subject, $data) : null;
+        $renderedBody = $this->renderTemplate($template->body ?? '', $data);
 
         $notification = NotificationQueue::create([
             'provider_id' => $provider->id,
