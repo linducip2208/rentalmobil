@@ -12,6 +12,7 @@ class Booking extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'purchase_order_number',
         'booking_number',
         'customer_id',
         'vehicle_id',

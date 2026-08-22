@@ -14,6 +14,7 @@ class Customer extends Authenticatable
     protected $fillable = [
         'name',
         'customer_type',
+        'corporate_account_id',
         'email',
         'phone',
         'address',
@@ -50,6 +51,11 @@ class Customer extends Authenticatable
             'password' => 'hashed',
             'last_login_at' => 'datetime',
     ];
+
+    public function corporateAccount(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(CorporateAccount::class);
+    }
 
     // Relationships
     public function bookings()

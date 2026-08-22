@@ -66,6 +66,12 @@ class CustomerResource extends Resource
                     ->maxLength(50),
                 Forms\Components\TextInput::make('sim_number')->label('Nomor SIM')->maxLength(50),
                 Forms\Components\Select::make('customer_type')->label('Jenis customer')->options(['individual'=>'Perorangan','corporate'=>'Perusahaan'])->default('individual'),
+                Forms\Components\Select::make('corporate_account_id')
+                    ->label('Akun korporat')
+                    ->relationship('corporateAccount', 'name')
+                    ->searchable()
+                    ->visible(fn (Forms\Components\Get $get) => $get('customer_type') === 'corporate')
+                    ->helperText('Billing konsolidasi, limit kredit & diskon mengikuti akun korporat.'),
             ])->columns(2),
 
             Schemas\Components\Section::make('Perusahaan & Kontak Darurat')->schema([

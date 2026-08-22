@@ -44,6 +44,11 @@ class BookingResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
+                Forms\Components\TextInput::make('purchase_order_number')
+                    ->label('No. PO Perusahaan')
+                    ->maxLength(80)
+                    ->placeholder('PO-2026-001')
+                    ->helperText('Untuk customer korporat yang memesan via purchase order.'),
                 Forms\Components\Select::make('driver_id')
                     ->label('Supir')
                     ->relationship('driver', 'name')

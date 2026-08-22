@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\CorporateAccount;
 use App\Models\Customer;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
@@ -28,6 +29,17 @@ class BookingService
         $vehicle = Vehicle::findOrFail($data['vehicle_id']);
         $startDate = Carbon::parse($data['start_date']);
         $endDate = Carbon::parse($data['end_date']);
+
+        // Batas kredit akun korporat: tolak booking jika piutang + estimasi order melebihi limit.
+        $corporateCustomer = Customer::find($data['customer_id']);
+        if ($corporateCustomer?->corporate_account_id) {
+            $account = CorporateAccount::find($corporateCustomer->corporate_account_id);
+            if ($account) {
+                $estimate = (float) $vehicle->daily_rate * max(1, $startDate->diffInDays($endDate));
+                $credit = app(CorporateBillingService::class)->checkCreditLimit($account, $estimate);
+                abort_unless($credit['allowed'], 422, "Limit kredit akun korporat tidak cukup. Tersedia: Rp ".number_format($credit['available'], 0, ',', '.'));
+            }
+        }
 
         if ($startDate->gte($endDate)) {
             throw new \InvalidArgumentException('End date must be after start date.');

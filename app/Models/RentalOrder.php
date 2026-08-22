@@ -40,6 +40,7 @@ class RentalOrder extends Model
         'balance_due',
         'deposit_amount',
         'amount_refunded',
+        'purchase_order_number',
         'status',
         'payment_status',
         'pickup_km',

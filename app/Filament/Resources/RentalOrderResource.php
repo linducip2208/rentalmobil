@@ -42,6 +42,10 @@ class RentalOrderResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
+                Forms\Components\TextInput::make('purchase_order_number')
+                    ->label('No. PO Perusahaan')
+                    ->maxLength(80)
+                    ->placeholder('PO-2026-001'),
                 Forms\Components\Select::make('driver_id')
                     ->label('Supir')
                     ->relationship('driver', 'name')
