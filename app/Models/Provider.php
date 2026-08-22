@@ -17,6 +17,7 @@ class Provider extends Model
         'type',
         'api_format',
         'base_url',
+        'api_key',
         'api_key_encrypted',
         'extra_headers',
         'config',
