@@ -49,6 +49,12 @@ class BookingService
             throw new \RuntimeException('Vehicle is not available for the selected dates.');
         }
 
+        // Dokumen kendaraan harus valid selama masa sewa (STNK/pajak/KIR).
+        $expiredDocs = $vehicle->expiredDocuments($endDate);
+        if ($expiredDocs !== []) {
+            throw new \RuntimeException('Dokumen kendaraan kedaluwarsa selama periode sewa: '.implode(', ', $expiredDocs).'. Perbarui dokumen terlebih dahulu.');
+        }
+
         $durationDays = max(1, $startDate->diffInDays($endDate));
         $pricing = app(PricingEngine::class)->calculateRentalPrice($vehicle,$startDate->toDateString(),$endDate->toDateString(),$data['rental_type']??'self_drive',$data['addon_ids']??[],$data['promo_code']??null);
 

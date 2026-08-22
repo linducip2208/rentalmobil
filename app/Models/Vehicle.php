@@ -40,6 +40,10 @@ class Vehicle extends Model
         'is_insured',
         'last_serviced_at',
         'last_km_at',
+        'stnk_due_date',
+        'tax_due_date',
+        'tax_5y_due_date',
+        'kir_due_date',
         'created_by',
     ];
 
@@ -54,6 +58,10 @@ class Vehicle extends Model
         'late_fee_per_hour' => 'decimal:2',
         'late_fee_per_day' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
+        'stnk_due_date' => 'date',
+        'tax_due_date' => 'date',
+        'tax_5y_due_date' => 'date',
+        'kir_due_date' => 'date',
         'features' => 'array',
         'is_active' => 'boolean',
         'is_insured' => 'boolean',
@@ -171,5 +179,34 @@ class Vehicle extends Model
     public function scopeMaintenance($query)
     {
         return $query->where('status', 'maintenance');
+    }
+
+    /**
+     * Dokumen kendaraan (STNK/pajak/KIR) yang kedaluwarsa sebelum tanggal tertentu.
+     * Dipakai untuk blok booking + reminder H-30/H-7.
+     */
+    public function expiredDocuments(?\Illuminate\Support\Carbon $until = null): array
+    {
+        $until ??= now();
+        $docs = [
+            'stnk_due_date' => 'STNK',
+            'tax_due_date' => 'Pajak Tahunan',
+            'tax_5y_due_date' => 'Pajak 5 Tahunan',
+            'kir_due_date' => 'KIR',
+        ];
+        $expired = [];
+
+        foreach ($docs as $field => $label) {
+            if ($this->{$field} && $this->{$field}->lt($until)) {
+                $expired[] = "{$label} ({$this->{$field}->format('d/m/Y')})";
+            }
+        }
+
+        return $expired;
+    }
+
+    public function hasValidDocumentsUntil(\Illuminate\Support\Carbon $date): bool
+    {
+        return $this->expiredDocuments($date->copy()->endOfDay()) === [];
     }
 }

@@ -17,3 +17,4 @@ Schedule::command('rental:expire-operational-records')->hourly()->withoutOverlap
 Schedule::command('approvals:escalate-stale')->hourly()->withoutOverlapping();
 Schedule::command('maintenance:predict')->dailyAt('01:30')->withoutOverlapping();
 Schedule::command('subscriptions:bill')->dailyAt('05:00')->withoutOverlapping();
+Schedule::command('vehicles:remind-documents')->dailyAt('07:30')->withoutOverlapping();

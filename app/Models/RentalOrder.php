@@ -160,6 +160,11 @@ class RentalOrder extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function deposits(): HasMany
+    {
+        return $this->hasMany(Deposit::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);

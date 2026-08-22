@@ -267,6 +267,31 @@ class RentalOrderResource extends Resource
                     ])
                     ->action(fn () => null)
                     ->modalSubmitActionLabel('Selesai'),
+                Actions\Action::make('refundDeposit')
+                    ->label('Refund Deposit')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->visible(fn ($record) => $record->deposits()->whereIn('deposit_status', ['received', 'held'])->exists())
+                    ->modalHeading('Pengembalian Deposit')
+                    ->modalDescription('Isi potongan yang berlaku (kosongkan jika tidak ada). Invoice potongan otomatis diterbitkan.')
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('fuel')->numeric()->prefix('Rp')->default(0)->label('Potongan BBM'),
+                        \Filament\Forms\Components\TextInput::make('cleaning')->numeric()->prefix('Rp')->default(0)->label('Biaya cuci'),
+                        \Filament\Forms\Components\TextInput::make('late_fee')->numeric()->prefix('Rp')->default(0)->label('Denda keterlambatan'),
+                        \Filament\Forms\Components\TextInput::make('damage')->numeric()->prefix('Rp')->default(0)->label('Kerusakan minor'),
+                        \Filament\Forms\Components\TextInput::make('other')->numeric()->prefix('Rp')->default(0)->label('Potongan lain'),
+                    ])
+                    ->action(function ($record, array $data) {
+                        $deposit = $record->deposits()->whereIn('deposit_status', ['received', 'held'])->latest()->first();
+                        app(\App\Services\DepositRefundService::class)->refund($deposit, [
+                            'fuel' => $data['fuel'] ?? 0,
+                            'cleaning' => $data['cleaning'] ?? 0,
+                            'late_fee' => $data['late_fee'] ?? 0,
+                            'damage' => $data['damage'] ?? 0,
+                            'other' => $data['other'] ?? 0,
+                        ], auth()->id());
+                        \Filament\Notifications\Notification::make()->title('Deposit dikembalikan dengan potongan tercatat')->success()->send();
+                    }),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

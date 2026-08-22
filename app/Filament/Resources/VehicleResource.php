@@ -161,6 +161,15 @@ class VehicleResource extends Resource
                 Forms\Components\DateTimePicker::make('last_km_at')
                     ->label('Terakhir Catat KM'),
             ])->columns(2),
+
+            Schemas\Components\Section::make('Dokumen & Pajak Kendaraan')
+                ->description('Booking otomatis ditolak jika dokumen kedaluwarsa selama masa sewa. Reminder dikirim H-30 dan H-7.')
+                ->schema([
+                    Forms\Components\DatePicker::make('stnk_due_date')->label('Jatuh Tempo STNK')->native(false),
+                    Forms\Components\DatePicker::make('tax_due_date')->label('Pajak Tahunan')->native(false),
+                    Forms\Components\DatePicker::make('tax_5y_due_date')->label('Pajak 5 Tahunan')->native(false),
+                    Forms\Components\DatePicker::make('kir_due_date')->label('Uji Berkala KIR')->native(false),
+                ])->columns(2),
         ]);
     }
 
