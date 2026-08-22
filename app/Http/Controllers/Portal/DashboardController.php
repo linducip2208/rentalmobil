@@ -31,6 +31,14 @@ class DashboardController extends Controller
         return view('portal.orders', compact('orders'));
     }
 
+    public function subscriptions(Request $request)
+    {
+        $subscriptions = \App\Models\Subscription::with('vehicle')
+            ->where('customer_id', $request->user('customer')->id)
+            ->latest()->get();
+        return view('portal.subscriptions', compact('subscriptions'));
+    }
+
     public function invoices(Request $request)
     {
         $invoices = Invoice::where('customer_id', $request->user('customer')->id)->latest()->paginate(15);
