@@ -240,6 +240,29 @@ class RentalOrderResource extends Resource
                     }),
             ])
             ->actions([
+                Actions\Action::make('checkinLink')
+                    ->label('QR Check-in')
+                    ->icon('heroicon-o-qr-code')
+                    ->color('info')
+                    ->visible(fn ($record) => ! in_array($record->status, ['checked_out', 'active', 'completed', 'cancelled'], true))
+                    ->modalHeading('Self Check-in Pelanggan')
+                    ->modalDescription('Bagikan QR/link ini saat serah terima — pelanggan foto kondisi mobil & isi BBM/odometer sendiri.')
+                    ->mountUsing(function (\Filament\Schemas\Schema $form, $record) {
+                        $link = app(\App\Services\HandoverLinkService::class)->issueCheckIn($record);
+                        $form->fill(['link' => $link]);
+                    })
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('link')
+                            ->label('URL check-in')
+                            ->readOnly()
+                            ->copyable()
+                            ->columnSpanFull(),
+                        \Filament\Forms\Components\ViewField::make('qr')
+                            ->view('filament.contracts.qr-link')
+                            ->columnSpanFull(),
+                    ])
+                    ->action(fn () => null)
+                    ->modalSubmitActionLabel('Selesai'),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

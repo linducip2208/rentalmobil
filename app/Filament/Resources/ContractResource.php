@@ -192,6 +192,29 @@ class ContractResource extends Resource
                     ]),
             ])
             ->actions([
+                Actions\Action::make('signLink')
+                    ->label('Link TTE')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('info')
+                    ->visible(fn ($record) => ! $record->isSigned())
+                    ->modalHeading('Link Tanda Tangan Elektronik')
+                    ->modalDescription('Bagikan link ini ke penyewa via WhatsApp/email. Link ber-hash aman & kedaluwarsa otomatis.')
+                    ->mountUsing(function (\Filament\Schemas\Schema $form, $record) {
+                        $link = app(\App\Services\HandoverLinkService::class)->issueContractSigning($record);
+                        $form->fill(['link' => $link]);
+                    })
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('link')
+                            ->label('URL tanda tangan')
+                            ->readOnly()
+                            ->copyable()
+                            ->columnSpanFull(),
+                        \Filament\Forms\Components\ViewField::make('qr')
+                            ->view('filament.contracts.qr-link')
+                            ->columnSpanFull(),
+                    ])
+                    ->action(fn () => null)
+                    ->modalSubmitActionLabel('Selesai'),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

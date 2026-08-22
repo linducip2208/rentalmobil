@@ -94,13 +94,18 @@ class SecureToken extends Model
     {
         $raw = Str::random(64);
 
-        return static::create([
+        /** @var self $token */
+        $token = static::query()->create([
             'token_hash' => hash('sha256', $raw),
             'scope' => $scope,
             'reference_type' => $referenceType,
             'reference_id' => $referenceId,
             'expires_at' => now()->addMinutes($expiresInMinutes),
             'created_by' => $createdBy,
-        ])->tap(fn ($token) => $token->raw_token = $raw);
+        ]);
+
+        $token->raw_token = $raw;
+
+        return $token;
     }
 }

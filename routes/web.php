@@ -43,6 +43,12 @@ Route::post('/booking', [\App\Http\Controllers\PublicBookingController::class,'s
 Route::get('/booking/{booking}/berhasil', [\App\Http\Controllers\PublicBookingController::class,'success'])->middleware('signed')->name('booking.success');
 Route::post('/payments/callback/{provider}', \App\Http\Controllers\PaymentCallbackController::class)->middleware('throttle:300,1')->name('payments.callback');
 
+Route::get('/handover/kontrak/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'showContract'])->name('handover.contract.show');
+Route::post('/handover/kontrak/{token}/otp', [\App\Http\Controllers\PublicHandoverController::class, 'sendOtp'])->middleware('throttle:5,1')->name('handover.contract.otp');
+Route::post('/handover/kontrak/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'signContract'])->middleware('throttle:10,1')->name('handover.contract.sign');
+Route::get('/handover/checkin/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'showCheckIn'])->name('handover.checkin.show');
+Route::post('/handover/checkin/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'submitCheckIn'])->middleware('throttle:10,1')->name('handover.checkin.submit');
+
 Route::middleware('auth')->get('/internal/gps/trackers', [\App\Http\Controllers\Api\GpsTrackingController::class, 'getActiveTrackers'])
     ->name('internal.gps.trackers');
 
