@@ -18,11 +18,21 @@ const pages = [['login','/admin/login'],['dashboard','/admin'],['vehicles','/adm
   await page.locator('input[type="password"]').first().fill('');
   await page.type('input[type="password"]', process.env.SCREENSHOT_PASSWORD || 'password', { delay: 35 });
   await page.locator('button[type="submit"]').first().click();
-  await page.waitForURL(/\/admin(?:\/)?(?:\?.*)?$/, { timeout: 20000 });
+  await page.waitForURL(/\/admin/, { timeout: 20000 });
   for (const [name, route] of pages.slice(1)) {
-    await page.goto(`${baseUrl}${route}`, { waitUntil: 'networkidle' });
-    await page.screenshot({ path: path.join(output, `${name}.png`), fullPage: false });
+    try {
+      try {
+        await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      } catch {
+        await page.waitForTimeout(1500);
+        await page.goto(page.url(), { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+      }
+      await page.waitForTimeout(2500);
+      await page.screenshot({ path: path.join(output, `${name}.png`), fullPage: false });
+    } catch (e) {
+      console.error(`SKIP ${name}: ${e.message.split('\n')[0]}`);
+    }
   }
   await browser.close();
-  console.log(`Captured ${pages.length} mobile screenshots in ${output}`);
+  console.log('Mobile screenshots done in ' + output);
 })().catch(error => { console.error(error); process.exit(1); });
