@@ -28,9 +28,9 @@ class SystemSetting extends Model
 
     public static function set(string $key, $value): void
     {
-        static::updateOrCreate(
+        static::query()->updateOrCreate(
             ['key' => $key],
-            ['value' => $value]
+            ['value' => is_array($value) ? json_encode($value) : $value, 'group_name' => static::query()->where('key', $key)->value('group_name') ?? 'general']
         );
         Cache::forget("setting_{$key}");
     }

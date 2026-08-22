@@ -32,8 +32,7 @@ class PricingEngine
         $current = $start->copy();
 
         while ($current->lt($end)) {
-            $surge = $this->getSurgePricing($vehicle, $current->toDateString());
-            if ($surge) {
+            if ($surge = $this->getSurgePricing($vehicle, $current->toDateString())) {
                 $multiplier = (float) $surge->multiplier;
                 $surgeBreakdown[] = [
                     'date' => $current->toDateString(),
@@ -42,10 +41,27 @@ class PricingEngine
                 ];
                 $surgeMultiplier = max($surgeMultiplier, $multiplier);
             }
+
+            // Kalender musim (libur nasional / high season) — multiplier per tanggal.
+            if ($season = \App\Models\SeasonPeriod::forDate($current->toDateString(), $vehicle->location_id)) {
+                $seasonMultiplier = (float) $season->multiplier;
+                $surgeBreakdown[] = [
+                    'date' => $current->toDateString(),
+                    'rule' => "Musim: {$season->name}",
+                    'multiplier' => $seasonMultiplier,
+                ];
+                $surgeMultiplier = max($surgeMultiplier, $seasonMultiplier);
+            }
+
             $current->addDay();
         }
 
-        $effectiveDailyRate = round($dailyRate * $surgeMultiplier, 2);
+        // Demand-based pricing: occupancy kategori yang sama dalam 30 hari terakhir.
+        $demandMultiplier = 1.0;
+        $demandInfo = $this->getDemandMultiplier($vehicle);
+        $demandMultiplier = $demandInfo['multiplier'];
+
+        $effectiveDailyRate = round($dailyRate * $surgeMultiplier * $demandMultiplier, 2);
 
         $baseTotal = round($effectiveDailyRate * $durationDays, 2);
 
@@ -118,12 +134,56 @@ class PricingEngine
                 'base_daily_rate' => $dailyRate,
                 'surge_applied' => !empty($surgeBreakdown),
                 'surge_details' => $surgeBreakdown,
+                'demand_multiplier' => $demandMultiplier,
+                'demand_occupancy' => $demandInfo['occupancy'],
                 'driver_fee_per_day' => $rentalType === 'with_driver' ? $driverFeePerDay : 0,
                 'addons' => $addonDetails,
                 'promo_applied' => $discountAmount > 0,
                 'promo_details' => $promoDetails,
             ],
         ];
+    }
+
+    /**
+     * Multiplier berbasis demand: occupancy kategori kendaraan yang sama
+     * dalam 30 hari terakhir. Ambang & multiplier dikonfigurasi pemilik
+     * aplikasi via SystemSetting key "demand_pricing" (JSON).
+     */
+    public function getDemandMultiplier(Vehicle $vehicle): array
+    {
+        $config = SystemSetting::get('demand_pricing');
+
+        if (!$config || !filter_var(data_get(is_string($config) ? json_decode($config, true) : $config, 'enabled', false), FILTER_VALIDATE_BOOLEAN)) {
+            return ['multiplier' => 1.0, 'occupancy' => null];
+        }
+
+        $config = is_string($config) ? json_decode($config, true) : $config;
+        $highThreshold = (float) ($config['high_threshold'] ?? 0.8);
+        $highMultiplier = (float) ($config['high_multiplier'] ?? 1.15);
+        $lowThreshold = (float) ($config['low_threshold'] ?? 0.3);
+        $lowMultiplier = (float) ($config['low_multiplier'] ?? 0.9);
+
+        $from = now()->subDays(30);
+        $vehicleIds = Vehicle::where('category_id', $vehicle->category_id)->pluck('id');
+        $totalVehicleDays = max(1, $vehicleIds->count() * 30);
+        $bookedVehicleDays = \App\Models\RentalOrder::whereIn('vehicle_id', $vehicleIds)
+            ->whereIn('status', ['ready_for_preparation', 'preparing', 'ready_for_handover', 'checked_out', 'active', 'extension_requested', 'return_due', 'overdue', 'completed'])
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', $from)
+            ->selectRaw('SUM(DATEDIFF(LEAST(end_date, ?), GREATEST(start_date, ?)) + 1) as days', [now()->toDateString(), $from->toDateString()])
+            ->value('days') ?? 0;
+
+        $occupancy = min(1.0, max(0.0, ((int) $bookedVehicleDays) / $totalVehicleDays));
+
+        if ($occupancy >= $highThreshold) {
+            return ['multiplier' => $highMultiplier, 'occupancy' => round($occupancy, 3)];
+        }
+
+        if ($occupancy <= $lowThreshold) {
+            return ['multiplier' => $lowMultiplier, 'occupancy' => round($occupancy, 3)];
+        }
+
+        return ['multiplier' => 1.0, 'occupancy' => round($occupancy, 3)];
     }
 
     /**

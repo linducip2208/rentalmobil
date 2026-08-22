@@ -58,6 +58,20 @@ class BookingService
         $durationDays = max(1, $startDate->diffInDays($endDate));
         $pricing = app(PricingEngine::class)->calculateRentalPrice($vehicle,$startDate->toDateString(),$endDate->toDateString(),$data['rental_type']??'self_drive',$data['addon_ids']??[],$data['promo_code']??null);
 
+        // Rate card korporat: diskon % akun diterapkan setelah promo.
+        $corporateCustomer = Customer::find($data['customer_id']);
+        if ($corporateCustomer?->corporate_account_id) {
+            $account = CorporateAccount::find($corporateCustomer->corporate_account_id);
+            if ($account && (float) $account->discount_percent > 0) {
+                $extraDiscount = round((float) $pricing['after_discount'] * (float) $account->discount_percent / 100, 2);
+                $pricing['discount_amount'] = round((float) $pricing['discount_amount'] + $extraDiscount, 2);
+                $pricing['after_discount'] = round(max(0.0, (float) $pricing['subtotal'] - $pricing['discount_amount']), 2);
+                $pricing['tax_amount'] = round($pricing['after_discount'] * app(PricingEngine::class)->getTaxRate(), 2);
+                $pricing['total'] = round($pricing['after_discount'] + $pricing['tax_amount'], 2);
+                $pricing['breakdown']['corporate_discount_percent'] = (float) $account->discount_percent;
+            }
+        }
+
         return DB::transaction(function () use ($data, $pricing, $durationDays, $vehicle) {
             $booking = Booking::create([
                 'customer_id' => $data['customer_id'],
