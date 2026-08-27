@@ -53,10 +53,20 @@ class CmsPageController extends Controller
 
     private function findPublished(string $slug): ?Page
     {
-        return Cache::remember("cms.page.{$slug}", now()->addHour(), fn () => Page::published()
-            ->with(['sections' => fn ($query) => $query->where('is_visible', true), 'seoMeta'])
+        // Cache only a scalar ID. Caching an Eloquent model serializes its
+        // class definition and can produce __PHP_Incomplete_Class after a
+        // deployment or long-running worker reload.
+        $pageId = Cache::remember("cms.page.id.{$slug}", now()->addHour(), fn () => Page::published()
             ->where('slug', $slug)
-            ->first());
+            ->value('id'));
+
+        if (! $pageId) {
+            return null;
+        }
+
+        return Page::published()
+            ->with(['sections' => fn ($query) => $query->where('is_visible', true), 'seoMeta'])
+            ->find($pageId);
     }
 
     private function render(Page $page)

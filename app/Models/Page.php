@@ -26,8 +26,14 @@ class Page extends Model
         static::saving(function (Page $page): void {
             $page->slug = Str::slug($page->slug ?: $page->title);
         });
-        static::saved(fn (Page $page) => Cache::forget("cms.page.{$page->slug}"));
-        static::deleted(fn (Page $page) => Cache::forget("cms.page.{$page->slug}"));
+        static::saved(function (Page $page): void {
+            Cache::forget("cms.page.{$page->slug}");
+            Cache::forget("cms.page.id.{$page->slug}");
+        });
+        static::deleted(function (Page $page): void {
+            Cache::forget("cms.page.{$page->slug}");
+            Cache::forget("cms.page.id.{$page->slug}");
+        });
     }
 
     public function author(): BelongsTo
