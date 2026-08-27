@@ -1,18 +1,25 @@
 <?php
 
+use App\Http\Controllers\Api\GpsTrackingController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CmsPageController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DocsController;
+use App\Http\Controllers\EmbedBookingController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\PaymentCallbackController;
+use App\Http\Controllers\Portal\AuthController;
+use App\Http\Controllers\Portal\DashboardController;
+use App\Http\Controllers\ProgrammaticSeoController;
 use App\Http\Controllers\PSeo\AlternativeController;
 use App\Http\Controllers\PSeo\CategoryCityController;
 use App\Http\Controllers\PSeo\CategoryListController;
 use App\Http\Controllers\PSeo\CompareController;
 use App\Http\Controllers\PSeo\VehicleDetailController;
-use App\Http\Controllers\ProgrammaticSeoController;
+use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\PublicHandoverController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\CmsPageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [CmsPageController::class, 'home'])->name('home');
@@ -27,52 +34,54 @@ Route::post('/contact', [ContactController::class, 'store'])->name('contact.stor
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 
 Route::get('/docs', [DocsController::class, 'index'])->name('docs.index');
+Route::get('/corporate', [CmsPageController::class, 'corporate'])->name('corporate');
+Route::get('/tentang-kami', [CmsPageController::class, 'about'])->name('about');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemap/{section}-{page}.xml', [SitemapController::class, 'show'])->where(['section' => 'core|custom', 'page' => '[1-9][0-9]*'])->name('sitemap.chunk');
 Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']));
-Route::get('/booking', [\App\Http\Controllers\PublicBookingController::class,'index'])->name('booking.index');
-Route::post('/booking/quote', [\App\Http\Controllers\PublicBookingController::class,'quote'])->middleware('throttle:30,1')->name('booking.quote');
-Route::post('/booking', [\App\Http\Controllers\PublicBookingController::class,'store'])->middleware('throttle:10,1')->name('booking.store');
-Route::get('/booking/{booking}/berhasil', [\App\Http\Controllers\PublicBookingController::class,'success'])->middleware('signed')->name('booking.success');
-Route::post('/payments/callback/{provider}', \App\Http\Controllers\PaymentCallbackController::class)->middleware('throttle:300,1')->name('payments.callback');
+Route::get('/booking', [PublicBookingController::class, 'index'])->name('booking.index');
+Route::post('/booking/quote', [PublicBookingController::class, 'quote'])->middleware('throttle:30,1')->name('booking.quote');
+Route::post('/booking', [PublicBookingController::class, 'store'])->middleware('throttle:10,1')->name('booking.store');
+Route::get('/booking/{booking}/berhasil', [PublicBookingController::class, 'success'])->middleware('signed')->name('booking.success');
+Route::post('/payments/callback/{provider}', PaymentCallbackController::class)->middleware('throttle:300,1')->name('payments.callback');
 
 // ===== Embeddable booking widget (mitra) + API ketersediaan publik =====
 Route::get('/embed/booking', fn () => response()->view('embed.booking'))->name('embed.booking');
-Route::get('/api/public/availability', [\App\Http\Controllers\EmbedBookingController::class, 'availability'])->middleware('throttle:60,1')->name('api.public.availability');
-Route::get('/api/public/meta', [\App\Http\Controllers\EmbedBookingController::class, 'meta'])->middleware('throttle:60,1')->name('api.public.meta');
-Route::post('/booking/hold', [\App\Http\Controllers\PublicBookingController::class, 'hold'])->middleware('throttle:20,1')->name('booking.hold');
+Route::get('/api/public/availability', [EmbedBookingController::class, 'availability'])->middleware('throttle:60,1')->name('api.public.availability');
+Route::get('/api/public/meta', [EmbedBookingController::class, 'meta'])->middleware('throttle:60,1')->name('api.public.meta');
+Route::post('/booking/hold', [PublicBookingController::class, 'hold'])->middleware('throttle:20,1')->name('booking.hold');
 
-Route::get('/handover/kontrak/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'showContract'])->name('handover.contract.show');
-Route::post('/handover/kontrak/{token}/otp', [\App\Http\Controllers\PublicHandoverController::class, 'sendOtp'])->middleware('throttle:5,1')->name('handover.contract.otp');
-Route::post('/handover/kontrak/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'signContract'])->middleware('throttle:10,1')->name('handover.contract.sign');
-Route::get('/handover/checkin/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'showCheckIn'])->name('handover.checkin.show');
-Route::post('/handover/checkin/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'submitCheckIn'])->middleware('throttle:10,1')->name('handover.checkin.submit');
+Route::get('/handover/kontrak/{token}', [PublicHandoverController::class, 'showContract'])->name('handover.contract.show');
+Route::post('/handover/kontrak/{token}/otp', [PublicHandoverController::class, 'sendOtp'])->middleware('throttle:5,1')->name('handover.contract.otp');
+Route::post('/handover/kontrak/{token}', [PublicHandoverController::class, 'signContract'])->middleware('throttle:10,1')->name('handover.contract.sign');
+Route::get('/handover/checkin/{token}', [PublicHandoverController::class, 'showCheckIn'])->name('handover.checkin.show');
+Route::post('/handover/checkin/{token}', [PublicHandoverController::class, 'submitCheckIn'])->middleware('throttle:10,1')->name('handover.checkin.submit');
 
-Route::middleware('auth')->get('/internal/gps/trackers', [\App\Http\Controllers\Api\GpsTrackingController::class, 'getActiveTrackers'])
+Route::middleware('auth')->get('/internal/gps/trackers', [GpsTrackingController::class, 'getActiveTrackers'])
     ->name('internal.gps.trackers');
 
 Route::prefix('portal')->name('portal.')->group(function () {
     Route::middleware('guest:customer')->group(function () {
-        Route::get('/login', [\App\Http\Controllers\Portal\AuthController::class, 'create'])->name('login');
-        Route::post('/login', [\App\Http\Controllers\Portal\AuthController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
+        Route::get('/login', [AuthController::class, 'create'])->name('login');
+        Route::post('/login', [AuthController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
     });
     Route::middleware('auth:customer')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Portal\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/pesanan', [\App\Http\Controllers\Portal\DashboardController::class, 'orders'])->name('orders');
-        Route::get('/langganan', [\App\Http\Controllers\Portal\DashboardController::class, 'subscriptions'])->name('subscriptions');
-        Route::get('/inspeksi', [\App\Http\Controllers\Portal\DashboardController::class, 'inspections'])->name('inspections');
-        Route::post('/pesanan/{order}/jadwal-ulang', [\App\Http\Controllers\Portal\DashboardController::class, 'reschedule'])->middleware('throttle:5,1')->name('orders.reschedule');
-        Route::get('/invoice', [\App\Http\Controllers\Portal\DashboardController::class, 'invoices'])->name('invoices');
-        Route::get('/invoice/{invoice}/download', [\App\Http\Controllers\Portal\DashboardController::class, 'downloadInvoice'])->name('invoices.download');
-        Route::post('/invoice/{invoice}/bukti-bayar', [\App\Http\Controllers\Portal\DashboardController::class, 'uploadPaymentProof'])->middleware('throttle:10,1')->name('invoices.payment-proof');
-        Route::post('/invoice/{invoice}/bayar', [\App\Http\Controllers\Portal\DashboardController::class, 'checkoutPayment'])->middleware('throttle:10,1')->name('invoices.pay');
-        Route::post('/pesanan/{order}/perpanjang', [\App\Http\Controllers\Portal\DashboardController::class, 'requestExtension'])->middleware('throttle:5,1')->name('orders.extend');
-        Route::get('/referral', [\App\Http\Controllers\Portal\DashboardController::class, 'referrals'])->name('referrals');
-        Route::get('/poin', [\App\Http\Controllers\Portal\DashboardController::class, 'loyaltyPoints'])->name('loyalty');
-        Route::post('/logout', [\App\Http\Controllers\Portal\AuthController::class, 'destroy'])->name('logout');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/pesanan', [DashboardController::class, 'orders'])->name('orders');
+        Route::get('/langganan', [DashboardController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('/inspeksi', [DashboardController::class, 'inspections'])->name('inspections');
+        Route::post('/pesanan/{order}/jadwal-ulang', [DashboardController::class, 'reschedule'])->middleware('throttle:5,1')->name('orders.reschedule');
+        Route::get('/invoice', [DashboardController::class, 'invoices'])->name('invoices');
+        Route::get('/invoice/{invoice}/download', [DashboardController::class, 'downloadInvoice'])->name('invoices.download');
+        Route::post('/invoice/{invoice}/bukti-bayar', [DashboardController::class, 'uploadPaymentProof'])->middleware('throttle:10,1')->name('invoices.payment-proof');
+        Route::post('/invoice/{invoice}/bayar', [DashboardController::class, 'checkoutPayment'])->middleware('throttle:10,1')->name('invoices.pay');
+        Route::post('/pesanan/{order}/perpanjang', [DashboardController::class, 'requestExtension'])->middleware('throttle:5,1')->name('orders.extend');
+        Route::get('/referral', [DashboardController::class, 'referrals'])->name('referrals');
+        Route::get('/poin', [DashboardController::class, 'loyaltyPoints'])->name('loyalty');
+        Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
     });
 });
 

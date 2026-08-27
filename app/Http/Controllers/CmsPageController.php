@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Faq;
 use App\Models\Page;
+use App\Models\SystemSetting;
 use App\Models\Testimonial;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\Cache;
@@ -18,12 +19,36 @@ class CmsPageController extends Controller
 
         $page = $this->findPublished('home');
 
-        return $page ? $this->render($page) : response()->view('marketing.home');
+        if ($page) {
+            return $this->render($page);
+        }
+
+        return response()->view('marketing.home', [
+            'vehicles' => Vehicle::query()->with(['brand', 'category', 'location'])
+                ->where('is_active', true)->where('status', 'available')->limit(6)->get(),
+            'faqs' => Faq::query()->where('is_active', true)->orderBy('sort_order')->limit(6)->get(),
+            'testimonials' => Testimonial::query()->where('is_active', true)->latest()->limit(6)->get(),
+            'settings' => SystemSetting::getAll(),
+        ]);
     }
 
     public function show(string $pageSlug)
     {
         return $this->render($this->findPublished($pageSlug) ?? abort(404));
+    }
+
+    public function corporate()
+    {
+        $page = $this->findPublished('corporate');
+
+        return $page ? $this->render($page) : response()->view('marketing.corporate');
+    }
+
+    public function about()
+    {
+        $page = $this->findPublished('tentang-kami');
+
+        return $page ? $this->render($page) : response()->view('marketing.about');
     }
 
     private function findPublished(string $slug): ?Page

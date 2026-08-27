@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -16,7 +17,10 @@ class UiAndPortalSmokeTest extends TestCase
 
     public function test_public_marketing_docs_login_and_sitemap_render(): void
     {
-        $this->get('/')->assertOk()->assertSee('RentalMobil');
+        $this->get('/')->assertOk()->assertSee('Perjalanan lebih tenang')->assertSee('Cari mobil tersedia');
+        $this->get('/booking')->assertOk()->assertSee('Pilih armada')->assertSee('Ringkasan harga');
+        $this->get('/corporate')->assertOk()->assertSee('Corporate mobility');
+        $this->get('/tentang-kami')->assertOk()->assertSee('Standar operasional');
         $this->get('/docs')->assertOk()->assertSee('Dokumentasi RentalMobil');
         $this->get('/admin/login')->assertOk()->assertSee('Kendaraan bergerak')->assertSee('Akun demo');
         $this->get('/portal/login')->assertOk()->assertSee('Portal pelanggan');
@@ -36,17 +40,17 @@ class UiAndPortalSmokeTest extends TestCase
         Storage::fake('public');
         $customer = $this->customer('081200000001', 'customer-one@test.local');
         $other = $this->customer('081200000002', 'customer-two@test.local');
-        $invoice = Invoice::create(['customer_id'=>$customer->id,'type'=>'rental','subtotal'=>500000,'total_amount'=>500000,'balance_due'=>500000,'status'=>'issued']);
-        $foreign = Invoice::create(['customer_id'=>$other->id,'type'=>'rental','subtotal'=>400000,'total_amount'=>400000,'balance_due'=>400000,'status'=>'issued']);
+        $invoice = Invoice::create(['customer_id' => $customer->id, 'type' => 'rental', 'subtotal' => 500000, 'total_amount' => 500000, 'balance_due' => 500000, 'status' => 'issued']);
+        $foreign = Invoice::create(['customer_id' => $other->id, 'type' => 'rental', 'subtotal' => 400000, 'total_amount' => 400000, 'balance_due' => 400000, 'status' => 'issued']);
 
         $this->actingAs($customer, 'customer')->post(route('portal.invoices.payment-proof', $invoice), [
-            'amount'=>250000, 'reference_number'=>'TRX-001', 'proof'=>UploadedFile::fake()->image('bukti.jpg'),
+            'amount' => 250000, 'reference_number' => 'TRX-001', 'proof' => UploadedFile::fake()->image('bukti.jpg'),
         ])->assertRedirect();
-        $this->assertDatabaseHas('payments', ['invoice_id'=>$invoice->id,'customer_id'=>$customer->id,'status'=>'pending']);
-        Storage::disk('public')->assertExists('payment-proofs/'.$customer->id.'/'.basename((string) \App\Models\Payment::first()->proof_url));
+        $this->assertDatabaseHas('payments', ['invoice_id' => $invoice->id, 'customer_id' => $customer->id, 'status' => 'pending']);
+        Storage::disk('public')->assertExists('payment-proofs/'.$customer->id.'/'.basename((string) Payment::first()->proof_url));
 
         $this->actingAs($customer, 'customer')->post(route('portal.invoices.payment-proof', $foreign), [
-            'amount'=>100000, 'proof'=>UploadedFile::fake()->image('asing.jpg'),
+            'amount' => 100000, 'proof' => UploadedFile::fake()->image('asing.jpg'),
         ])->assertNotFound();
     }
 
@@ -54,12 +58,12 @@ class UiAndPortalSmokeTest extends TestCase
     {
         $customer = $this->customer('081200000003', 'portal-owner@test.local');
         $other = $this->customer('081200000004', 'portal-other@test.local');
-        $invoice = Invoice::create(['customer_id'=>$other->id,'type'=>'rental','subtotal'=>100000,'total_amount'=>100000,'balance_due'=>100000,'status'=>'issued']);
+        $invoice = Invoice::create(['customer_id' => $other->id, 'type' => 'rental', 'subtotal' => 100000, 'total_amount' => 100000, 'balance_due' => 100000, 'status' => 'issued']);
         $this->actingAs($customer, 'customer')->get(route('portal.invoices.download', $invoice))->assertNotFound();
     }
 
     private function customer(string $phone, string $email): Customer
     {
-        return Customer::create(['name'=>'Customer Test','phone'=>$phone,'email'=>$email,'password'=>'password','customer_type'=>'individual','verification_status'=>'verified','is_active'=>true]);
+        return Customer::create(['name' => 'Customer Test', 'phone' => $phone, 'email' => $email, 'password' => 'password', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
     }
 }
