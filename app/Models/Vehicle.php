@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use App\Models\Concerns\BelongsToLocation;
+use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class Vehicle extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToLocation;
+    use BelongsToLocation, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -34,8 +36,12 @@ class Vehicle extends Model
         'late_fee_per_day',
         'deposit_amount',
         'purchase_price',
+        'residual_value',
         'useful_life_months',
+        'depreciation_method',
         'acquired_at',
+        'depreciation_start_date', 'accumulated_depreciation',
+        'asset_account_id', 'accumulated_depreciation_account_id', 'depreciation_expense_account_id',
         'status',
         'features',
         'photo_url',
@@ -62,8 +68,11 @@ class Vehicle extends Model
         'late_fee_per_day' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
         'purchase_price' => 'decimal:2',
+        'residual_value' => 'decimal:2',
         'useful_life_months' => 'integer',
         'acquired_at' => 'date',
+        'depreciation_start_date' => 'date',
+        'accumulated_depreciation' => 'decimal:2',
         'stnk_due_date' => 'date',
         'tax_due_date' => 'date',
         'tax_5y_due_date' => 'date',
@@ -80,7 +89,7 @@ class Vehicle extends Model
         parent::boot();
         static::creating(function ($vehicle) {
             if (empty($vehicle->slug)) {
-                $vehicle->slug = Str::slug($vehicle->name . '-' . $vehicle->plate_number);
+                $vehicle->slug = Str::slug($vehicle->name.'-'.$vehicle->plate_number);
             }
         });
     }
@@ -181,11 +190,11 @@ class Vehicle extends Model
      */
     public function monthlyDepreciation(): float
     {
-        if (!$this->purchase_price || !$this->useful_life_months) {
+        if (! $this->purchase_price || ! $this->useful_life_months) {
             return 0.0;
         }
 
-        return round((float) $this->purchase_price / (int) $this->useful_life_months, 2);
+        return round(((float) $this->purchase_price - (float) $this->residual_value) / (int) $this->useful_life_months, 2);
     }
 
     // Scopes
@@ -213,7 +222,7 @@ class Vehicle extends Model
      * Dokumen kendaraan (STNK/pajak/KIR) yang kedaluwarsa sebelum tanggal tertentu.
      * Dipakai untuk blok booking + reminder H-30/H-7.
      */
-    public function expiredDocuments(?\Carbon\CarbonInterface $until = null): array
+    public function expiredDocuments(?CarbonInterface $until = null): array
     {
         $until ??= now();
         $docs = [
@@ -233,7 +242,7 @@ class Vehicle extends Model
         return $expired;
     }
 
-    public function hasValidDocumentsUntil(\Illuminate\Support\Carbon $date): bool
+    public function hasValidDocumentsUntil(Carbon $date): bool
     {
         return $this->expiredDocuments($date->copy()->endOfDay()) === [];
     }

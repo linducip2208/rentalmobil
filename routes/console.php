@@ -32,3 +32,4 @@ Schedule::command('maintenance:draft-purchase-orders')->dailyAt('06:45')->withou
 Schedule::command('marketing:recover-abandoned')->hourly()->withoutOverlapping();
 Schedule::command('risk:scan-fraud-patterns')->dailyAt('03:15')->withoutOverlapping();
 Schedule::command('investors:distribute')->monthlyOn(2, '06:00')->withoutOverlapping();
+Schedule::command('finance:run-depreciation')->monthlyOn(1, '02:30')->withoutOverlapping();

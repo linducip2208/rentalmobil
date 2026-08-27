@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PeriodClosingService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,10 +43,11 @@ class JournalEntry extends Model
     {
         parent::boot();
         static::creating(function (JournalEntry $model) {
+            app(PeriodClosingService::class)->assertPostingAllowed($model->date);
             if (empty($model->entry_number)) {
                 $model->entry_number = static::generateEntryNumber();
             }
-            if (!$model->posted_at) {
+            if (! $model->posted_at) {
                 $model->posted_at = now();
             }
         });
@@ -65,7 +67,7 @@ class JournalEntry extends Model
             $sequence = 1;
         }
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.$date.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function lines(): HasMany
