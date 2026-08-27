@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\GpsGeofenceResource\Pages;
 use App\Models\GpsGeofence;
 use Filament\Actions;
 use Filament\Forms;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -14,9 +14,13 @@ use Filament\Tables\Table;
 class GpsGeofenceResource extends Resource
 {
     protected static ?string $model = GpsGeofence::class;
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-map';
+
     protected static \UnitEnum|string|null $navigationGroup = 'GPS & Monitoring';
+
     protected static ?string $navigationLabel = 'Geofence';
+
     protected static ?int $navigationSort = 8;
 
     public static function form(Schema $schema): Schema

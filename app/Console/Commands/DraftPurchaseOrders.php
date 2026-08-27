@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\PurchaseOrderService;
 use Illuminate\Console\Command;
 
 class DraftPurchaseOrders extends Command
@@ -12,9 +13,10 @@ class DraftPurchaseOrders extends Command
 
     public function handle(): int
     {
-$results = app(\App\Services\PurchaseOrderService::class)->draftForLowStock();
+        $results = app(PurchaseOrderService::class)->draftForLowStock();
 
-$this->info("PO draft dibuat: {$results['created']} untuk {$results['parts']} item low-stock.");
-return self::SUCCESS;
+        $this->info("PO draft dibuat: {$results['created']} untuk {$results['parts']} item low-stock.");
+
+        return self::SUCCESS;
     }
 }

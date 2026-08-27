@@ -2,27 +2,27 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\VehicleResource\Pages;
 use App\Models\Vehicle;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Get;
-use App\Filament\Resources\EnterpriseResource as Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use UnitEnum;
-use BackedEnum;
 
 class VehicleResource extends Resource
 {
     protected static ?string $model = Vehicle::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-truck';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-truck';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Fleet';
+    protected static string|UnitEnum|null $navigationGroup = 'Fleet';
 
     protected static ?int $navigationSort = 4;
 

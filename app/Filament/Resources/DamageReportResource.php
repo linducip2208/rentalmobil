@@ -3,24 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DamageReportResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\DamageReport;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class DamageReportResource extends Resource
 {
     protected static ?string $model = DamageReport::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-exclamation-triangle';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-exclamation-triangle';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Risk & Security';
+    protected static string|UnitEnum|null $navigationGroup = 'Risk & Security';
 
     protected static ?int $navigationSort = 10;
 

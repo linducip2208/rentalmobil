@@ -21,7 +21,6 @@ class AbandonedBooking extends Model
         'last_activity_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -31,11 +30,23 @@ class AbandonedBooking extends Model
         ];
     }
 
-    public function vehicle(): BelongsTo { return $this->belongsTo(Vehicle::class); }
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
 
-    public function recoveredBooking(): BelongsTo { return $this->belongsTo(Booking::class, 'recovered_booking_id'); }
+    public function recoveredBooking(): BelongsTo
+    {
+        return $this->belongsTo(Booking::class, 'recovered_booking_id');
+    }
 
-    public function scopeOpen($query) { return $query->where('status', 'open'); }
+    public function scopeOpen($query)
+    {
+        return $query->where('status', 'open');
+    }
 
-    public function scopeStale($query, int $hours = 2) { return $query->where('last_activity_at', '<', now()->subHours($hours)); }
+    public function scopeStale($query, int $hours = 2)
+    {
+        return $query->where('last_activity_at', '<', now()->subHours($hours));
+    }
 }

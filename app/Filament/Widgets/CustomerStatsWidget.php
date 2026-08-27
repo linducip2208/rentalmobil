@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Customer;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\Customer;
 use Illuminate\Support\Carbon;
 
 class CustomerStatsWidget extends BaseWidget
@@ -35,11 +35,11 @@ class CustomerStatsWidget extends BaseWidget
 
         return [
             Stat::make('Customer Baru Bulan Ini', $newCustomers)
-                ->description('Terdaftar bulan ' . Carbon::now()->format('M Y'))
+                ->description('Terdaftar bulan '.Carbon::now()->format('M Y'))
                 ->descriptionIcon('heroicon-o-user-plus')
                 ->color('indigo'),
             Stat::make('Top Customer', $topCustomerName)
-                ->description('Rp ' . number_format($topCustomerRevenue, 0, ',', '.'))
+                ->description('Rp '.number_format($topCustomerRevenue, 0, ',', '.'))
                 ->descriptionIcon('heroicon-o-trophy')
                 ->color('amber'),
             Stat::make('Rata-rata Trust Score', number_format($avgTrustScore ?? 0, 1))

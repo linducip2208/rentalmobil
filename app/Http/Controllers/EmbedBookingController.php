@@ -30,11 +30,11 @@ class EmbedBookingController extends Controller
             ->where('is_active', true)
             ->where('status', 'available');
 
-        if (!empty($d['location_id'])) {
+        if (! empty($d['location_id'])) {
             $query->where('location_id', $d['location_id']);
         }
 
-        if (!empty($d['category_id'])) {
+        if (! empty($d['category_id'])) {
             $query->where('category_id', $d['category_id']);
         }
 
@@ -59,7 +59,7 @@ class EmbedBookingController extends Controller
                 'daily_rate' => (float) $quote['effective_daily_rate'],
                 'total' => (float) $quote['total'],
                 'deposit' => (float) $quote['deposit'],
-                'booking_url' => url('/booking?vehicle_id=' . $vehicle->id . '&start=' . $d['start_date'] . '&end=' . $d['end_date']),
+                'booking_url' => url('/booking?vehicle_id='.$vehicle->id.'&start='.$d['start_date'].'&end='.$d['end_date']),
             ];
         });
 

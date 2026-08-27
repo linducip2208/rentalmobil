@@ -3,24 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DeliveryResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\Delivery;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class DeliveryResource extends Resource
 {
     protected static ?string $model = Delivery::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-truck';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-truck';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Rental';
+    protected static string|UnitEnum|null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 2;
 

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
-use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Models\Vehicle;
 use App\Services\SubscriptionBillingService;

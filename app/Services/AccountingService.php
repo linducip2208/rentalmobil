@@ -4,22 +4,26 @@ namespace App\Services;
 
 use App\Models\ChartOfAccount;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\JournalEntry;
 use App\Models\JournalLine;
 use App\Models\Payment;
 use App\Models\RentalOrder;
-use App\Models\SystemSetting;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class AccountingService
 {
     protected ?int $cashAccountId = null;
+
     protected ?int $rentalRevenueAccountId = null;
+
     protected ?int $accountsReceivableId = null;
+
     protected ?int $lateFeeRevenueId = null;
+
     protected ?int $depositLiabilityId = null;
+
     protected ?int $damageRevenueId = null;
 
     public function __construct()
@@ -330,7 +334,7 @@ class AccountingService
                 'normal_balance' => $account->normal_balance,
                 'balance' => $balance,
             ];
-        })->filter(fn($a) => $a['balance'] != 0);
+        })->filter(fn ($a) => $a['balance'] != 0);
 
         $totalDebits = $trialBalance->where('normal_balance', 'debit')->sum('balance');
         $totalCredits = $trialBalance->where('normal_balance', 'credit')->sum('balance');
@@ -346,22 +350,24 @@ class AccountingService
     protected function findAccountByCode(string $code): ?int
     {
         $account = ChartOfAccount::where('code', $code)->first();
+
         return $account?->id;
     }
 
     protected function findAccountByType(string $type): ?int
     {
         $account = ChartOfAccount::where('type', $type)->first();
+
         return $account?->id;
     }
 
     protected function findExpenseAccountForCategory(?int $categoryId): ?int
     {
-        if (!$categoryId) {
+        if (! $categoryId) {
             return $this->findAccountByType('expense');
         }
 
-        $category = \App\Models\ExpenseCategory::find($categoryId);
+        $category = ExpenseCategory::find($categoryId);
         if ($category && $category->account_id) {
             return $category->account_id;
         }

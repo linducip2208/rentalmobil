@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\NotificationTemplate;
 use App\Models\PromoVoucher;
+use App\Models\Provider;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -76,8 +78,8 @@ class MarketingAutomationTest extends TestCase
 
     public function test_review_request_dispatched_for_yesterday_returns(): void
     {
-        $provider = \App\Models\Provider::create(['name' => 'WA Uji', 'type' => 'whatsapp', 'api_format' => 'rest_json', 'base_url' => 'https://wa.test/send', 'is_active' => true]);
-        \App\Models\NotificationTemplate::create([
+        $provider = Provider::create(['name' => 'WA Uji', 'type' => 'whatsapp', 'api_format' => 'rest_json', 'base_url' => 'https://wa.test/send', 'is_active' => true]);
+        NotificationTemplate::create([
             'provider_id' => $provider->id,
             'name' => 'Minta Review',
             'event_type' => 'review_request',

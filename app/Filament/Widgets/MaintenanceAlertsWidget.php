@@ -2,11 +2,10 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\ServiceSchedule;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Models\ServiceSchedule;
-use Illuminate\Support\Carbon;
 
 class MaintenanceAlertsWidget extends BaseWidget
 {
@@ -61,7 +60,7 @@ class MaintenanceAlertsWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('urgency')
                     ->label('Urgensi')
                     ->state(fn (ServiceSchedule $record): string => match (true) {
-                        !$record->next_service_date => 'overdue',
+                        ! $record->next_service_date => 'overdue',
                         $record->next_service_date->lte(now()) => 'overdue',
                         $record->next_service_date->lte(now()->addDays(3)) => 'critical',
                         $record->next_service_date->lte(now()->addDays(7)) => 'warning',

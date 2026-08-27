@@ -19,12 +19,12 @@ class BackupDatabase extends Command
         $this->info('Starting database backup...');
 
         $backupDir = storage_path('backups');
-        if (!File::isDirectory($backupDir)) {
+        if (! File::isDirectory($backupDir)) {
             File::makeDirectory($backupDir, 0755, true, true);
         }
 
-        $filename = 'rentalmobil_' . now()->format('Y-m-d_His') . '.sql.gz';
-        $filepath = $backupDir . '/' . $filename;
+        $filename = 'rentalmobil_'.now()->format('Y-m-d_His').'.sql.gz';
+        $filepath = $backupDir.'/'.$filename;
 
         $host = config('database.connections.mysql.host', '127.0.0.1');
         $port = config('database.connections.mysql.port', '3306');
@@ -32,8 +32,9 @@ class BackupDatabase extends Command
         $username = config('database.connections.mysql.username');
         $password = config('database.connections.mysql.password');
 
-        if (!$database) {
+        if (! $database) {
             $this->error('Database name not configured.');
+
             return Command::FAILURE;
         }
 
@@ -63,11 +64,12 @@ class BackupDatabase extends Command
         if ($exitCode !== 0) {
             $this->error("Backup failed with exit code: {$exitCode}");
             Log::error('Database backup failed', ['exit_code' => $exitCode]);
+
             return Command::FAILURE;
         }
 
         $size = File::size($filepath);
-        $sizeFormatted = round($size / 1024 / 1024, 2) . ' MB';
+        $sizeFormatted = round($size / 1024 / 1024, 2).' MB';
 
         $this->info("Backup created: {$filename} ({$sizeFormatted})");
 

@@ -3,13 +3,16 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\RentalOrder;
+use App\Models\ReturnRecord;
 use App\Models\Vehicle;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrCodeService
 {
     protected string $disk = 'public';
+
     protected string $directory = 'qr-codes';
 
     public function generateUnitQr(Vehicle $vehicle): string
@@ -22,7 +25,7 @@ class QrCodeService
             'location_id' => $vehicle->location_id,
         ]);
 
-        $filename = "vehicle-{$vehicle->id}-" . time() . ".svg";
+        $filename = "vehicle-{$vehicle->id}-".time().'.svg';
         $path = "{$this->directory}/vehicles/{$filename}";
 
         $qrCode = QrCode::size(300)
@@ -43,7 +46,7 @@ class QrCodeService
             'vehicle_id' => $booking->vehicle_id,
         ]);
 
-        $filename = "booking-{$booking->id}-" . time() . ".svg";
+        $filename = "booking-{$booking->id}-".time().'.svg';
         $path = "{$this->directory}/bookings/{$filename}";
 
         $qrCode = QrCode::size(300)
@@ -56,7 +59,7 @@ class QrCodeService
         return $path;
     }
 
-    public function generateOrderQr(\App\Models\RentalOrder $order): string
+    public function generateOrderQr(RentalOrder $order): string
     {
         $payload = json_encode([
             'type' => 'order',
@@ -67,7 +70,7 @@ class QrCodeService
             'status' => $order->status,
         ]);
 
-        $filename = "order-{$order->id}-" . time() . ".svg";
+        $filename = "order-{$order->id}-".time().'.svg';
         $path = "{$this->directory}/orders/{$filename}";
 
         $qrCode = QrCode::size(300)
@@ -78,7 +81,7 @@ class QrCodeService
         return $path;
     }
 
-    public function generateReturnQr(\App\Models\ReturnRecord $returnRecord): string
+    public function generateReturnQr(ReturnRecord $returnRecord): string
     {
         $payload = json_encode([
             'type' => 'return',
@@ -86,7 +89,7 @@ class QrCodeService
             'order_id' => $returnRecord->rental_order_id,
         ]);
 
-        $filename = "return-{$returnRecord->id}-" . time() . ".svg";
+        $filename = "return-{$returnRecord->id}-".time().'.svg';
         $path = "{$this->directory}/returns/{$filename}";
 
         $qrCode = QrCode::size(300)
@@ -101,7 +104,7 @@ class QrCodeService
     {
         $data = json_decode($content, true);
 
-        if (!$data || !isset($data['type'], $data['id'])) {
+        if (! $data || ! isset($data['type'], $data['id'])) {
             return null;
         }
 
@@ -112,7 +115,7 @@ class QrCodeService
     {
         $data = $this->decodeQr($content);
 
-        if (!$data || $data['type'] !== 'booking') {
+        if (! $data || $data['type'] !== 'booking') {
             return false;
         }
 
@@ -129,6 +132,7 @@ class QrCodeService
         if (Storage::disk($this->disk)->exists($path)) {
             return Storage::disk($this->disk)->delete($path);
         }
+
         return false;
     }
 }

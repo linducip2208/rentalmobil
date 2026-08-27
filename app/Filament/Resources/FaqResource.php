@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\FaqResource\Pages;
 use App\Models\Faq;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class FaqResource extends Resource
 {
     protected static ?string $model = Faq::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-question-mark-circle';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-question-mark-circle';
 
-    protected static string | UnitEnum | null $navigationGroup = 'CMS';
+    protected static string|UnitEnum|null $navigationGroup = 'CMS';
 
     protected static ?int $navigationSort = 3;
 

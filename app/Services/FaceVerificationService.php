@@ -6,9 +6,6 @@ use App\Models\Customer;
 use App\Models\FaceVerification;
 use App\Models\Provider;
 use App\Models\SystemSetting;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
-use RuntimeException;
 
 /**
  * Face match KTP vs selfie. Format-based: provider vision dinamis
@@ -47,7 +44,7 @@ class FaceVerificationService
                 'checked_at' => now(),
             ]);
 
-            if (!$matched) {
+            if (! $matched) {
                 app(TrustScoreAdjustmentService::class)->adjust($customer, -15, "Face verification gagal (skor {$score})");
             } else {
                 app(TrustScoreAdjustmentService::class)->adjust($customer, 5, 'Face verification lolos');

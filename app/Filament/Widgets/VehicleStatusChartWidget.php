@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
 use App\Models\Vehicle;
+use Filament\Widgets\ChartWidget;
 
 class VehicleStatusChartWidget extends ChartWidget
 {

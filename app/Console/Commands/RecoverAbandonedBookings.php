@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\AbandonedBookingRecoveryService;
 use Illuminate\Console\Command;
 
 class RecoverAbandonedBookings extends Command
@@ -12,9 +13,10 @@ class RecoverAbandonedBookings extends Command
 
     public function handle(): int
     {
-$results = app(\App\Services\AbandonedBookingRecoveryService::class)->sendReminders();
+        $results = app(AbandonedBookingRecoveryService::class)->sendReminders();
 
-$this->info("Reminder dikirim: {$results['reminders_sent']}, lead expired: {$results['expired']}.");
-return self::SUCCESS;
+        $this->info("Reminder dikirim: {$results['reminders_sent']}, lead expired: {$results['expired']}.");
+
+        return self::SUCCESS;
     }
 }

@@ -19,7 +19,6 @@ class DamageComparison extends Model
         'completed_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -30,11 +29,23 @@ class DamageComparison extends Model
         ];
     }
 
-    public function rentalOrder(): BelongsTo { return $this->belongsTo(RentalOrder::class); }
+    public function rentalOrder(): BelongsTo
+    {
+        return $this->belongsTo(RentalOrder::class);
+    }
 
-    public function checkoutHandover(): BelongsTo { return $this->belongsTo(HandoverRecord::class, 'checkout_handover_id'); }
+    public function checkoutHandover(): BelongsTo
+    {
+        return $this->belongsTo(HandoverRecord::class, 'checkout_handover_id');
+    }
 
-    public function returnHandover(): BelongsTo { return $this->belongsTo(HandoverRecord::class, 'return_handover_id'); }
+    public function returnHandover(): BelongsTo
+    {
+        return $this->belongsTo(HandoverRecord::class, 'return_handover_id');
+    }
 
-    public function provider(): BelongsTo { return $this->belongsTo(Provider::class); }
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }

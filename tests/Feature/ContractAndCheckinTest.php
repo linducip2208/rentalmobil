@@ -6,6 +6,7 @@ use App\Models\Contract;
 use App\Models\Customer;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
+use App\Models\VehicleInspection;
 use App\Services\HandoverLinkService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -84,7 +85,7 @@ class ContractAndCheckinTest extends TestCase
             'photos' => [UploadedFile::fake()->image('depan.jpg'), UploadedFile::fake()->image('belakang.jpg')],
         ])->assertOk();
 
-        $inspection = \App\Models\VehicleInspection::where('rental_order_id', $order->id)->first();
+        $inspection = VehicleInspection::where('rental_order_id', $order->id)->first();
         $this->assertNotNull($inspection);
         $this->assertSame('checkout', $inspection->type);
         $this->assertCount(2, $inspection->photos);

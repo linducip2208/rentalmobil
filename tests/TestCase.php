@@ -3,6 +3,8 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -13,7 +15,7 @@ abstract class TestCase extends BaseTestCase
         }
 
         $database = (string) config('database.connections.mysql.database');
-        if (!str_ends_with($database, '_testing')) {
+        if (! str_ends_with($database, '_testing')) {
             throw new \RuntimeException("TEST DIHENTIKAN: database aktif '{$database}' bukan database *_testing. Jalankan php artisan optimize:clear sebelum test.");
         }
 
@@ -24,18 +26,18 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        if (!\Illuminate\Support\Facades\Schema::hasTable('locations')) {
+        if (! Schema::hasTable('locations')) {
             return;
         }
 
         $now = now();
-        \Illuminate\Support\Facades\DB::table('locations')->insertOrIgnore(['id' => 1, 'name' => 'Cabang Test', 'slug' => 'cabang-test', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
-        \Illuminate\Support\Facades\DB::table('categories')->insertOrIgnore(['id' => 1, 'name' => 'MPV Test', 'slug' => 'mpv-test', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
-        \Illuminate\Support\Facades\DB::table('brands')->insertOrIgnore(['id' => 1, 'name' => 'Brand Test', 'slug' => 'brand-test', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
-        \Illuminate\Support\Facades\DB::table('brands')->insertOrIgnore(['id' => 2, 'name' => 'Brand Test 2', 'slug' => 'brand-test-2', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
-        \Illuminate\Support\Facades\DB::table('users')->insertOrIgnore(['id' => 1, 'name' => 'System Test', 'email' => 'system@test.local', 'password' => bcrypt('password'), 'role' => 'admin', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
+        DB::table('locations')->insertOrIgnore(['id' => 1, 'name' => 'Cabang Test', 'slug' => 'cabang-test', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
+        DB::table('categories')->insertOrIgnore(['id' => 1, 'name' => 'MPV Test', 'slug' => 'mpv-test', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
+        DB::table('brands')->insertOrIgnore(['id' => 1, 'name' => 'Brand Test', 'slug' => 'brand-test', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
+        DB::table('brands')->insertOrIgnore(['id' => 2, 'name' => 'Brand Test 2', 'slug' => 'brand-test-2', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
+        DB::table('users')->insertOrIgnore(['id' => 1, 'name' => 'System Test', 'email' => 'system@test.local', 'password' => bcrypt('password'), 'role' => 'admin', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
 
-        if (\Illuminate\Support\Facades\Schema::hasTable('chart_of_accounts')) {
+        if (Schema::hasTable('chart_of_accounts')) {
             $coa = [
                 ['code' => '1101', 'name' => 'Kas & Bank', 'type' => 'asset', 'normal_balance' => 'debit'],
                 ['code' => '1102', 'name' => 'Piutang Usaha', 'type' => 'asset', 'normal_balance' => 'debit'],
@@ -45,7 +47,7 @@ abstract class TestCase extends BaseTestCase
                 ['code' => '4103', 'name' => 'Pendapatan Klaim Kerusakan', 'type' => 'revenue', 'normal_balance' => 'credit'],
             ];
             foreach ($coa as $account) {
-                \Illuminate\Support\Facades\DB::table('chart_of_accounts')->insertOrIgnore(array_merge($account, ['is_active' => true, 'is_system' => true, 'created_at' => $now, 'updated_at' => $now]));
+                DB::table('chart_of_accounts')->insertOrIgnore(array_merge($account, ['is_active' => true, 'is_system' => true, 'created_at' => $now, 'updated_at' => $now]));
             }
         }
     }

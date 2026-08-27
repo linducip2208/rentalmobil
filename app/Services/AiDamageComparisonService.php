@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\DamageComparison;
 use App\Models\HandoverRecord;
+use App\Models\Provider;
 use App\Models\RentalOrder;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -35,7 +37,7 @@ class AiDamageComparisonService
             $photos = array_slice(array_merge($checkout->photos ?? [], $return->photos ?? []), 0, 8);
 
             $analysis = $this->vision->analyzeImages(
-                \App\Models\Provider::findOrFail($comparison->provider_id),
+                Provider::findOrFail($comparison->provider_id),
                 $this->normalizePaths($photos),
                 $this->comparisonPrompt()
             );
@@ -48,7 +50,7 @@ class AiDamageComparisonService
                 'analysis' => [
                     'all_findings' => $findings,
                     'new_damages' => $newDamages,
-                    'summary' => count($newDamages) . ' kerusakan baru terdeteksi',
+                    'summary' => count($newDamages).' kerusakan baru terdeteksi',
                 ],
                 'new_damages_count' => count($newDamages),
                 'estimated_cost' => round($estimatedCost, 2),
@@ -69,13 +71,13 @@ class AiDamageComparisonService
 
     protected function resolveProviderId(): ?int
     {
-        $settingId = \App\Models\SystemSetting::get('ai_damage_provider_id');
+        $settingId = SystemSetting::get('ai_damage_provider_id');
 
         if ($settingId) {
             return (int) $settingId;
         }
 
-        return \App\Models\Provider::where('type', 'ai')->where('is_active', true)->value('id');
+        return Provider::where('type', 'ai')->where('is_active', true)->value('id');
     }
 
     /**

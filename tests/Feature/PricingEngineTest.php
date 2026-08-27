@@ -14,6 +14,7 @@ class PricingEngineTest extends TestCase
     use RefreshDatabase;
 
     protected Vehicle $vehicle;
+
     protected PricingEngine $engine;
 
     protected function setUp(): void
@@ -44,7 +45,7 @@ class PricingEngineTest extends TestCase
         SystemSetting::create(['key' => 'tax_rate', 'value' => '11', 'group_name' => 'finance']);
         SystemSetting::create(['key' => 'driver_fee_standard', 'value' => '200000', 'group_name' => 'pricing']);
 
-        $this->engine = new PricingEngine();
+        $this->engine = new PricingEngine;
     }
 
     public function test_basic_price_calculation(): void

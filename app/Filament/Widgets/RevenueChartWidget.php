@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
 use App\Models\Payment;
+use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 
 class RevenueChartWidget extends ChartWidget

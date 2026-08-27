@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\EarlyBirdRule;
 use App\Models\FlashSale;
 use App\Models\Vehicle;
+use Carbon\Carbon;
 
 /**
  * Modifier diskon waktu pada quote: early-bird (booking jauh hari) & flash sale (time-boxed).
@@ -13,7 +14,7 @@ class DiscountModifierService
 {
     public function apply(Vehicle $vehicle, string $startDate, array $quote): array
     {
-        $leadDays = max(0, now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($startDate)->startOfDay()));
+        $leadDays = max(0, now()->startOfDay()->diffInDays(Carbon::parse($startDate)->startOfDay()));
 
         $earlyBird = $this->findEarlyBirdRule($vehicle, $leadDays);
 
@@ -23,7 +24,7 @@ class DiscountModifierService
                 : min((float) $earlyBird->discount_value, $quote['subtotal']);
 
             if ($discount > 0) {
-                $quote = $this->mergeDiscount($quote, $discount, 'Early Bird: ' . $earlyBird->name);
+                $quote = $this->mergeDiscount($quote, $discount, 'Early Bird: '.$earlyBird->name);
             }
         }
 
@@ -36,7 +37,7 @@ class DiscountModifierService
             $discount = $flashSale->discountFor((float) $quote['base_total']);
 
             if ($discount > 0) {
-                $quote = $this->mergeDiscount($quote, $discount, 'Flash Sale: ' . $flashSale->name, flash_sale_id: $flashSale->id);
+                $quote = $this->mergeDiscount($quote, $discount, 'Flash Sale: '.$flashSale->name, flash_sale_id: $flashSale->id);
             }
         }
 

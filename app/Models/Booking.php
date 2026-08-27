@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -69,7 +69,7 @@ class Booking extends Model
         parent::boot();
         static::creating(function ($booking) {
             if (empty($booking->booking_number)) {
-                $booking->booking_number = 'BKG-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6));
+                $booking->booking_number = 'BKG-'.now()->format('Ymd').'-'.strtoupper(Str::random(6));
             }
         });
     }

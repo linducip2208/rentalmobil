@@ -33,7 +33,7 @@ class SendDailyOwnerReport extends Command
         $sent = 0;
 
         foreach ($recipients as $user) {
-            if (!$user->phone && !$user->email) {
+            if (! $user->phone && ! $user->email) {
                 continue;
             }
 

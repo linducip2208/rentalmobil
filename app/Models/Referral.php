@@ -19,7 +19,6 @@ class Referral extends Model
         'completed_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -28,7 +27,13 @@ class Referral extends Model
         ];
     }
 
-    public function referrerCustomer(): BelongsTo { return $this->belongsTo(Customer::class, 'referrer_customer_id'); }
+    public function referrerCustomer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'referrer_customer_id');
+    }
 
-    public function referredCustomer(): BelongsTo { return $this->belongsTo(Customer::class, 'referred_customer_id'); }
+    public function referredCustomer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'referred_customer_id');
+    }
 }

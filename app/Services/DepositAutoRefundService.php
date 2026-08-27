@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Deposit;
-use App\Models\ReturnRecord;
 use App\Models\SystemSetting;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +31,7 @@ class DepositAutoRefundService
         foreach ($deposits as $deposit) {
             $return = $deposit->rentalOrder->returnRecords->sortByDesc('returned_at')->first();
 
-            if (!$return || !in_array($return->condition_status, ['good', 'excellent', 'ok'])) {
+            if (! $return || ! in_array($return->condition_status, ['good', 'excellent', 'ok'])) {
                 continue;
             }
 
@@ -78,6 +77,7 @@ class DepositAutoRefundService
                         app(PaymentGatewayService::class)->createRefundTransaction($deposit);
                     } catch (\Throwable) {
                         $results['pending_manual']++;
+
                         return;
                     }
                 }

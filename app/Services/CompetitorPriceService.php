@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Category;
 use App\Models\CompetitorPrice;
+use App\Models\SystemSetting;
 use App\Models\Vehicle;
 use Illuminate\Support\Collection;
 
@@ -29,7 +29,7 @@ class CompetitorPriceService
         $p25 = $this->percentile($prices, 25);
         $p75 = $this->percentile($prices, 75);
 
-        $strategy = \App\Models\SystemSetting::get('competitor_strategy', 'match_median');
+        $strategy = SystemSetting::get('competitor_strategy', 'match_median');
 
         $suggested = match ($strategy) {
             'undercut_5' => round($median * 0.95, -3),
@@ -76,8 +76,9 @@ class CompetitorPriceService
 
             $cols = str_getcsv($row);
 
-            if (count($cols) < 4 || !is_numeric(str_replace([',', '.'], ['', '.'], $cols[2] ?? ''))) {
+            if (count($cols) < 4 || ! is_numeric(str_replace([',', '.'], ['', '.'], $cols[2] ?? ''))) {
                 $errors[] = ['line' => $index + 1, 'reason' => 'Format tidak valid'];
+
                 continue;
             }
 

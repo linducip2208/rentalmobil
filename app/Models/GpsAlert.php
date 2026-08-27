@@ -14,7 +14,18 @@ class GpsAlert extends Model
         return ['context' => 'array', 'occurred_at' => 'datetime', 'acknowledged_at' => 'datetime', 'resolved_at' => 'datetime'];
     }
 
-    public function tracker(): BelongsTo { return $this->belongsTo(GpsTracker::class, 'gps_tracker_id'); }
-    public function vehicle(): BelongsTo { return $this->belongsTo(Vehicle::class); }
-    public function acknowledgedBy(): BelongsTo { return $this->belongsTo(User::class, 'acknowledged_by'); }
+    public function tracker(): BelongsTo
+    {
+        return $this->belongsTo(GpsTracker::class, 'gps_tracker_id');
+    }
+
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
+
+    public function acknowledgedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'acknowledged_by');
+    }
 }

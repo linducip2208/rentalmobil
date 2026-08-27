@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CashFlowSnapshot;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\SparePartPurchaseOrder;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\DB;
 
@@ -35,7 +36,7 @@ class CashFlowProjectionService
             ->sum('amount') / 60;
 
         $maintenanceOutflow = $this->scheduledMaintenanceCost($end);
-        $poOutflow = (float) \App\Models\SparePartPurchaseOrder::whereIn('status', ['draft', 'sent'])
+        $poOutflow = (float) SparePartPurchaseOrder::whereIn('status', ['draft', 'sent'])
             ->whereBetween('expected_at', [$today, $end->copy()->addDays(7)])
             ->sum('total_amount');
 
@@ -76,7 +77,7 @@ class CashFlowProjectionService
         $running = 0.0;
 
         for ($i = 0; $i < $weeks; $i++) {
-            $labels[] = 'M+' . ($i + 1);
+            $labels[] = 'M+'.($i + 1);
             $running += $weeklyIn - $weeklyOut;
             $net[] = round($weeklyIn - $weeklyOut, 2);
             $cumulative[] = round($running, 2);

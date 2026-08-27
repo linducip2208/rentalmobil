@@ -24,7 +24,7 @@ class RequestReturnReviews extends Command
         $sent = 0;
 
         foreach ($orders as $order) {
-            if (!$order->customer?->phone && !$order->customer?->email) {
+            if (! $order->customer?->phone && ! $order->customer?->email) {
                 continue;
             }
 

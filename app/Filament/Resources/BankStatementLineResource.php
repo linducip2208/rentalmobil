@@ -3,13 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BankStatementLineResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
+use App\Models\BankStatementImport;
 use App\Models\BankStatementLine;
 use App\Models\Payment;
 use App\Services\BankReconciliationService;
+use App\Services\PaymentService;
 use Filament\Actions;
+use Filament\Actions\BulkActionGroup;
 use Filament\Forms;
 use Filament\Notifications\Notification;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,10 +21,15 @@ use Illuminate\Database\Eloquent\Builder;
 class BankStatementLineResource extends Resource
 {
     protected static ?string $model = BankStatementLine::class;
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-list-bullet';
+
     protected static \UnitEnum|string|null $navigationGroup = 'Finance';
+
     protected static ?string $navigationLabel = 'Baris Mutasi Bank';
+
     protected static ?int $navigationSort = 26;
+
     protected static bool $hasNavigationBadge = false;
 
     public static function canCreate(): bool
@@ -94,12 +102,12 @@ class BankStatementLineResource extends Resource
                     ->visible(fn (BankStatementLine $r) => $r->match_status === 'matched' && $r->matchedPayment?->status === 'pending')
                     ->requiresConfirmation()
                     ->action(function (BankStatementLine $r) {
-                        app(\App\Services\PaymentService::class)->verifyPayment($r->matchedPayment, auth()->id());
+                        app(PaymentService::class)->verifyPayment($r->matchedPayment, auth()->id());
                         Notification::make()->title('Pembayaran terverifikasi')->success()->send();
                     }),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     Actions\BulkAction::make('autoMatchSelected')
                         ->label('Auto-match terpilih')
                         ->icon('heroicon-o-link')
@@ -110,7 +118,7 @@ class BankStatementLineResource extends Resource
                                 $line->update(['match_status' => 'unmatched', 'matched_payment_id' => null]);
                             }
                             foreach ($records->pluck('import_id')->unique() as $importId) {
-                                $n += $service->autoMatch(\App\Models\BankStatementImport::find($importId));
+                                $n += $service->autoMatch(BankStatementImport::find($importId));
                             }
                             Notification::make()->title("{$n} baris cocok")->success()->send();
                         })

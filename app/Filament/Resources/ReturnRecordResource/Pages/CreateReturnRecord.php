@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\ReturnRecordResource\Pages;
 
 use App\Filament\Resources\ReturnRecordResource;
-use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\RentalOrder;
 use App\Services\ReturnProcessingService;
+use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class CreateReturnRecord extends CreateRecord
 {
@@ -15,6 +15,7 @@ class CreateReturnRecord extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         $order = RentalOrder::findOrFail($data['rental_order_id']);
+
         return app(ReturnProcessingService::class)->processReturn($order, $data);
     }
 }

@@ -22,6 +22,7 @@ class WaitlistService
                 'end_date' => $waitlist->end_date->translatedFormat('d M Y'),
                 'expires_at' => $waitlist->expires_at->translatedFormat('d M Y H:i'),
             ]);
+
             return $waitlist->fresh();
         });
     }

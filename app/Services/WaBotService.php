@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\SystemSetting;
+use App\Models\Vehicle;
 use App\Models\WaConversation;
 use App\Models\WaMessage;
-use App\Models\Vehicle;
-use App\Models\Location;
-use App\Models\Category;
-use App\Models\SystemSetting;
+use Carbon\Carbon;
 
 /**
  * WhatsApp booking bot: state machine sederhana
@@ -68,12 +67,12 @@ class WaBotService
 
     protected function handleGreeting(WaConversation $conversation, string $message): string
     {
-        $greeting = SystemSetting::get('wa_bot_greeting', "Halo! Selamat datang di layanan rental kami. 🚗");
+        $greeting = SystemSetting::get('wa_bot_greeting', 'Halo! Selamat datang di layanan rental kami. 🚗');
 
         if ($this->wantsHuman($message)) {
             $this->handOver($conversation);
 
-            return "Baik, kami hubungkan dengan tim customer service kami. Mohon tunggu sebentar. 🙏";
+            return 'Baik, kami hubungkan dengan tim customer service kami. Mohon tunggu sebentar. 🙏';
         }
 
         $conversation->update(['state' => 'ask_dates', 'context' => []]);
@@ -86,12 +85,12 @@ class WaBotService
         if ($this->wantsHuman($message)) {
             $this->handOver($conversation);
 
-            return "Baik, kami hubungkan dengan tim customer service kami. 🙏";
+            return 'Baik, kami hubungkan dengan tim customer service kami. 🙏';
         }
 
         $dates = $this->parseDateRange($message);
 
-        if (!$dates) {
+        if (! $dates) {
             return "Format tanggal belum tepat. Coba tulis seperti ini ya:\n*25/08 - 28/08*\n\nAtau ketik *CS* untuk bicara dengan staf kami.";
         }
 
@@ -106,7 +105,7 @@ class WaBotService
                 $end->toDateString()
             );
 
-            $options[] = ($index + 1) . '. ' . $vehicle->name . ' — Rp' . number_format((float) $quote['total'], 0, ',', '.') . ' (Rp' . number_format((float) $quote['daily_rate'], 0, ',', '.') . '/hari)';
+            $options[] = ($index + 1).'. '.$vehicle->name.' — Rp'.number_format((float) $quote['total'], 0, ',', '.').' (Rp'.number_format((float) $quote['daily_rate'], 0, ',', '.').'/hari)';
         }
 
         $conversation->update([
@@ -122,8 +121,8 @@ class WaBotService
             return "Mohon maaf, saat ini semua unit sedang terpakai untuk tanggal tersebut. 😢\nKetik *CS* jika ingin bantuan lebih lanjut.";
         }
 
-        return "Berikut opsi unit tersedia {$start->format('d/m')} – {$end->format('d/m')}:\n\n" .
-            implode("\n", $options) .
+        return "Berikut opsi unit tersedia {$start->format('d/m')} – {$end->format('d/m')}:\n\n".
+            implode("\n", $options).
             "\n\nBalas nomor unit untuk detail & booking, atau ketik *CS*.";
     }
 
@@ -137,15 +136,15 @@ class WaBotService
             if ($this->wantsHuman($message)) {
                 $this->handOver($conversation);
 
-                return "Baik, kami hubungkan dengan tim customer service kami. 🙏";
+                return 'Baik, kami hubungkan dengan tim customer service kami. 🙏';
             }
 
-            return "Silakan balas dengan nomor unit (contoh: *1*), atau ketik *CS*.";
+            return 'Silakan balas dengan nomor unit (contoh: *1*), atau ketik *CS*.';
         }
 
         $vehicleId = $vehicleIds[$choice - 1];
-        $bookingUrl = config('app.url') . '/booking?vehicle_id=' . $vehicleId .
-            '&start=' . ($context['start_date'] ?? '') . '&end=' . ($context['end_date'] ?? '');
+        $bookingUrl = config('app.url').'/booking?vehicle_id='.$vehicleId.
+            '&start='.($context['start_date'] ?? '').'&end='.($context['end_date'] ?? '');
 
         $conversation->update(['state' => 'completed']);
 
@@ -178,8 +177,8 @@ class WaBotService
                     [$startValue, $startFormat] = $this->normalizeDateToken($m[1]);
                     [$endValue, $endFormat] = $this->normalizeDateToken($m[2], $startValue);
 
-                    $start = \Carbon\Carbon::createFromFormat($startFormat, trim($startValue));
-                    $end = \Carbon\Carbon::createFromFormat($endFormat, trim($endValue));
+                    $start = Carbon::createFromFormat($startFormat, trim($startValue));
+                    $end = Carbon::createFromFormat($endFormat, trim($endValue));
 
                     if ($end->lessThanOrEqualTo($start)) {
                         return null;
@@ -237,7 +236,7 @@ class WaBotService
         }
 
         if (str_starts_with($digits, '0')) {
-            return '62' . substr($digits, 1);
+            return '62'.substr($digits, 1);
         }
 
         return $digits;

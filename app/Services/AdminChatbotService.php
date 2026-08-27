@@ -3,8 +3,14 @@
 namespace App\Services;
 
 use App\Models\AiChatMessage;
+use App\Models\Booking;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Provider;
+use App\Models\RentalOrder;
+use App\Models\ServiceSchedule;
 use App\Models\SystemSetting;
+use App\Models\Vehicle;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -30,7 +36,7 @@ class AdminChatbotService
             $history = AiChatMessage::where('user_id', $user->id)->where('created_at', '>=', now()->subHour())->orderBy('id')->limit(20)->get();
 
             $messages = [
-                ['role' => 'system', 'content' => self::systemPrompt() . "\n\nDATA LIVE:\n" . $context],
+                ['role' => 'system', 'content' => self::systemPrompt()."\n\nDATA LIVE:\n".$context],
             ];
 
             foreach ($history as $msg) {
@@ -40,14 +46,14 @@ class AdminChatbotService
             $config = $provider->config ?? [];
             $url = rtrim((string) $provider->base_url, '/');
 
-            if (!str_ends_with($url, '/chat/completions')) {
+            if (! str_ends_with($url, '/chat/completions')) {
                 $url .= '/chat/completions';
             }
 
             $headers = $provider->extra_headers ?? [];
 
             if ($provider->api_key) {
-                $headers[$config['auth_header'] ?? 'Authorization'] = trim(($config['auth_scheme'] ?? 'Bearer') . ' ' . $provider->api_key);
+                $headers[$config['auth_header'] ?? 'Authorization'] = trim(($config['auth_scheme'] ?? 'Bearer').' '.$provider->api_key);
             }
 
             $response = Http::withHeaders($headers)
@@ -61,7 +67,7 @@ class AdminChatbotService
                 ]);
 
             if ($response->failed()) {
-                throw new RuntimeException("AI API error (HTTP {$response->status()}): " . str($response->body())->limit(200));
+                throw new RuntimeException("AI API error (HTTP {$response->status()}): ".str($response->body())->limit(200));
             }
 
             $answer = (string) data_get($response->json(), 'choices.0.message.content', '');
@@ -70,7 +76,7 @@ class AdminChatbotService
             return AiChatMessage::create([
                 'user_id' => $user->id,
                 'role' => 'assistant',
-                'content' => '⚠️ Gagal menjawab: ' . str($e->getMessage())->limit(250),
+                'content' => '⚠️ Gagal menjawab: '.str($e->getMessage())->limit(250),
                 'provider_id' => $provider->id,
             ]);
         }
@@ -88,32 +94,32 @@ class AdminChatbotService
 
     protected function buildContext(): string
     {
-        $vehicles = \App\Models\Vehicle::query()
-            ->selectRaw("status, COUNT(*) as total")
+        $vehicles = Vehicle::query()
+            ->selectRaw('status, COUNT(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $availableVehicles = \App\Models\Vehicle::available()->count();
-        $activeOrders = \App\Models\RentalOrder::whereIn('status', ['checked_out', 'active'])->count();
-        $overdueOrders = \App\Models\RentalOrder::where('status', 'overdue')->count();
-        $pendingBookings = \App\Models\Booking::where('status', 'pending')->count();
-        $unpaidInvoices = \App\Models\Invoice::whereIn('status', ['issued', 'partially_paid', 'overdue'])->sum('balance_due');
-        $revenueMonth = (float) \App\Models\Payment::where('status', 'verified')
+        $availableVehicles = Vehicle::available()->count();
+        $activeOrders = RentalOrder::whereIn('status', ['checked_out', 'active'])->count();
+        $overdueOrders = RentalOrder::where('status', 'overdue')->count();
+        $pendingBookings = Booking::where('status', 'pending')->count();
+        $unpaidInvoices = Invoice::whereIn('status', ['issued', 'partially_paid', 'overdue'])->sum('balance_due');
+        $revenueMonth = (float) Payment::where('status', 'verified')
             ->whereBetween('payment_date', [now()->startOfMonth(), now()])
             ->sum('amount');
-        $maintenanceDue = \App\Models\ServiceSchedule::whereIn('status', ['pending', 'scheduled'])
+        $maintenanceDue = ServiceSchedule::whereIn('status', ['pending', 'scheduled'])
             ->where('scheduled_date', '<=', now()->addDays(7))
             ->count();
 
         return implode("\n", [
-            "- Armada per status: " . $vehicles->map(fn ($t, $s) => "{$s}={$t}")->implode(', '),
+            '- Armada per status: '.$vehicles->map(fn ($t, $s) => "{$s}={$t}")->implode(', '),
             "- Unit tersedia: {$availableVehicles}",
             "- Order aktif: {$activeOrders}, overdue: {$overdueOrders}",
             "- Booking menunggu konfirmasi: {$pendingBookings}",
-            "- Piutang belum dibayar: Rp" . number_format((float) $unpaidInvoices, 0, ',', '.'),
-            "- Revenue bulan ini (verified): Rp" . number_format($revenueMonth, 0, ',', '.'),
+            '- Piutang belum dibayar: Rp'.number_format((float) $unpaidInvoices, 0, ',', '.'),
+            '- Revenue bulan ini (verified): Rp'.number_format($revenueMonth, 0, ',', '.'),
             "- Servis jatuh tempo 7 hari ke depan: {$maintenanceDue}",
-            "- Waktu server: " . now()->format('d/m/Y H:i'),
+            '- Waktu server: '.now()->format('d/m/Y H:i'),
         ]);
     }
 
@@ -135,7 +141,7 @@ PROMPT;
             ? Provider::find((int) $settingId)
             : Provider::where('type', 'ai')->where('is_active', true)->first();
 
-        if (!$provider || !$provider->is_active) {
+        if (! $provider || ! $provider->is_active) {
             throw new RuntimeException('Belum ada provider AI aktif. Atur di menu Provider (BYOK).');
         }
 

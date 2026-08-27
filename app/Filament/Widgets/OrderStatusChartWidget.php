@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
 use App\Models\RentalOrder;
+use Filament\Widgets\ChartWidget;
 
 class OrderStatusChartWidget extends ChartWidget
 {

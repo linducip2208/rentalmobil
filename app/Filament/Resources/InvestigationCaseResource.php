@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\InvestigationCaseResource\Pages;
 use App\Models\InvestigationCase;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class InvestigationCaseResource extends Resource
 {
     protected static ?string $model = InvestigationCase::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-magnifying-glass';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-magnifying-glass';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Risk & Security';
+    protected static string|UnitEnum|null $navigationGroup = 'Risk & Security';
 
     protected static ?int $navigationSort = 4;
 

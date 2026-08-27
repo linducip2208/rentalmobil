@@ -3,24 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomerResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\Customer;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-users';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Customers';
+    protected static string|UnitEnum|null $navigationGroup = 'Customers';
 
     protected static ?int $navigationSort = 5;
 
@@ -65,7 +65,7 @@ class CustomerResource extends Resource
                     ->label('Nomor KTP')
                     ->maxLength(50),
                 Forms\Components\TextInput::make('sim_number')->label('Nomor SIM')->maxLength(50),
-                Forms\Components\Select::make('customer_type')->label('Jenis customer')->options(['individual'=>'Perorangan','corporate'=>'Perusahaan'])->default('individual'),
+                Forms\Components\Select::make('customer_type')->label('Jenis customer')->options(['individual' => 'Perorangan', 'corporate' => 'Perusahaan'])->default('individual'),
                 Forms\Components\Select::make('corporate_account_id')
                     ->label('Akun korporat')
                     ->relationship('corporateAccount', 'name')

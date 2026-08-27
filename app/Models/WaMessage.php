@@ -15,7 +15,6 @@ class WaMessage extends Model
         'processed_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -24,5 +23,8 @@ class WaMessage extends Model
         ];
     }
 
-    public function conversation(): BelongsTo { return $this->belongsTo(WaConversation::class, 'wa_conversation_id'); }
+    public function conversation(): BelongsTo
+    {
+        return $this->belongsTo(WaConversation::class, 'wa_conversation_id');
+    }
 }

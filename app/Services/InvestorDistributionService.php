@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\InvestorDistribution;
-use App\Models\VehicleInvestment;
-use App\Models\Payment;
 use App\Models\Expense;
-use App\Models\Vehicle;
+use App\Models\InvestorDistribution;
+use App\Models\Payment;
+use App\Models\VehicleInvestment;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -31,6 +31,7 @@ class InvestorDistributionService
         foreach ($investments as $investment) {
             if (InvestorDistribution::where('vehicle_investment_id', $investment->id)->where('period_month', $month)->exists()) {
                 $skipped++;
+
                 continue;
             }
 
@@ -117,7 +118,7 @@ class InvestorDistributionService
 
     protected function monthBounds(string $ym): array
     {
-        $start = \Carbon\Carbon::parse($ym . '-01')->startOfDay();
+        $start = Carbon::parse($ym.'-01')->startOfDay();
 
         return [$start, $start->copy()->endOfMonth()];
     }

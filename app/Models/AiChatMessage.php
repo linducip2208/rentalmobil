@@ -17,8 +17,13 @@ class AiChatMessage extends Model
         'provider_id',
     ];
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-
-    public function provider(): BelongsTo { return $this->belongsTo(Provider::class); }
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }

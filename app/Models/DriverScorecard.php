@@ -22,7 +22,6 @@ class DriverScorecard extends Model
         'rank_position',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -33,5 +32,8 @@ class DriverScorecard extends Model
         ];
     }
 
-    public function driver(): BelongsTo { return $this->belongsTo(Driver::class); }
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }

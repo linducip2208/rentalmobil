@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\PoliceReportResource\Pages;
 use App\Models\PoliceReport;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class PoliceReportResource extends Resource
 {
     protected static ?string $model = PoliceReport::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-building-library';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-building-library';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Risk & Security';
+    protected static string|UnitEnum|null $navigationGroup = 'Risk & Security';
 
     protected static ?int $navigationSort = 5;
 

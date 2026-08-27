@@ -11,7 +11,7 @@ class CmsBlockRenderer
 
     public function __construct()
     {
-        $config = (new HtmlSanitizerConfig())
+        $config = (new HtmlSanitizerConfig)
             ->allowSafeElements()
             ->allowRelativeLinks()
             ->allowRelativeMedias()

@@ -18,7 +18,6 @@ class BookingHold extends Model
         'booking_id',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -28,9 +27,18 @@ class BookingHold extends Model
         ];
     }
 
-    public function vehicle(): BelongsTo { return $this->belongsTo(Vehicle::class); }
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
 
-    public function booking(): BelongsTo { return $this->belongsTo(Booking::class); }
+    public function booking(): BelongsTo
+    {
+        return $this->belongsTo(Booking::class);
+    }
 
-    public function scopeActive($query) { return $query->where('status', 'active')->where('expires_at', '>', now()); }
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active')->where('expires_at', '>', now());
+    }
 }

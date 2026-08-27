@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\BookingResource\Pages;
 
 use App\Filament\Resources\BookingResource;
+use App\Services\BookingService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
-use App\Services\BookingService;
 
 class CreateBooking extends CreateRecord
 {

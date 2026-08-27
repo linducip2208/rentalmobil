@@ -20,8 +20,8 @@ class MultiCityRelocationService
 
         $config = $this->config();
 
-        $pairKey = $pickup->id . ':' . $return->id;
-        $reverseKey = $return->id . ':' . $pickup->id;
+        $pairKey = $pickup->id.':'.$return->id;
+        $reverseKey = $return->id.':'.$pickup->id;
 
         if (isset($config['pairs'][$pairKey])) {
             return (float) $config['pairs'][$pairKey];
@@ -33,7 +33,7 @@ class MultiCityRelocationService
 
         $perKm = (float) ($config['default_per_km'] ?? 0);
 
-        if ($perKm <= 0 || !$pickup->latitude || !$pickup->longitude || !$return->latitude || !$return->longitude) {
+        if ($perKm <= 0 || ! $pickup->latitude || ! $pickup->longitude || ! $return->latitude || ! $return->longitude) {
             return 0.0;
         }
 
@@ -63,7 +63,7 @@ class MultiCityRelocationService
     {
         $raw = SystemSetting::get('relocation_fees');
 
-        if (!$raw) {
+        if (! $raw) {
             return [];
         }
 

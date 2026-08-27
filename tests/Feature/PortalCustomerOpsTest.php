@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\Invoice;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
 use App\Models\VehicleInspection;
+use App\Services\BookingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -53,7 +55,7 @@ class PortalCustomerOpsTest extends TestCase
         $this->assertSame(now()->addDays(10)->toDateString(), $fresh->start_date->toDateString());
         $this->assertSame(4, $fresh->duration_days);
 
-        $invoice = \App\Models\Invoice::where('rental_order_id', $order->id)->where('type', 'additional')->first();
+        $invoice = Invoice::where('rental_order_id', $order->id)->where('type', 'additional')->first();
         $this->assertNotNull($invoice, 'Selisih kenaikan durasi harus jadi invoice tambahan.');
         $this->assertGreaterThan(0, (float) $invoice->total_amount);
     }
@@ -124,7 +126,7 @@ class PortalCustomerOpsTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('SIM');
 
-        app(\App\Services\BookingService::class)->createBooking([
+        app(BookingService::class)->createBooking([
             'customer_id' => $customer->id,
             'vehicle_id' => $vehicle->id,
             'start_date' => now()->addDays(3)->toDateString(),

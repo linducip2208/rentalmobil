@@ -2,26 +2,26 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\ReturnRecordResource\Pages;
 use App\Models\ReturnRecord;
+use App\Services\ReturnProcessingService;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
-use App\Services\ReturnProcessingService;
 
 class ReturnRecordResource extends Resource
 {
     protected static ?string $model = ReturnRecord::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-uturn-left';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-arrow-uturn-left';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Rental';
+    protected static string|UnitEnum|null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 9;
 

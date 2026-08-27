@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Log;
 class IndexNowService
 {
     protected int $batchSize = 50;
+
     protected string $cacheKey = 'indexnow_submitted_urls';
+
     protected int $cacheTtl = 86400;
 
     public function submitUrl(string $url): bool
@@ -23,11 +25,12 @@ class IndexNowService
         $apiKey = $this->getApiKey();
         if (empty($apiKey)) {
             Log::warning('IndexNow: API key not configured');
+
             return 0;
         }
 
         $host = parse_url(config('app.url'), PHP_URL_HOST);
-        $keyLocation = config('app.url') . '/indexnow-key.txt';
+        $keyLocation = config('app.url').'/indexnow-key.txt';
 
         $urls = $this->filterNewUrls($urls);
         if (empty($urls)) {
@@ -69,10 +72,10 @@ class IndexNowService
     {
         $baseUrl = config('app.url');
         $url = match ($resourceType) {
-            'blog' => $baseUrl . '/blog/' . $identifier,
-            'vehicle' => $baseUrl . '/sewa/' . $identifier,
-            'category' => $baseUrl . '/sewa-mobil',
-            default => $baseUrl . '/' . $identifier,
+            'blog' => $baseUrl.'/blog/'.$identifier,
+            'vehicle' => $baseUrl.'/sewa/'.$identifier,
+            'category' => $baseUrl.'/sewa-mobil',
+            default => $baseUrl.'/'.$identifier,
         };
 
         return $this->submitUrl($url);
@@ -96,6 +99,7 @@ class IndexNowService
     protected function filterNewUrls(array $urls): array
     {
         $submitted = Cache::get($this->cacheKey, []);
+
         return array_values(array_diff($urls, $submitted));
     }
 
@@ -110,8 +114,9 @@ class IndexNowService
     public function getStats(): array
     {
         $submitted = Cache::get($this->cacheKey, []);
+
         return [
-            'api_key_configured' => !empty($this->getApiKey()),
+            'api_key_configured' => ! empty($this->getApiKey()),
             'cached_urls_count' => count($submitted),
         ];
     }

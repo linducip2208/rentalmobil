@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Vehicle;
-use Illuminate\Http\Request;
 
 class ProgrammaticSeoController extends Controller
 {
     public function bestCategory(string $category, ?int $year = null)
     {
         $categoryModel = Category::where('slug', $category)
-            ->orWhereRaw("LOWER(name) = ?", strtolower(str_replace('-', ' ', $category)))
+            ->orWhereRaw('LOWER(name) = ?', strtolower(str_replace('-', ' ', $category)))
             ->firstOrFail();
 
         $vehicles = Vehicle::where('category_id', $categoryModel->id)
@@ -20,8 +19,8 @@ class ProgrammaticSeoController extends Controller
             ->with(['category', 'brand', 'location'])
             ->get();
 
-        $title = "Best {$categoryModel->name}" . ($year ? " {$year}" : "") . " — Top Pilihan Sewa | RentalMobil";
-        $description = "Daftar terbaik {$categoryModel->name}" . ($year ? " tahun {$year}" : "") . " untuk disewa di RentalMobil. Spesifikasi, harga, dan ulasan lengkap.";
+        $title = "Best {$categoryModel->name}".($year ? " {$year}" : '').' — Top Pilihan Sewa | RentalMobil';
+        $description = "Daftar terbaik {$categoryModel->name}".($year ? " tahun {$year}" : '').' untuk disewa di RentalMobil. Spesifikasi, harga, dan ulasan lengkap.';
 
         $jsonLd = [
             '@context' => 'https://schema.org',
@@ -32,8 +31,8 @@ class ProgrammaticSeoController extends Controller
                 '@type' => 'ListItem',
                 'position' => $i + 1,
                 'name' => $v->name,
-                'url' => url('/sewa/' . $v->slug),
-                'description' => "{$v->brand?->name} {$v->name} {$v->year} — Rp " . number_format((float) $v->daily_rate, 0, ',', '.') . "/hari",
+                'url' => url('/sewa/'.$v->slug),
+                'description' => "{$v->brand?->name} {$v->name} {$v->year} — Rp ".number_format((float) $v->daily_rate, 0, ',', '.').'/hari',
             ])->toArray(),
         ];
 
@@ -76,7 +75,7 @@ class ProgrammaticSeoController extends Controller
                 '@type' => 'ListItem',
                 'position' => $i + 1,
                 'name' => $v->name,
-                'url' => url('/sewa/' . $v->slug),
+                'url' => url('/sewa/'.$v->slug),
             ])->toArray(),
         ];
 
@@ -109,8 +108,8 @@ class ProgrammaticSeoController extends Controller
             'name' => $title,
             'url' => url()->current(),
             'itemListElement' => [
-                ['@type' => 'ListItem', 'position' => 1, 'name' => $nameA, 'url' => url('/sewa/' . $a)],
-                ['@type' => 'ListItem', 'position' => 2, 'name' => $nameB, 'url' => url('/sewa/' . $b)],
+                ['@type' => 'ListItem', 'position' => 1, 'name' => $nameA, 'url' => url('/sewa/'.$a)],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => $nameB, 'url' => url('/sewa/'.$b)],
             ],
         ];
 
@@ -131,8 +130,8 @@ class ProgrammaticSeoController extends Controller
 
     public function sourceCode()
     {
-        $title = "Beli Aplikasi Rental Mobil — Source Code Laravel | RentalMobil";
-        $description = "Beli source code aplikasi rental mobil berbasis Laravel. Fitur lengkap: booking, invoice, GPS tracking, multi-lokasi. Siap deploy.";
+        $title = 'Beli Aplikasi Rental Mobil — Source Code Laravel | RentalMobil';
+        $description = 'Beli source code aplikasi rental mobil berbasis Laravel. Fitur lengkap: booking, invoice, GPS tracking, multi-lokasi. Siap deploy.';
 
         $jsonLd = [
             '@context' => 'https://schema.org',
@@ -161,19 +160,19 @@ class ProgrammaticSeoController extends Controller
         return [
             'Merk' => $vehicle->brand?->name ?? '-',
             'Tahun' => $vehicle->year,
-            'Kapasitas' => $vehicle->seat_count . ' kursi',
+            'Kapasitas' => $vehicle->seat_count.' kursi',
             'Transmisi' => $vehicle->transmission,
             'Bahan Bakar' => $vehicle->fuel_type,
             'Warna' => $vehicle->color,
-            'Kapasitas Mesin' => $vehicle->engine_cc . ' cc',
-            'Harga/Hari' => 'Rp ' . number_format((float) $vehicle->daily_rate, 0, ',', '.'),
-            'Deposit' => 'Rp ' . number_format((float) $vehicle->deposit_amount, 0, ',', '.'),
+            'Kapasitas Mesin' => $vehicle->engine_cc.' cc',
+            'Harga/Hari' => 'Rp '.number_format((float) $vehicle->daily_rate, 0, ',', '.'),
+            'Deposit' => 'Rp '.number_format((float) $vehicle->deposit_amount, 0, ',', '.'),
         ];
     }
 
     protected function generateVerdict(?Vehicle $a, ?Vehicle $b): ?string
     {
-        if (!$a || !$b) {
+        if (! $a || ! $b) {
             return null;
         }
 
@@ -186,6 +185,6 @@ class ProgrammaticSeoController extends Controller
             return "{$b->name} lebih terjangkau, sedangkan {$a->name} menawarkan fitur lebih lengkap.";
         }
 
-        return "Kedua kendaraan memiliki harga yang serupa. Pilihan tergantung kebutuhan spesifik Anda.";
+        return 'Kedua kendaraan memiliki harga yang serupa. Pilihan tergantung kebutuhan spesifik Anda.';
     }
 }

@@ -17,6 +17,7 @@ class IndexNowSubmit extends Command
     {
         if (empty($indexNow->getApiKey())) {
             $this->error('IndexNow API key not configured. Set "indexnow_api_key" in SystemSetting.');
+
             return Command::FAILURE;
         }
 
@@ -24,6 +25,7 @@ class IndexNowSubmit extends Command
 
         if (empty($urls)) {
             $this->info('No URLs to submit.');
+
             return Command::SUCCESS;
         }
 
@@ -46,7 +48,7 @@ class IndexNowSubmit extends Command
             ->toArray();
 
         foreach ($recentPosts as $slug) {
-            $urls[] = $baseUrl . '/blog/' . $slug;
+            $urls[] = $baseUrl.'/blog/'.$slug;
         }
 
         $recentChanges = AuditLog::where('created_at', '>=', now()->subHours(48))
@@ -59,8 +61,8 @@ class IndexNowSubmit extends Command
         foreach ($recentChanges as $id) {
             $post = BlogPost::find($id);
             if ($post && $post->is_published) {
-                $url = $baseUrl . '/blog/' . $post->slug;
-                if (!in_array($url, $urls)) {
+                $url = $baseUrl.'/blog/'.$post->slug;
+                if (! in_array($url, $urls)) {
                     $urls[] = $url;
                 }
             }

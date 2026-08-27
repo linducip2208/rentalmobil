@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-
 class ExchangeRate extends Model
 {
     protected $fillable = [
@@ -14,7 +13,6 @@ class ExchangeRate extends Model
         'source',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -23,5 +21,8 @@ class ExchangeRate extends Model
         ];
     }
 
-    public static function latestFor(string $code): ?self { return static::where('currency_code', strtoupper($code))->orderByDesc('effective_date')->first(); }
+    public static function latestFor(string $code): ?self
+    {
+        return static::where('currency_code', strtoupper($code))->orderByDesc('effective_date')->first();
+    }
 }

@@ -62,7 +62,7 @@ class Expense extends Model
             $sequence = 1;
         }
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.$date.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function category(): BelongsTo
@@ -92,7 +92,7 @@ class Expense extends Model
 
     public function reference()
     {
-        if (!$this->reference_type || !$this->reference_id) {
+        if (! $this->reference_type || ! $this->reference_id) {
             return null;
         }
 

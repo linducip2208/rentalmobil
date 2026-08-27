@@ -35,7 +35,7 @@ class EnsureAdminRoleAccess
             abort_unless(in_array($segment, [null, 'driver-tracking', 'gps-map', 'deliveries', 'rental-orders'], true), 403);
         }
         if ($role === 'cashier') {
-            abort_unless(!in_array($segment, array_merge(self::RESTRICTED['finance'], self::RESTRICTED['security'], self::RESTRICTED['system']), true), 403);
+            abort_unless(! in_array($segment, array_merge(self::RESTRICTED['finance'], self::RESTRICTED['security'], self::RESTRICTED['system']), true), 403);
         }
 
         return $next($request);

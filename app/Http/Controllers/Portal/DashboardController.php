@@ -4,14 +4,23 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
-use App\Models\RentalOrder;
-use Illuminate\Http\Request;
+use App\Models\LoyaltyLedger;
 use App\Models\Payment;
-use App\Services\ReportPdfService;
 use App\Models\Provider;
+use App\Models\Referral;
 use App\Models\RentalExtension;
+use App\Models\RentalOrder;
+use App\Models\Subscription;
+use App\Models\VehicleInspection;
+use App\Services\LoyaltyRedemptionService;
+use App\Services\LoyaltyService;
 use App\Services\PaymentGatewayService;
 use App\Services\PricingEngine;
+use App\Services\ReferralService;
+use App\Services\ReportPdfService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -27,11 +36,11 @@ class DashboardController extends Controller
     public function referrals(Request $request)
     {
         $customer = $request->user('customer');
-        $service = app(\App\Services\ReferralService::class);
+        $service = app(ReferralService::class);
 
         $stats = $service->statsFor($customer);
-        $referrals = \App\Models\Referral::where('referrer_customer_id', $customer->id)->latest()->paginate(15);
-        $bookingUrl = config('app.url') . '/booking?ref=' . $stats['code'];
+        $referrals = Referral::where('referrer_customer_id', $customer->id)->latest()->paginate(15);
+        $bookingUrl = config('app.url').'/booking?ref='.$stats['code'];
 
         return view('portal.referrals', compact('customer', 'stats', 'referrals', 'bookingUrl'));
     }
@@ -39,12 +48,12 @@ class DashboardController extends Controller
     public function loyaltyPoints(Request $request)
     {
         $customer = $request->user('customer');
-        $loyalty = app(\App\Services\LoyaltyRedemptionService::class);
+        $loyalty = app(LoyaltyRedemptionService::class);
 
         $balance = $loyalty->balance($customer);
         $pointValue = $loyalty->pointValue($balance);
-        $ledgers = \App\Models\LoyaltyLedger::where('customer_id', $customer->id)->latest()->paginate(15);
-        $tierProgress = app(\App\Services\LoyaltyService::class)->getTierProgress($customer);
+        $ledgers = LoyaltyLedger::where('customer_id', $customer->id)->latest()->paginate(15);
+        $tierProgress = app(LoyaltyService::class)->getTierProgress($customer);
 
         return view('portal.loyalty', compact('customer', 'balance', 'pointValue', 'ledgers', 'tierProgress'));
     }
@@ -53,14 +62,16 @@ class DashboardController extends Controller
     {
         $orders = RentalOrder::with(['vehicle', 'payments', 'invoices'])
             ->where('customer_id', $request->user('customer')->id)->latest()->paginate(15);
+
         return view('portal.orders', compact('orders'));
     }
 
     public function subscriptions(Request $request)
     {
-        $subscriptions = \App\Models\Subscription::with('vehicle')
+        $subscriptions = Subscription::with('vehicle')
             ->where('customer_id', $request->user('customer')->id)
             ->latest()->get();
+
         return view('portal.subscriptions', compact('subscriptions'));
     }
 
@@ -68,7 +79,7 @@ class DashboardController extends Controller
     {
         $customer = $request->user('customer');
         $orderIds = RentalOrder::where('customer_id', $customer->id)->pluck('id');
-        $inspections = \App\Models\VehicleInspection::with(['vehicle'])
+        $inspections = VehicleInspection::with(['vehicle'])
             ->whereIn('rental_order_id', $orderIds)
             ->latest('inspected_at')
             ->paginate(10);
@@ -76,7 +87,7 @@ class DashboardController extends Controller
         return view('portal.inspections', compact('inspections'));
     }
 
-    public function reschedule(Request $request, RentalOrder $order, \App\Services\PricingEngine $pricing)
+    public function reschedule(Request $request, RentalOrder $order, PricingEngine $pricing)
     {
         $customer = $request->user('customer');
         abort_unless($order->customer_id === $customer->id, 404);
@@ -88,8 +99,8 @@ class DashboardController extends Controller
             'end_date' => ['required', 'date', 'after:start_date'],
         ]);
 
-        $start = \Illuminate\Support\Carbon::parse($data['start_date']);
-        $end = \Illuminate\Support\Carbon::parse($data['end_date']);
+        $start = Carbon::parse($data['start_date']);
+        $end = Carbon::parse($data['end_date']);
 
         // Kendaraan harus bebas pada rentang baru (abaikan order ini sendiri).
         $conflict = RentalOrder::where('vehicle_id', $order->vehicle_id)
@@ -112,7 +123,7 @@ class DashboardController extends Controller
         $newFinal = (float) $quote['total'];
         $delta = round($newFinal - $oldFinal, 2);
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $data, $quote, $newFinal, $delta) {
+        DB::transaction(function () use ($order, $data, $quote, $newFinal, $delta) {
             $order->update([
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
@@ -150,13 +161,15 @@ class DashboardController extends Controller
     public function invoices(Request $request)
     {
         $invoices = Invoice::where('customer_id', $request->user('customer')->id)->latest()->paginate(15);
-        $paymentProviders = Provider::active()->where('type','payment')->get();
-        return view('portal.invoices', compact('invoices','paymentProviders'));
+        $paymentProviders = Provider::active()->where('type', 'payment')->get();
+
+        return view('portal.invoices', compact('invoices', 'paymentProviders'));
     }
 
     public function downloadInvoice(Request $request, Invoice $invoice, ReportPdfService $pdfs)
     {
         abort_unless($invoice->customer_id === $request->user('customer')->id, 404);
+
         return $pdfs->generateInvoicePdf($invoice)->download("Invoice-{$invoice->invoice_number}.pdf");
     }
 
@@ -176,24 +189,31 @@ class DashboardController extends Controller
             'reference_number' => $data['reference_number'] ?? null, 'proof_url' => $path, 'status' => 'pending',
             'notes' => 'Diupload mandiri melalui portal pelanggan.',
         ]);
+
         return back()->with('status', 'Bukti pembayaran terkirim dan menunggu verifikasi admin.');
     }
 
     public function requestExtension(Request $request, RentalOrder $order, PricingEngine $pricing)
     {
-        $customer=$request->user('customer'); abort_unless($order->customer_id===$customer->id,404);
-        $data=$request->validate(['requested_end_date'=>['required','date','after:'.$order->end_date->toDateString()],'reason'=>['nullable','string','max:1000']]);
-        abort_if(RentalExtension::where('rental_order_id',$order->id)->where('status','pending')->exists(),422,'Masih ada permintaan perpanjangan yang menunggu.');
-        $quote=$pricing->calculateRentalPrice($order->vehicle,$order->end_date->toDateString(),$data['requested_end_date'],$order->rental_type);
-        RentalExtension::create(['rental_order_id'=>$order->id,'customer_id'=>$customer->id,'requested_end_date'=>$data['requested_end_date'],'additional_amount'=>$quote['total'],'reason'=>$data['reason']??null]);
-        $order->update(['status'=>'extension_requested']); return back()->with('status','Permintaan perpanjangan dikirim.');
+        $customer = $request->user('customer');
+        abort_unless($order->customer_id === $customer->id, 404);
+        $data = $request->validate(['requested_end_date' => ['required', 'date', 'after:'.$order->end_date->toDateString()], 'reason' => ['nullable', 'string', 'max:1000']]);
+        abort_if(RentalExtension::where('rental_order_id', $order->id)->where('status', 'pending')->exists(), 422, 'Masih ada permintaan perpanjangan yang menunggu.');
+        $quote = $pricing->calculateRentalPrice($order->vehicle, $order->end_date->toDateString(), $data['requested_end_date'], $order->rental_type);
+        RentalExtension::create(['rental_order_id' => $order->id, 'customer_id' => $customer->id, 'requested_end_date' => $data['requested_end_date'], 'additional_amount' => $quote['total'], 'reason' => $data['reason'] ?? null]);
+        $order->update(['status' => 'extension_requested']);
+
+        return back()->with('status', 'Permintaan perpanjangan dikirim.');
     }
 
     public function checkoutPayment(Request $request, Invoice $invoice, PaymentGatewayService $gateway)
     {
-        abort_unless($invoice->customer_id===$request->user('customer')->id,404);
-        $data=$request->validate(['provider_id'=>'required|exists:providers,id']); $provider=Provider::findOrFail($data['provider_id']);
-        $transaction=$gateway->create($provider,$invoice); abort_if(blank($transaction->checkout_url),422,'Provider tidak mengembalikan checkout URL.');
+        abort_unless($invoice->customer_id === $request->user('customer')->id, 404);
+        $data = $request->validate(['provider_id' => 'required|exists:providers,id']);
+        $provider = Provider::findOrFail($data['provider_id']);
+        $transaction = $gateway->create($provider, $invoice);
+        abort_if(blank($transaction->checkout_url), 422, 'Provider tidak mengembalikan checkout URL.');
+
         return redirect()->away($transaction->checkout_url);
     }
 }

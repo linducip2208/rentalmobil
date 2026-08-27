@@ -28,12 +28,21 @@ class GpsIntegration extends Model
         ];
     }
 
-    public function provider(): BelongsTo { return $this->belongsTo(Provider::class); }
-    public function trackers(): HasMany { return $this->hasMany(GpsTracker::class); }
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(Provider::class);
+    }
+
+    public function trackers(): HasMany
+    {
+        return $this->hasMany(GpsTracker::class);
+    }
 
     public function setCredentialSecretAttribute(?string $value): void
     {
-        if (filled($value)) $this->attributes['credential_secret_encrypted'] = Crypt::encryptString($value);
+        if (filled($value)) {
+            $this->attributes['credential_secret_encrypted'] = Crypt::encryptString($value);
+        }
     }
 
     public function getCredentialSecretAttribute(): ?string
@@ -43,7 +52,9 @@ class GpsIntegration extends Model
 
     public function setWebhookSecretAttribute(?string $value): void
     {
-        if (filled($value)) $this->attributes['webhook_secret_encrypted'] = Crypt::encryptString($value);
+        if (filled($value)) {
+            $this->attributes['webhook_secret_encrypted'] = Crypt::encryptString($value);
+        }
     }
 
     public function getWebhookSecretAttribute(): ?string
@@ -53,10 +64,23 @@ class GpsIntegration extends Model
 
     private function decrypt(?string $value): ?string
     {
-        if (blank($value)) return null;
-        try { return Crypt::decryptString($value); } catch (\Throwable) { return null; }
+        if (blank($value)) {
+            return null;
+        }
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
-    public function scopeActive($query) { return $query->where('is_active', true); }
-    public function isDue(): bool { return !$this->last_synced_at || $this->last_synced_at->lte(now()->subMinutes($this->poll_interval_minutes)); }
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function isDue(): bool
+    {
+        return ! $this->last_synced_at || $this->last_synced_at->lte(now()->subMinutes($this->poll_interval_minutes));
+    }
 }

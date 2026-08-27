@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\FraudHit;
 use App\Models\FraudPattern;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -39,14 +41,14 @@ class FraudPatternDetectionService
         return $results;
     }
 
-    protected function scanDuplicateDocuments(FraudPattern $pattern): \Illuminate\Support\Collection
+    protected function scanDuplicateDocuments(FraudPattern $pattern): Collection
     {
         $minAccounts = (int) ($pattern->conditions['min_accounts'] ?? 2);
 
         return DB::table('customers')
             ->whereNotNull('ktp_number')
             ->where('ktp_number', '!=', '')
-            ->select('ktp_number', DB::raw('COUNT(*) as account_count'), DB::raw("GROUP_CONCAT(id) as customer_ids"))
+            ->select('ktp_number', DB::raw('COUNT(*) as account_count'), DB::raw('GROUP_CONCAT(id) as customer_ids'))
             ->groupBy('ktp_number')
             ->havingRaw('COUNT(*) >= ?', [$minAccounts])
             ->get()
@@ -54,14 +56,14 @@ class FraudPatternDetectionService
                 'customer_id' => null,
                 'severity' => min(5, $row->account_count),
                 'details' => [
-                    'ktp_number' => substr($row->ktp_number, 0, 4) . '****',
+                    'ktp_number' => substr($row->ktp_number, 0, 4).'****',
                     'account_count' => $row->account_count,
                     'customer_ids' => array_map('intval', explode(',', $row->customer_ids)),
                 ],
             ]);
     }
 
-    protected function scanSharedContact(FraudPattern $pattern): \Illuminate\Support\Collection
+    protected function scanSharedContact(FraudPattern $pattern): Collection
     {
         $minAccounts = (int) ($pattern->conditions['min_accounts'] ?? 3);
         $lookback = now()->subDays($pattern->lookback_days);
@@ -69,7 +71,7 @@ class FraudPatternDetectionService
         $phones = DB::table('customers')
             ->where('is_active', true)
             ->where('created_at', '>=', $lookback)
-            ->select('phone', DB::raw('COUNT(*) as cnt'), DB::raw("GROUP_CONCAT(id) as ids"))
+            ->select('phone', DB::raw('COUNT(*) as cnt'), DB::raw('GROUP_CONCAT(id) as ids'))
             ->groupBy('phone')
             ->havingRaw('COUNT(*) >= ?', [$minAccounts])
             ->get();
@@ -80,14 +82,14 @@ class FraudPatternDetectionService
                 'severity' => min(5, $row->cnt),
                 'details' => [
                     'type' => 'phone',
-                    'contact_masked' => substr($row->phone, 0, 5) . '****',
+                    'contact_masked' => substr($row->phone, 0, 5).'****',
                     'account_count' => $row->cnt,
                     'customer_ids' => array_map('intval', explode(',', $row->ids)),
                 ],
             ]);
     }
 
-    protected function scanIpCluster(FraudPattern $pattern): \Illuminate\Support\Collection
+    protected function scanIpCluster(FraudPattern $pattern): Collection
     {
         $minCustomers = (int) ($pattern->conditions['min_customers'] ?? 3);
         $lookback = now()->subDays($pattern->lookback_days);
@@ -103,14 +105,14 @@ class FraudPatternDetectionService
         return $clusters->map(fn ($row) => [
             'severity' => min(5, $row->cnt),
             'details' => [
-                'fingerprint_hash' => substr($row->fingerprint_hash, 0, 12) . '…',
+                'fingerprint_hash' => substr($row->fingerprint_hash, 0, 12).'…',
                 'distinct_customers' => $row->cnt,
                 'customer_ids' => array_map('intval', array_filter(explode(',', $row->ids))),
             ],
         ]);
     }
 
-    protected function scanBookingVelocity(FraudPattern $pattern): \Illuminate\Support\Collection
+    protected function scanBookingVelocity(FraudPattern $pattern): Collection
     {
         $maxBookings = (int) ($pattern->conditions['max_bookings_per_day'] ?? 5);
         $windowDays = max(1, intdiv((int) $pattern->lookback_days, 30));
@@ -128,7 +130,7 @@ class FraudPatternDetectionService
         return $velocity->map(fn ($row) => [
             'customer_id' => $row->customer_id,
             'severity' => min(5, intdiv($row->booking_count, $maxBookings)),
-            'subject_type' => \App\Models\Booking::class,
+            'subject_type' => Booking::class,
             'details' => [
                 'window_days' => $windowDays,
                 'booking_count' => $row->booking_count,

@@ -2,25 +2,30 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\RentalOrderResource\Pages;
 use App\Models\RentalOrder;
+use App\Services\DepositRefundService;
+use App\Services\HandoverLinkService;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
+use Filament\Notifications\Notification;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class RentalOrderResource extends Resource
 {
     protected static ?string $model = RentalOrder::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Rental';
+    protected static string|UnitEnum|null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 5;
 
@@ -42,7 +47,7 @@ class RentalOrderResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\TextInput::make('purchase_order_number')
+                TextInput::make('purchase_order_number')
                     ->label('No. PO Perusahaan')
                     ->maxLength(80)
                     ->placeholder('PO-2026-001'),
@@ -68,56 +73,56 @@ class RentalOrderResource extends Resource
                     ->required(),
                 Forms\Components\DateTimePicker::make('actual_return_date')
                     ->label('Tanggal Kembali Aktual'),
-                Forms\Components\TextInput::make('duration_days')
+                TextInput::make('duration_days')
                     ->label('Durasi (Hari)')
                     ->numeric()
                     ->default(1),
             ])->columns(2),
 
             Schemas\Components\Section::make('Biaya')->schema([
-                Forms\Components\TextInput::make('daily_rate')
+                TextInput::make('daily_rate')
                     ->label('Tarif/Hari (Rp)')
                     ->numeric()
                     ->prefix('Rp'),
-                Forms\Components\TextInput::make('subtotal')
+                TextInput::make('subtotal')
                     ->label('Subtotal (Rp)')
                     ->numeric()
                     ->prefix('Rp'),
-                Forms\Components\TextInput::make('addon_total')
+                TextInput::make('addon_total')
                     ->label('Add-on (Rp)')
                     ->numeric()
                     ->prefix('Rp')
                     ->default(0),
-                Forms\Components\TextInput::make('discount_amount')
+                TextInput::make('discount_amount')
                     ->label('Diskon (Rp)')
                     ->numeric()
                     ->prefix('Rp')
                     ->default(0),
-                Forms\Components\TextInput::make('tax_amount')
+                TextInput::make('tax_amount')
                     ->label('Pajak (Rp)')
                     ->numeric()
                     ->prefix('Rp')
                     ->default(0),
-                Forms\Components\TextInput::make('late_fee')
+                TextInput::make('late_fee')
                     ->label('Denda Keterlambatan (Rp)')
                     ->numeric()
                     ->prefix('Rp')
                     ->default(0),
-                Forms\Components\TextInput::make('damage_fee')
+                TextInput::make('damage_fee')
                     ->label('Biaya Kerusakan (Rp)')
                     ->numeric()
                     ->prefix('Rp')
                     ->default(0),
-                Forms\Components\TextInput::make('total_amount')
+                TextInput::make('total_amount')
                     ->label('Total (Rp)')
                     ->numeric()
                     ->prefix('Rp'),
-                Forms\Components\TextInput::make('amount_paid')
+                TextInput::make('amount_paid')
                     ->label('Sudah Dibayar (Rp)')
                     ->numeric()
                     ->prefix('Rp')
                     ->default(0),
-                Forms\Components\TextInput::make('deposit_amount')
+                TextInput::make('deposit_amount')
                     ->label('Deposit (Rp)')
                     ->numeric()
                     ->prefix('Rp'),
@@ -251,17 +256,17 @@ class RentalOrderResource extends Resource
                     ->visible(fn ($record) => ! in_array($record->status, ['checked_out', 'active', 'completed', 'cancelled'], true))
                     ->modalHeading('Self Check-in Pelanggan')
                     ->modalDescription('Bagikan QR/link ini saat serah terima â€” pelanggan foto kondisi mobil & isi BBM/odometer sendiri.')
-                    ->mountUsing(function (\Filament\Schemas\Schema $form, $record) {
-                        $link = app(\App\Services\HandoverLinkService::class)->issueCheckIn($record);
+                    ->mountUsing(function (Schema $form, $record) {
+                        $link = app(HandoverLinkService::class)->issueCheckIn($record);
                         $form->fill(['link' => $link]);
                     })
                     ->form([
-                        \Filament\Forms\Components\TextInput::make('link')
+                        TextInput::make('link')
                             ->label('URL check-in')
                             ->readOnly()
                             ->copyable()
                             ->columnSpanFull(),
-                        \Filament\Forms\Components\ViewField::make('qr')
+                        ViewField::make('qr')
                             ->view('filament.contracts.qr-link')
                             ->columnSpanFull(),
                     ])
@@ -275,22 +280,22 @@ class RentalOrderResource extends Resource
                     ->modalHeading('Pengembalian Deposit')
                     ->modalDescription('Isi potongan yang berlaku (kosongkan jika tidak ada). Invoice potongan otomatis diterbitkan.')
                     ->form([
-                        \Filament\Forms\Components\TextInput::make('fuel')->numeric()->prefix('Rp')->default(0)->label('Potongan BBM'),
-                        \Filament\Forms\Components\TextInput::make('cleaning')->numeric()->prefix('Rp')->default(0)->label('Biaya cuci'),
-                        \Filament\Forms\Components\TextInput::make('late_fee')->numeric()->prefix('Rp')->default(0)->label('Denda keterlambatan'),
-                        \Filament\Forms\Components\TextInput::make('damage')->numeric()->prefix('Rp')->default(0)->label('Kerusakan minor'),
-                        \Filament\Forms\Components\TextInput::make('other')->numeric()->prefix('Rp')->default(0)->label('Potongan lain'),
+                        TextInput::make('fuel')->numeric()->prefix('Rp')->default(0)->label('Potongan BBM'),
+                        TextInput::make('cleaning')->numeric()->prefix('Rp')->default(0)->label('Biaya cuci'),
+                        TextInput::make('late_fee')->numeric()->prefix('Rp')->default(0)->label('Denda keterlambatan'),
+                        TextInput::make('damage')->numeric()->prefix('Rp')->default(0)->label('Kerusakan minor'),
+                        TextInput::make('other')->numeric()->prefix('Rp')->default(0)->label('Potongan lain'),
                     ])
                     ->action(function ($record, array $data) {
                         $deposit = $record->deposits()->whereIn('deposit_status', ['received', 'held'])->latest()->first();
-                        app(\App\Services\DepositRefundService::class)->refund($deposit, [
+                        app(DepositRefundService::class)->refund($deposit, [
                             'fuel' => $data['fuel'] ?? 0,
                             'cleaning' => $data['cleaning'] ?? 0,
                             'late_fee' => $data['late_fee'] ?? 0,
                             'damage' => $data['damage'] ?? 0,
                             'other' => $data['other'] ?? 0,
                         ], auth()->id());
-                        \Filament\Notifications\Notification::make()->title('Deposit dikembalikan dengan potongan tercatat')->success()->send();
+                        Notification::make()->title('Deposit dikembalikan dengan potongan tercatat')->success()->send();
                     }),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),

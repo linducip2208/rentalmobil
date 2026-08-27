@@ -35,7 +35,7 @@ class WebhookDispatchService
     {
         $webhook = $delivery->webhook;
 
-        if (!$webhook || !$webhook->is_active) {
+        if (! $webhook || ! $webhook->is_active) {
             return false;
         }
 

@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
@@ -47,7 +47,10 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(RentalOrder::class, 'driver_id', 'id');
     }
 
-    public function location(){return $this->belongsTo(Location::class);}
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
 
     public function managedOrders(): HasMany
     {

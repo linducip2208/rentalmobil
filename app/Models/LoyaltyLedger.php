@@ -19,7 +19,6 @@ class LoyaltyLedger extends Model
         'expires_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -29,7 +28,13 @@ class LoyaltyLedger extends Model
         ];
     }
 
-    public function customer(): BelongsTo { return $this->belongsTo(Customer::class); }
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
-    public function reference(): MorphTo { return $this->morphTo(); }
+    public function reference(): MorphTo
+    {
+        return $this->morphTo();
+    }
 }

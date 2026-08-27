@@ -1,1 +1,11 @@
-<?php namespace App\Filament\Resources\GpsGeofenceResource\Pages; use App\Filament\Resources\GpsGeofenceResource; use Filament\Resources\Pages\CreateRecord; class CreateGpsGeofence extends CreateRecord { protected static string $resource = GpsGeofenceResource::class; }
+<?php
+
+namespace App\Filament\Resources\GpsGeofenceResource\Pages;
+
+use App\Filament\Resources\GpsGeofenceResource;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateGpsGeofence extends CreateRecord
+{
+    protected static string $resource = GpsGeofenceResource::class;
+}

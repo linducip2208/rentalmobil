@@ -9,15 +9,13 @@ use Illuminate\Support\Facades\Log;
 
 class DamageDetectionService
 {
-    public function __construct(protected AiVisionService $vision)
-    {
-    }
+    public function __construct(protected AiVisionService $vision) {}
 
     public function analyze(VehicleInspection $inspection, ?Provider $provider = null): VehicleInspection
     {
         $provider ??= Provider::active()->byType('ai')->first();
 
-        if (!$provider) {
+        if (! $provider) {
             throw new \RuntimeException('Belum ada provider AI aktif. Tambahkan di menu Providers.');
         }
 
@@ -56,7 +54,7 @@ class DamageDetectionService
         $created = 0;
 
         foreach (($inspection->ai_analysis ?? []) as $finding) {
-            if (!is_array($finding) || isset($finding['raw_text'])) {
+            if (! is_array($finding) || isset($finding['raw_text'])) {
                 continue;
             }
 

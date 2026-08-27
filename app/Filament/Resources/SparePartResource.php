@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\SparePartResource\Pages;
 use App\Models\SparePart;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class SparePartResource extends Resource
 {
     protected static ?string $model = SparePart::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-cube';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-cube';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Procurement & Inventory';
+    protected static string|UnitEnum|null $navigationGroup = 'Procurement & Inventory';
 
     protected static ?int $navigationSort = 5;
 
@@ -94,7 +94,7 @@ class SparePartResource extends Resource
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stok')
                     ->sortable()
-                    ->color(fn (int $state, SparePart $record): string|null => $record->isLowStock() ? 'danger' : null),
+                    ->color(fn (int $state, SparePart $record): ?string => $record->isLowStock() ? 'danger' : null),
                 Tables\Columns\TextColumn::make('min_stock')
                     ->label('Min. Stok')
                     ->sortable(),

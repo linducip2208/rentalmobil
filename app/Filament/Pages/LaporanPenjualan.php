@@ -5,6 +5,9 @@ namespace App\Filament\Pages;
 use App\Models\Category;
 use App\Models\Location;
 use App\Models\RentalOrder;
+use App\Models\Vehicle;
+use App\Services\ReportExcelService;
+use Carbon\Carbon;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 
@@ -13,15 +16,23 @@ class LaporanPenjualan extends Page
     protected string $view = 'filament.pages.laporan-penjualan';
 
     protected static \UnitEnum|string|null $navigationGroup = 'Reports';
+
     protected static ?string $navigationLabel = 'Penjualan';
+
     protected static ?int $navigationSort = 1;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
+
     protected static ?string $title = 'Laporan Penjualan';
 
     public string $dateFrom;
+
     public string $dateTo;
+
     public string $groupBy = 'monthly';
+
     public ?int $locationId = null;
+
     public ?int $categoryId = null;
 
     public function mount(): void
@@ -43,7 +54,7 @@ class LaporanPenjualan extends Page
             $query->whereHas('vehicle', fn ($q) => $q->where('category_id', $this->categoryId));
         }
 
-        $totalVehicles = \App\Models\Vehicle::where('is_active', true)->count();
+        $totalVehicles = Vehicle::where('is_active', true)->count();
         $rentedDuringPeriod = (clone $query)->distinct('vehicle_id')->count('vehicle_id');
         $occupancy = $totalVehicles > 0 ? round(($rentedDuringPeriod / $totalVehicles) * 100, 1) : 0;
 
@@ -126,14 +137,15 @@ class LaporanPenjualan extends Page
     protected function formatPeriodLabel(string $period): string
     {
         if ($this->groupBy === 'daily') {
-            return \Carbon\Carbon::parse($period)->translatedFormat('d M');
+            return Carbon::parse($period)->translatedFormat('d M');
         }
         if ($this->groupBy === 'weekly') {
             [$year, $week] = explode('-', $period);
+
             return "W{$week} {$year}";
         }
 
-        return \Carbon\Carbon::parse($period . '-01')->translatedFormat('M Y');
+        return Carbon::parse($period.'-01')->translatedFormat('M Y');
     }
 
     public function getFilters(): array
@@ -148,6 +160,7 @@ class LaporanPenjualan extends Page
     public function exportExcel()
     {
         $rows = collect($this->getOrders())->map(fn (array $order) => [$order['order_number'], $order['customer']['name'] ?? '-', $order['vehicle']['name'] ?? '-', $order['start_date'], $order['end_date'], $order['status'], (float) $order['final_amount']]);
-        return app(\App\Services\ReportExcelService::class)->download('laporan-penjualan-'.$this->dateFrom.'-'.$this->dateTo, ['No. Order','Customer','Kendaraan','Mulai','Selesai','Status','Nilai'], $rows);
+
+        return app(ReportExcelService::class)->download('laporan-penjualan-'.$this->dateFrom.'-'.$this->dateTo, ['No. Order', 'Customer', 'Kendaraan', 'Mulai', 'Selesai', 'Status', 'Nilai'], $rows);
     }
 }

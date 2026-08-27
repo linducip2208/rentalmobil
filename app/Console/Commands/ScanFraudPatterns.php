@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\FraudPatternDetectionService;
 use Illuminate\Console\Command;
 
 class ScanFraudPatterns extends Command
@@ -12,14 +13,14 @@ class ScanFraudPatterns extends Command
 
     public function handle(): int
     {
-$results = app(\App\Services\FraudPatternDetectionService::class)->scan();
+        $results = app(FraudPatternDetectionService::class)->scan();
 
-$this->info("Pattern dipindai: {$results['patterns']}, hit baru: {$results['hits_created']}.");
+        $this->info("Pattern dipindai: {$results['patterns']}, hit baru: {$results['hits_created']}.");
 
-if ($results['hits_created'] > 0) {
-    $this->warn("Ada {$results['hits_created']} temuan fraud baru — review di menu Risiko & Keamanan.");
-}
+        if ($results['hits_created'] > 0) {
+            $this->warn("Ada {$results['hits_created']} temuan fraud baru — review di menu Risiko & Keamanan.");
+        }
 
-return self::SUCCESS;
+        return self::SUCCESS;
     }
 }

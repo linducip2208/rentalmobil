@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Addon;
 use App\Models\PromoVoucher;
-use App\Models\SystemSetting;
+use App\Models\RentalOrder;
+use App\Models\SeasonPeriod;
 use App\Models\SurgePricingRule;
+use App\Models\SystemSetting;
 use App\Models\Vehicle;
 use Carbon\Carbon;
 
@@ -43,7 +45,7 @@ class PricingEngine
             }
 
             // Kalender musim (libur nasional / high season) — multiplier per tanggal.
-            if ($season = \App\Models\SeasonPeriod::forDate($current->toDateString(), $vehicle->location_id)) {
+            if ($season = SeasonPeriod::forDate($current->toDateString(), $vehicle->location_id)) {
                 $seasonMultiplier = (float) $season->multiplier;
                 $surgeBreakdown[] = [
                     'date' => $current->toDateString(),
@@ -77,7 +79,7 @@ class PricingEngine
 
         $addonTotal = 0.0;
         $addonDetails = [];
-        if (!empty($addonIds)) {
+        if (! empty($addonIds)) {
             $addons = Addon::whereIn('id', $addonIds)->active()->get();
             foreach ($addons as $addon) {
                 $price = match ($addon->price_type) {
@@ -144,7 +146,7 @@ class PricingEngine
             'total' => $total,
             'breakdown' => ($quote['breakdown'] ?? []) + [
                 'base_daily_rate' => $dailyRate,
-                'surge_applied' => !empty($surgeBreakdown),
+                'surge_applied' => ! empty($surgeBreakdown),
                 'surge_details' => $surgeBreakdown,
                 'demand_multiplier' => $demandMultiplier,
                 'demand_occupancy' => $demandInfo['occupancy'],
@@ -165,7 +167,7 @@ class PricingEngine
     {
         $config = SystemSetting::get('demand_pricing');
 
-        if (!$config || !filter_var(data_get(is_string($config) ? json_decode($config, true) : $config, 'enabled', false), FILTER_VALIDATE_BOOLEAN)) {
+        if (! $config || ! filter_var(data_get(is_string($config) ? json_decode($config, true) : $config, 'enabled', false), FILTER_VALIDATE_BOOLEAN)) {
             return ['multiplier' => 1.0, 'occupancy' => null];
         }
 
@@ -178,7 +180,7 @@ class PricingEngine
         $from = now()->subDays(30);
         $vehicleIds = Vehicle::where('category_id', $vehicle->category_id)->pluck('id');
         $totalVehicleDays = max(1, $vehicleIds->count() * 30);
-        $bookedVehicleDays = \App\Models\RentalOrder::whereIn('vehicle_id', $vehicleIds)
+        $bookedVehicleDays = RentalOrder::whereIn('vehicle_id', $vehicleIds)
             ->whereIn('status', ['ready_for_preparation', 'preparing', 'ready_for_handover', 'checked_out', 'active', 'extension_requested', 'return_due', 'overdue', 'completed'])
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', $from)
@@ -241,11 +243,11 @@ class PricingEngine
     {
         $promo = PromoVoucher::where('code', $promoCode)->first();
 
-        if (!$promo) {
+        if (! $promo) {
             return ['valid' => false, 'discount' => 0.0, 'message' => 'Kode promo tidak ditemukan.'];
         }
 
-        if (!$promo->is_active) {
+        if (! $promo->is_active) {
             return ['valid' => false, 'discount' => 0.0, 'message' => 'Kode promo tidak aktif.'];
         }
 
@@ -265,7 +267,7 @@ class PricingEngine
             return [
                 'valid' => false,
                 'discount' => 0.0,
-                'message' => 'Minimal sewa ' . $promo->min_rental_days . ' hari untuk kode promo ini.',
+                'message' => 'Minimal sewa '.$promo->min_rental_days.' hari untuk kode promo ini.',
             ];
         }
 
@@ -283,7 +285,7 @@ class PricingEngine
         return [
             'valid' => true,
             'discount' => $discount,
-            'message' => 'Berhasil menerapkan promo "' . $promo->name . '".',
+            'message' => 'Berhasil menerapkan promo "'.$promo->name.'".',
         ];
     }
 

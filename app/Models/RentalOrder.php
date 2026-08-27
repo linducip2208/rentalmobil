@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToLocation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use App\Models\Concerns\BelongsToLocation;
 
 class RentalOrder extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToLocation;
+    use BelongsToLocation, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'order_number',
@@ -117,7 +118,7 @@ class RentalOrder extends Model
             $sequence = 1;
         }
 
-        return $prefix . '-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.'-'.$date.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function booking(): BelongsTo
@@ -165,7 +166,7 @@ class RentalOrder extends Model
         return $this->hasMany(Deposit::class);
     }
 
-    public function notifications(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    public function notifications(): MorphMany
     {
         return $this->morphMany(NotificationQueue::class, 'notifiable');
     }

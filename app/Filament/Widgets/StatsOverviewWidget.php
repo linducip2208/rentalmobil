@@ -2,12 +2,12 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Booking;
+use App\Models\Payment;
+use App\Models\RentalOrder;
+use App\Models\Vehicle;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\Vehicle;
-use App\Models\RentalOrder;
-use App\Models\Payment;
-use App\Models\Booking;
 
 class StatsOverviewWidget extends BaseWidget
 {
@@ -39,7 +39,7 @@ class StatsOverviewWidget extends BaseWidget
                 ->description('Sedang berlangsung')
                 ->descriptionIcon('heroicon-o-key')
                 ->color('emerald'),
-            Stat::make('Pendapatan Hari Ini', 'Rp ' . number_format($todayRevenue, 0, ',', '.'))
+            Stat::make('Pendapatan Hari Ini', 'Rp '.number_format($todayRevenue, 0, ',', '.'))
                 ->description('Pembayaran terverifikasi')
                 ->descriptionIcon('heroicon-o-banknotes')
                 ->color('amber'),

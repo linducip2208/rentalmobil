@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\DamageReport;
 use App\Models\RentalOrder;
 use App\Models\TrustScoreLog;
 use Illuminate\Support\Facades\DB;
@@ -10,7 +11,9 @@ use Illuminate\Support\Facades\DB;
 class TrustScoreService
 {
     protected const MIN_SCORE = 0;
+
     protected const MAX_SCORE = 100;
+
     protected const DEFAULT_SCORE = 50.0;
 
     protected array $tierThresholds = [
@@ -107,7 +110,7 @@ class TrustScoreService
             $score += $punctualityScore;
         }
 
-        $damageReports = \App\Models\DamageReport::where('customer_id', $customerId)
+        $damageReports = DamageReport::where('customer_id', $customerId)
             ->count();
         $damagePenalty = min(20, $damageReports * 5);
         $score -= $damagePenalty;
@@ -165,6 +168,7 @@ class TrustScoreService
         if ($score >= $this->tierThresholds['poor']) {
             return 'poor';
         }
+
         return 'banned';
     }
 

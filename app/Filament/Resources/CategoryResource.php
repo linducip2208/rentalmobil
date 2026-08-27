@@ -3,26 +3,26 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\Category;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Get;
-use App\Filament\Resources\EnterpriseResource as Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use UnitEnum;
-use BackedEnum;
 
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-tag';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-tag';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Fleet';
+    protected static string|UnitEnum|null $navigationGroup = 'Fleet';
 
     protected static ?int $navigationSort = 1;
 

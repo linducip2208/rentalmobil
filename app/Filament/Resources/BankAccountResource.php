@@ -3,24 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BankAccountResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\BankAccount;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class BankAccountResource extends Resource
 {
     protected static ?string $model = BankAccount::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-building-library';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-building-library';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Finance';
+    protected static string|UnitEnum|null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 5;
 

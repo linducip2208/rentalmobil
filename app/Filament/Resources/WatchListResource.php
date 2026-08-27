@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\WatchListResource\Pages;
 use App\Models\WatchList;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class WatchListResource extends Resource
 {
     protected static ?string $model = WatchList::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-eye';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-eye';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Risk & Security';
+    protected static string|UnitEnum|null $navigationGroup = 'Risk & Security';
 
     protected static ?int $navigationSort = 2;
 

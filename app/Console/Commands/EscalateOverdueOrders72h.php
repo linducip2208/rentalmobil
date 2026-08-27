@@ -24,6 +24,7 @@ class EscalateOverdueOrders72h extends Command
 
         if ($orders->isEmpty()) {
             $this->info('No orders eligible for escalation.');
+
             return Command::SUCCESS;
         }
 
@@ -36,6 +37,7 @@ class EscalateOverdueOrders72h extends Command
 
             if ($existingCase) {
                 $this->line("  {$order->order_number} — already has open investigation, skipping.");
+
                 continue;
             }
 
@@ -67,7 +69,7 @@ class EscalateOverdueOrders72h extends Command
         }
 
         $this->info("Escalated {$escalatedCount} order(s).");
-        Log::info('EscalateOverdueOrders72h: escalated ' . $escalatedCount . ' orders');
+        Log::info('EscalateOverdueOrders72h: escalated '.$escalatedCount.' orders');
 
         return Command::SUCCESS;
     }

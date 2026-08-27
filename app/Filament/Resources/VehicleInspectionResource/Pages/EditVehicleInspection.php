@@ -1,1 +1,11 @@
-<?php namespace App\Filament\Resources\VehicleInspectionResource\Pages;use App\Filament\Resources\VehicleInspectionResource;use Filament\Resources\Pages\EditRecord;class EditVehicleInspection extends EditRecord{protected static string $resource=VehicleInspectionResource::class;}
+<?php
+
+namespace App\Filament\Resources\VehicleInspectionResource\Pages;
+
+use App\Filament\Resources\VehicleInspectionResource;
+use Filament\Resources\Pages\EditRecord;
+
+class EditVehicleInspection extends EditRecord
+{
+    protected static string $resource = VehicleInspectionResource::class;
+}

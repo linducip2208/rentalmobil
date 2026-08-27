@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\InvestorDistributionService;
 use Illuminate\Console\Command;
 
 class DistributeInvestorPayouts extends Command
@@ -12,9 +13,10 @@ class DistributeInvestorPayouts extends Command
 
     public function handle(): int
     {
-$results = app(\App\Services\InvestorDistributionService::class)->distribute($this->option('month'));
+        $results = app(InvestorDistributionService::class)->distribute($this->option('month'));
 
-$this->info("Periode {$results['period']}: {$results['created']} distribusi dibuat, {$results['skipped_existing']} sudah ada.");
-return self::SUCCESS;
+        $this->info("Periode {$results['period']}: {$results['created']} distribusi dibuat, {$results['skipped_existing']} sudah ada.");
+
+        return self::SUCCESS;
     }
 }

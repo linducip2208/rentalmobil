@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\InsurancePolicyResource\Pages;
 use App\Models\InsurancePolicy;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class InsurancePolicyResource extends Resource
 {
     protected static ?string $model = InsurancePolicy::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-shield-check';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Fleet';
+    protected static string|UnitEnum|null $navigationGroup = 'Fleet';
 
     protected static ?int $navigationSort = 6;
 

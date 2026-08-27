@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources\Providers\Schemas;
 
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\KeyValue;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -22,13 +21,13 @@ class ProviderForm
                 Select::make('type')
                     ->label('Jenis integrasi')
                     ->options([
-            'payment' => 'Payment',
-            'sms' => 'Sms',
-            'whatsapp' => 'Whatsapp',
-            'gps' => 'Gps',
-            'storage' => 'Storage',
-            'ai' => 'Ai',
-        ])
+                        'payment' => 'Payment',
+                        'sms' => 'Sms',
+                        'whatsapp' => 'Whatsapp',
+                        'gps' => 'Gps',
+                        'storage' => 'Storage',
+                        'ai' => 'Ai',
+                    ])
                     ->required(),
                 TextInput::make('api_format')->label('Format API')->placeholder('rest_json, openai_compatible, redirect, smpp'),
                 TextInput::make('base_url')

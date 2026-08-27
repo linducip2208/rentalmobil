@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\RentalOrder;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Models\RentalOrder;
 
 class RecentOrdersTableWidget extends BaseWidget
 {
@@ -78,7 +78,7 @@ class RecentOrdersTableWidget extends BaseWidget
                     }),
                 Tables\Columns\TextColumn::make('final_amount')
                     ->label('Total')
-                    ->formatStateUsing(fn ($state): string => 'Rp ' . number_format((float) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state): string => 'Rp '.number_format((float) $state, 0, ',', '.'))
                     ->sortable(),
             ])
             ->poll('30s');

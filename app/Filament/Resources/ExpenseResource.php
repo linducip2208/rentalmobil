@@ -2,25 +2,26 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\ExpenseResource\Pages;
 use App\Models\Expense;
+use App\Services\ApprovalService;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class ExpenseResource extends Resource
 {
     protected static ?string $model = Expense::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-trending-down';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-arrow-trending-down';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Finance';
+    protected static string|UnitEnum|null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 3;
 
@@ -142,15 +143,19 @@ class ExpenseResource extends Resource
             ])
             ->actions([
                 Actions\Action::make('approve')->label('Setujui')->icon('heroicon-o-check-badge')->color('success')->requiresConfirmation()
-                    ->action(function (\App\Models\Expense $record): void {
-                        $service=app(\App\Services\ApprovalService::class);
-                        $workflow=$service->submitForApproval($record,'expense',$record->user_id);
-                        $service->approve($workflow,auth()->id());
-                    })->visible(fn(\App\Models\Expense $record):bool=>$record->status==='pending'),
+                    ->action(function (Expense $record): void {
+                        $service = app(ApprovalService::class);
+                        $workflow = $service->submitForApproval($record, 'expense', $record->user_id);
+                        $service->approve($workflow, auth()->id());
+                    })->visible(fn (Expense $record): bool => $record->status === 'pending'),
                 Actions\Action::make('reject')->label('Tolak')->icon('heroicon-o-x-circle')->color('danger')
                     ->modalForm([Forms\Components\Textarea::make('reason')->label('Alasan')->required()])
-                    ->action(function(\App\Models\Expense $record,array $data):void{$service=app(\App\Services\ApprovalService::class);$workflow=$service->submitForApproval($record,'expense',$record->user_id);$service->reject($workflow,auth()->id(),$data['reason']);})
-                    ->visible(fn(\App\Models\Expense $record):bool=>$record->status==='pending'),
+                    ->action(function (Expense $record, array $data): void {
+                        $service = app(ApprovalService::class);
+                        $workflow = $service->submitForApproval($record, 'expense', $record->user_id);
+                        $service->reject($workflow, auth()->id(), $data['reason']);
+                    })
+                    ->visible(fn (Expense $record): bool => $record->status === 'pending'),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

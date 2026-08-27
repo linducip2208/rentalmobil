@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Invoice;
+use App\Models\NotificationQueue;
 use App\Services\NotificationDispatcher;
 use Illuminate\Console\Command;
 
@@ -23,12 +24,12 @@ class RemindOverdueInvoices extends Command
         $sent = 0;
 
         foreach ($invoices as $invoice) {
-            if (!$invoice->customer?->phone && !$invoice->customer?->email) {
+            if (! $invoice->customer?->phone && ! $invoice->customer?->email) {
                 continue;
             }
 
             // Dedup: maksimal satu pengingat dunning per invoice dalam 3 hari.
-            $recent = \App\Models\NotificationQueue::where('event_type', 'payment_dunning')
+            $recent = NotificationQueue::where('event_type', 'payment_dunning')
                 ->where('payload->invoice_id', $invoice->id)
                 ->where('created_at', '>=', now()->subDays(3))
                 ->exists();

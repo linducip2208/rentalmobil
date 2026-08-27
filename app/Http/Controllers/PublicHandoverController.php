@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contract;
+use App\Models\NotificationTemplate;
 use App\Models\RentalOrder;
 use App\Services\HandoverLinkService;
+use App\Services\NotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class PublicHandoverController extends Controller
 {
-    public function __construct(protected HandoverLinkService $links)
-    {
-    }
+    public function __construct(protected HandoverLinkService $links) {}
 
     public function showContract(string $token)
     {
@@ -43,9 +43,9 @@ class PublicHandoverController extends Controller
         $sent = false;
 
         foreach (['whatsapp', 'sms'] as $channel) {
-            if ($customer?->phone && \App\Models\NotificationTemplate::active()->byChannel($channel)->exists()) {
+            if ($customer?->phone && NotificationTemplate::active()->byChannel($channel)->exists()) {
                 try {
-                    app(\App\Services\NotificationDispatcher::class)->dispatch('contract_otp', $customer, [
+                    app(NotificationDispatcher::class)->dispatch('contract_otp', $customer, [
                         'otp_code' => $code,
                         'contract_number' => $contract->contract_number,
                         'customer_name' => $customer->name,
@@ -58,9 +58,9 @@ class PublicHandoverController extends Controller
             }
         }
 
-        if (!$sent && $customer?->email && \App\Models\NotificationTemplate::active()->byChannel('email')->exists()) {
+        if (! $sent && $customer?->email && NotificationTemplate::active()->byChannel('email')->exists()) {
             try {
-                app(\App\Services\NotificationDispatcher::class)->dispatch('contract_otp', $customer, [
+                app(NotificationDispatcher::class)->dispatch('contract_otp', $customer, [
                     'otp_code' => $code,
                     'contract_number' => $contract->contract_number,
                     'customer_name' => $customer->name,
@@ -70,7 +70,7 @@ class PublicHandoverController extends Controller
             }
         }
 
-        if (!$sent) {
+        if (! $sent) {
             // Fallback transparan untuk demo/dev tanpa provider: tampilkan kode di layar.
             session()->flash('otp_dev_code', $code);
 
@@ -143,9 +143,9 @@ class PublicHandoverController extends Controller
 
     private function otpEnabled(): bool
     {
-        return \App\Models\NotificationTemplate::active()->byChannel('whatsapp')->exists()
-            || \App\Models\NotificationTemplate::active()->byChannel('sms')->exists()
-            || \App\Models\NotificationTemplate::active()->byChannel('email')->exists();
+        return NotificationTemplate::active()->byChannel('whatsapp')->exists()
+            || NotificationTemplate::active()->byChannel('sms')->exists()
+            || NotificationTemplate::active()->byChannel('email')->exists();
     }
 
     private function otpKey(string $token): string

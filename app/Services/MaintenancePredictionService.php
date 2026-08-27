@@ -1,4 +1,25 @@
 <?php
+
 namespace App\Services;
-use App\Models\MaintenancePrediction; use App\Models\ServiceSchedule;
-class MaintenancePredictionService { public function refresh():int{$count=0;foreach(ServiceSchedule::with('vehicle')->where('is_active',true)->get() as $s){$current=(int)$s->vehicle->mileage;$days=$s->next_service_date?now()->diffInDays($s->next_service_date,false):null;$km=$s->next_service_km?(int)$s->next_service_km-$current:null;if(($days!==null&&$days<=30)||($km!==null&&$km<=1000)){MaintenancePrediction::updateOrCreate(['vehicle_id'=>$s->vehicle_id,'prediction_type'=>$s->service_type,'status'=>'open'],['predicted_date'=>$s->next_service_date,'predicted_km'=>$s->next_service_km,'confidence'=>90,'factors'=>['days_remaining'=>$days,'km_remaining'=>$km,'source'=>'service_schedule']]);$count++;}}return $count;}}
+
+use App\Models\MaintenancePrediction;
+use App\Models\ServiceSchedule;
+
+class MaintenancePredictionService
+{
+    public function refresh(): int
+    {
+        $count = 0;
+        foreach (ServiceSchedule::with('vehicle')->where('is_active', true)->get() as $s) {
+            $current = (int) $s->vehicle->mileage;
+            $days = $s->next_service_date ? now()->diffInDays($s->next_service_date, false) : null;
+            $km = $s->next_service_km ? (int) $s->next_service_km - $current : null;
+            if (($days !== null && $days <= 30) || ($km !== null && $km <= 1000)) {
+                MaintenancePrediction::updateOrCreate(['vehicle_id' => $s->vehicle_id, 'prediction_type' => $s->service_type, 'status' => 'open'], ['predicted_date' => $s->next_service_date, 'predicted_km' => $s->next_service_km, 'confidence' => 90, 'factors' => ['days_remaining' => $days, 'km_remaining' => $km, 'source' => 'service_schedule']]);
+                $count++;
+            }
+        }
+
+return $count;
+    }
+}

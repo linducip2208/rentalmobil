@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\AbandonedBooking;
 use App\Models\Booking;
 use App\Models\ExternalReview;
-use Illuminate\Support\Collection;
+use App\Models\SystemSetting;
 
 /**
  * Pemulihan booking terbengkalai: capture quote yang tidak lanjut,
@@ -19,6 +19,7 @@ class AbandonedBookingRecoveryService
 
         if ($existing) {
             $existing->update($data + ['last_activity_at' => now()]);
+
             return $existing->refresh();
         }
 
@@ -41,7 +42,7 @@ class AbandonedBookingRecoveryService
     {
         $sent = 0;
         $expired = 0;
-        $maxReminders = (int) \App\Models\SystemSetting::get('abandoned_max_reminders', 2);
+        $maxReminders = (int) SystemSetting::get('abandoned_max_reminders', 2);
         $staleHours = 2;
 
         // Expire lead lama (>7 hari tanpa aktivitas).
@@ -61,7 +62,7 @@ class AbandonedBookingRecoveryService
                 'total' => data_get($candidate->quote_snapshot, 'total'),
                 'start_date' => data_get($candidate->quote_snapshot, 'start_date'),
                 'end_date' => data_get($candidate->quote_snapshot, 'end_date'),
-                'booking_url' => config('app.url') . '/booking?vehicle_id=' . $candidate->vehicle_id,
+                'booking_url' => config('app.url').'/booking?vehicle_id='.$candidate->vehicle_id,
             ]);
 
             $candidate->increment('reminders_sent');

@@ -14,8 +14,13 @@ class GpsSyncService
         try {
             $records = $this->manager->for($integration)->pullPositions($integration);
             $saved = 0;
-            foreach ($records as $record) if (is_array($record) && $this->ingestor->ingest($integration, $record)) $saved++;
+            foreach ($records as $record) {
+                if (is_array($record) && $this->ingestor->ingest($integration, $record)) {
+                    $saved++;
+                }
+            }
             $integration->update(['last_success_at' => now(), 'last_error' => null, 'failure_count' => 0, 'health_checked_at' => now(), 'health_status' => 'healthy']);
+
             return ['received' => count($records), 'saved' => $saved];
         } catch (\Throwable $e) {
             $failures = $integration->failure_count + 1;

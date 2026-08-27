@@ -3,14 +3,10 @@
 namespace App\Services;
 
 use App\Models\DamageReport;
-use App\Models\ReturnRecord;
 use App\Models\RentalOrder;
+use App\Models\ReturnRecord;
 use App\Models\SystemSetting;
 use App\Models\Vehicle;
-use App\Services\DamageCalculator;
-use App\Services\InvoiceGenerationService;
-use App\Services\PricingCalculator;
-use App\Services\NotificationDispatcher;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +22,7 @@ class ReturnProcessingService
 
     public function processReturn(RentalOrder $order, array $data): ReturnRecord
     {
-        if (!in_array($order->status, ['active', 'overdue'])) {
+        if (! in_array($order->status, ['active', 'overdue'])) {
             throw new \RuntimeException("Cannot process return for order with status '{$order->status}'.");
         }
 
@@ -53,7 +49,7 @@ class ReturnProcessingService
                 'inspector_id' => $data['inspector_id'] ?? auth()->id(),
             ]);
 
-            if (!empty($data['damage_reports'])) {
+            if (! empty($data['damage_reports'])) {
                 foreach ($data['damage_reports'] as $damage) {
                     $estimatedCost = $this->damageCalculator->calculateCost(
                         $damage['damage_type'],

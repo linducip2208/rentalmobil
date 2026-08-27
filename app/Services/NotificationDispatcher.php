@@ -2,15 +2,15 @@
 
 namespace App\Services;
 
-use App\Models\Customer;
+use App\Models\Booking;
 use App\Models\Invoice;
 use App\Models\NotificationQueue;
 use App\Models\NotificationTemplate;
 use App\Models\Provider;
 use App\Models\RentalOrder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class NotificationDispatcher
 {
@@ -20,14 +20,16 @@ class NotificationDispatcher
             ->byEventType($event)
             ->first();
 
-        if (!$template) {
+        if (! $template) {
             Log::warning("Notification template not found for event: {$event}");
+
             return null;
         }
 
         $provider = $template->provider;
-        if (!$provider) {
+        if (! $provider) {
             Log::warning("No provider configured for template: {$template->name}");
+
             return null;
         }
 
@@ -70,12 +72,13 @@ class NotificationDispatcher
         return $count;
     }
 
-    public function sendBookingConfirmation(\App\Models\Booking $booking): ?NotificationQueue
+    public function sendBookingConfirmation(Booking $booking): ?NotificationQueue
     {
         $customer = $booking->customer()->with('user')->first();
 
-        if (!$customer || !$customer->phone) {
+        if (! $customer || ! $customer->phone) {
             Log::warning("Cannot send booking confirmation: no phone for customer #{$booking->customer_id}");
+
             return null;
         }
 
@@ -95,8 +98,9 @@ class NotificationDispatcher
     {
         $customer = $order->customer()->with('user')->first();
 
-        if (!$customer || !$customer->phone) {
+        if (! $customer || ! $customer->phone) {
             Log::warning("Cannot send return reminder: no phone for customer #{$order->customer_id}");
+
             return null;
         }
 
@@ -116,8 +120,9 @@ class NotificationDispatcher
     {
         $customer = $invoice->customer()->with('user')->first();
 
-        if (!$customer || !$customer->phone) {
+        if (! $customer || ! $customer->phone) {
             Log::warning("Cannot send payment reminder: no phone for customer #{$invoice->customer_id}");
+
             return null;
         }
 
@@ -138,8 +143,9 @@ class NotificationDispatcher
     {
         $customer = $order->customer()->with('user')->first();
 
-        if (!$customer || !$customer->phone) {
+        if (! $customer || ! $customer->phone) {
             Log::warning("Cannot send overdue notice: no phone for customer #{$order->customer_id}");
+
             return null;
         }
 
@@ -211,7 +217,7 @@ class NotificationDispatcher
     {
         $provider = $notification->provider;
 
-        if (!$provider) {
+        if (! $provider) {
             throw new \RuntimeException("Provider not found for notification #{$notification->id}");
         }
 
@@ -236,8 +242,8 @@ class NotificationDispatcher
         $notifiable = $notification->notifiable;
         $phone = $notifiable->phone ?? null;
 
-        if (!$phone) {
-            throw new \RuntimeException("No phone number for WhatsApp notification");
+        if (! $phone) {
+            throw new \RuntimeException('No phone number for WhatsApp notification');
         }
 
         $payload = [
@@ -253,8 +259,8 @@ class NotificationDispatcher
         $notifiable = $notification->notifiable;
         $phone = $notifiable->phone ?? null;
 
-        if (!$phone) {
-            throw new \RuntimeException("No phone number for SMS notification");
+        if (! $phone) {
+            throw new \RuntimeException('No phone number for SMS notification');
         }
 
         $payload = [
@@ -270,8 +276,8 @@ class NotificationDispatcher
         $notifiable = $notification->notifiable;
         $email = $notifiable->email ?? null;
 
-        if (!$email) {
-            throw new \RuntimeException("No email address for email notification");
+        if (! $email) {
+            throw new \RuntimeException('No email address for email notification');
         }
 
         $payload = [
@@ -288,8 +294,8 @@ class NotificationDispatcher
         $notifiable = $notification->notifiable;
         $chatId = $notifiable->telegram_chat_id ?? null;
 
-        if (!$chatId) {
-            throw new \RuntimeException("No Telegram chat ID for notification");
+        if (! $chatId) {
+            throw new \RuntimeException('No Telegram chat ID for notification');
         }
 
         $payload = [
@@ -341,6 +347,7 @@ class NotificationDispatcher
         foreach ($data as $key => $value) {
             $template = str_replace("{{$key}}", (string) $value, $template);
         }
+
         return $template;
     }
 }

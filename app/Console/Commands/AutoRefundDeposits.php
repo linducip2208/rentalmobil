@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\DepositAutoRefundService;
 use Illuminate\Console\Command;
 
 class AutoRefundDeposits extends Command
@@ -12,10 +13,11 @@ class AutoRefundDeposits extends Command
 
     public function handle(): int
     {
-$scheduled = app(\App\Services\DepositAutoRefundService::class)->scheduleEligibleRefunds();
-$processed = app(\App\Services\DepositAutoRefundService::class)->processDueRefunds();
+        $scheduled = app(DepositAutoRefundService::class)->scheduleEligibleRefunds();
+        $processed = app(DepositAutoRefundService::class)->processDueRefunds();
 
-$this->info("Dijadwalkan: {$scheduled['scheduled']}, diproses: {$processed['processed']}, menunggu manual: {$processed['pending_manual']}.");
-return self::SUCCESS;
+        $this->info("Dijadwalkan: {$scheduled['scheduled']}, diproses: {$processed['processed']}, menunggu manual: {$processed['pending_manual']}.");
+
+        return self::SUCCESS;
     }
 }

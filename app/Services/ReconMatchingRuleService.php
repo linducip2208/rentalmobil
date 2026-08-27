@@ -26,13 +26,13 @@ class ReconMatchingRuleService
 
         foreach ($lines as $line) {
             foreach ($rules as $rule) {
-                if (!$this->ruleApplies($line, $rule)) {
+                if (! $this->ruleApplies($line, $rule)) {
                     continue;
                 }
 
                 $candidate = $this->findCandidatePayment($line, $payments);
 
-                if (!$candidate) {
+                if (! $candidate) {
                     continue;
                 }
 

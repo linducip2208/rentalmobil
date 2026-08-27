@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SystemSetting;
 use App\Services\WaBotService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class WaBotWebhookController extends Controller
     {
         $payload = $request->all();
 
-        $map = config('wa_bot.webhook_map') ?? \App\Models\SystemSetting::get('wa_bot_webhook_map');
+        $map = config('wa_bot.webhook_map') ?? SystemSetting::get('wa_bot_webhook_map');
         $map = is_string($map) ? json_decode($map, true) : ($map ?? []);
 
         $phone = data_get($payload, $map['phone_path'] ?? 'from');
@@ -32,7 +33,7 @@ class WaBotWebhookController extends Controller
 
         // Idempotensi sederhana: event id dari provider.
         $eventId = data_get($payload, $map['event_id_path'] ?? 'id');
-        $cacheKey = 'wa_bot_event_' . md5((string) $eventId);
+        $cacheKey = 'wa_bot_event_'.md5((string) $eventId);
 
         if ($eventId && cache()->has($cacheKey)) {
             return response()->json(['ok' => true, 'duplicate' => true]);

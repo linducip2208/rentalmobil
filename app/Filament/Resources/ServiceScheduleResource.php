@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\ServiceScheduleResource\Pages;
 use App\Models\ServiceSchedule;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class ServiceScheduleResource extends Resource
 {
     protected static ?string $model = ServiceSchedule::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clock';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-clock';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Maintenance';
+    protected static string|UnitEnum|null $navigationGroup = 'Maintenance';
 
     protected static ?int $navigationSort = 2;
 

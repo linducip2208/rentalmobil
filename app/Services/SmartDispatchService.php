@@ -6,9 +6,10 @@ use App\Models\Delivery;
 use App\Models\DispatchRecommendation;
 use App\Models\Driver;
 use App\Models\DriverBehaviorEvent;
+use App\Models\DriverRating;
 use App\Models\GpsTracker;
+use App\Models\RentalOrder;
 use App\Models\Vehicle;
-use Illuminate\Support\Collection;
 
 /**
  * Smart dispatch: rekomendasi driver + unit untuk delivery berdasarkan
@@ -45,7 +46,7 @@ class SmartDispatchService
         [$bestDriver, $driverScore, $driverReasons] = $this->scoreDrivers($delivery);
         [$bestVehicle, $vehicleScore, $vehicleReasons] = $this->scoreVehicles($delivery);
 
-        if (!$bestDriver && !$bestVehicle) {
+        if (! $bestDriver && ! $bestVehicle) {
             return null;
         }
 
@@ -82,11 +83,11 @@ class SmartDispatchService
             $score = 50.0;
 
             // Rating pelanggan (0-5 → 0-30 poin).
-            $avgRating = (float) \App\Models\DriverRating::where('driver_id', $driver->id)->avg('rating');
+            $avgRating = (float) DriverRating::where('driver_id', $driver->id)->avg('rating');
 
             if ($avgRating > 0) {
                 $score += ($avgRating / 5) * 30;
-                $reasons[] = "Rating " . round($avgRating, 2) . "/5";
+                $reasons[] = 'Rating '.round($avgRating, 2).'/5';
             }
 
             // Penalti insiden perilaku 90 hari.
@@ -100,12 +101,12 @@ class SmartDispatchService
                 $reasons[] = "{$incidents} insiden berkendara (90 hari)";
             } else {
                 $score += 10;
-                $reasons[] = "Tanpa insiden 90 hari";
+                $reasons[] = 'Tanpa insiden 90 hari';
             }
 
             // Bonus kedekatan GPS ke lokasi tujuan (via unit yang sedang digunakan driver).
             if ($destinationLat && $destinationLng) {
-                $activeVehicleId = \App\Models\RentalOrder::where('driver_id', $driver->id)
+                $activeVehicleId = RentalOrder::where('driver_id', $driver->id)
                     ->whereIn('status', ['checked_out', 'active'])
                     ->value('vehicle_id');
 
@@ -131,13 +132,13 @@ class SmartDispatchService
             }
 
             // Beban kerja: lebih sedikit order aktif → bonus.
-            $activeOrders = \App\Models\RentalOrder::where('driver_id', $driver->id)->whereIn('status', ['checked_out', 'active'])->count();
+            $activeOrders = RentalOrder::where('driver_id', $driver->id)->whereIn('status', ['checked_out', 'active'])->count();
             $workloadPenalty = min(15, $activeOrders * 5);
             $score -= $workloadPenalty;
 
             if ($activeOrders === 0) {
                 $score += 8;
-                $reasons[] = "Bebas jadwal (tidak ada order aktif)";
+                $reasons[] = 'Bebas jadwal (tidak ada order aktif)';
             }
 
             return [$driver, max(0, min(100, round($score, 2))), $reasons];
@@ -168,17 +169,17 @@ class SmartDispatchService
 
         foreach ($vehicles as $vehicle) {
             $score = 60.0;
-            $reasons = ["Status tersedia"];
+            $reasons = ['Status tersedia'];
 
             // Prioritaskan unit dengan dokumen valid paling lama.
             $daysToStnk = $vehicle->stnk_due_date ? now()->diffInDays($vehicle->stnk_due_date, false) : 999;
 
             if ($daysToStnk < 14) {
                 $score -= 15;
-                $reasons[] = "STNK dekat jatuh tempo";
+                $reasons[] = 'STNK dekat jatuh tempo';
             } else {
                 $score += 10;
-                $reasons[] = "Dokumen aman";
+                $reasons[] = 'Dokumen aman';
             }
 
             if ($score > $bestScore) {
@@ -201,7 +202,7 @@ class SmartDispatchService
             $delivery->update(['driver_id' => $recommendation->recommended_driver_id]);
         }
 
-        if ($recommendation->recommended_vehicle_id && !$delivery->vehicle_id) {
+        if ($recommendation->recommended_vehicle_id && ! $delivery->vehicle_id) {
             $delivery->update(['vehicle_id' => $recommendation->recommended_vehicle_id]);
         }
     }

@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Models\EinvoiceSubmission;
 use App\Models\Invoice;
 use App\Models\Provider;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 /**
@@ -25,7 +25,7 @@ class EinvoiceService
             'payload' => $this->buildPayload($invoice),
         ]);
 
-        if (!$submission->provider_id) {
+        if (! $submission->provider_id) {
             return $submission; // Draft tanpa provider — tim finance kirim manual ke DJP.
         }
 
@@ -58,7 +58,7 @@ class EinvoiceService
                 'response' => ['error' => str($e->getMessage())->limit(300)],
             ]);
 
-            throw new RuntimeException('Gagal submit e-Faktur: ' . str($e->getMessage())->limit(150));
+            throw new RuntimeException('Gagal submit e-Faktur: '.str($e->getMessage())->limit(150));
         }
 
         return $submission->refresh();
@@ -74,13 +74,13 @@ class EinvoiceService
             'tax_amount' => round((float) $invoice->tax_amount, 2),
             'total' => round((float) $invoice->total, 2),
             'currency' => $invoice->currency ?? 'IDR',
-            'line_description' => 'Sewa kendaraan — ' . ($invoice->invoice_number ?? ''),
+            'line_description' => 'Sewa kendaraan — '.($invoice->invoice_number ?? ''),
         ];
     }
 
     protected function resolveProviderId(): ?int
     {
-        $setting = \App\Models\SystemSetting::get('einvoice_provider_id');
+        $setting = SystemSetting::get('einvoice_provider_id');
 
         return $setting ? (int) $setting : null;
     }
@@ -90,7 +90,7 @@ class EinvoiceService
         $h = $p->extra_headers ?? [];
 
         if ($p->api_key) {
-            $h[$p->config['auth_header'] ?? 'Authorization'] = trim(($p->config['auth_scheme'] ?? 'Bearer') . ' ' . $p->api_key);
+            $h[$p->config['auth_header'] ?? 'Authorization'] = trim(($p->config['auth_scheme'] ?? 'Bearer').' '.$p->api_key);
         }
 
         return $h;

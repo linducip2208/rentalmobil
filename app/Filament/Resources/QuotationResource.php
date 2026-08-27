@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\QuotationResource\Pages;
 use App\Models\Quotation;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class QuotationResource extends Resource
 {
     protected static ?string $model = Quotation::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-document-duplicate';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-document-duplicate';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Rental';
+    protected static string|UnitEnum|null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 1;
 

@@ -7,15 +7,15 @@ use App\Models\NotificationQueue;
 use App\Models\PoliceReport;
 use App\Models\RentalOrder;
 use App\Models\SystemSetting;
-use App\Models\Vehicle;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OverdueEscalationService
 {
     protected int $reminderGraceHours;
+
     protected int $overdueThresholdHours;
+
     protected int $missingThresholdHours;
 
     public function __construct()
@@ -140,7 +140,7 @@ class OverdueEscalationService
     {
         $order = $case->rentalOrder()->with(['customer', 'vehicle'])->first();
 
-        if (!$order) {
+        if (! $order) {
             throw new \RuntimeException('Cannot generate police report without an associated order.');
         }
 
@@ -151,7 +151,7 @@ class OverdueEscalationService
             'investigation_case_id' => $case->id,
             'vehicle_id' => $order->vehicle_id,
             'rental_order_id' => $order->id,
-            'report_number' => 'PR-' . now()->format('ymd') . '-' . str_pad($reportNumber, 3, '0', STR_PAD_LEFT),
+            'report_number' => 'PR-'.now()->format('ymd').'-'.str_pad($reportNumber, 3, '0', STR_PAD_LEFT),
             'report_date' => now()->toDateString(),
             'incident_date' => $order->end_date,
             'incident_location' => $order->location->address ?? 'Unknown',
@@ -210,36 +210,36 @@ class OverdueEscalationService
         $vehicle = $order->vehicle;
 
         return implode("\n", [
-            "LAPORAN KEHILANGAN KENDARAAN",
-            "===========================",
-            "",
+            'LAPORAN KEHILANGAN KENDARAAN',
+            '===========================',
+            '',
             "Nomor Kasus: {$case->case_number}",
             "Nomor Pesanan: {$order->order_number}",
-            "",
-            "DATA KENDARAAN:",
+            '',
+            'DATA KENDARAAN:',
             "- Merk/Type: {$vehicle->name}",
             "- Tahun: {$vehicle->year}",
             "- Warna: {$vehicle->color}",
             "- Plat Nomor: {$vehicle->license_plate}",
-            "- No. Rangka: -",
-            "- No. Mesin: -",
-            "",
-            "DATA PEMESAN:",
+            '- No. Rangka: -',
+            '- No. Mesin: -',
+            '',
+            'DATA PEMESAN:',
             "- Nama: {$customer->name}",
             "- No. KTP: {$customer->id_card_number}",
             "- Alamat: {$customer->address}",
             "- No. Telp: {$customer->phone}",
             "- Kontak Darurat: {$customer->emergency_contact_name} ({$customer->emergency_contact_phone})",
-            "",
-            "DATA PERJALANAN:",
+            '',
+            'DATA PERJALANAN:',
             "- Tanggal Sewa: {$order->start_date->format('d/m/Y H:i')}",
             "- Tanggal Pengembalian: {$order->end_date->format('d/m/Y H:i')}",
-            "- Lokasi Pickup: " . ($order->location->name ?? 'N/A'),
+            '- Lokasi Pickup: '.($order->location->name ?? 'N/A'),
             "- Estimasi Odometer: {$vehicle->current_km} km",
-            "",
-            "KETERANGAN:",
-            "Kendaraan tidak dikembalikan melewati batas waktu yang telah ditentukan.",
-            "Customer tidak dapat dihubungi sejak " . now()->subDays(2)->format('d/m/Y') . ".",
+            '',
+            'KETERANGAN:',
+            'Kendaraan tidak dikembalikan melewati batas waktu yang telah ditentukan.',
+            'Customer tidak dapat dihubungi sejak '.now()->subDays(2)->format('d/m/Y').'.',
         ]);
     }
 

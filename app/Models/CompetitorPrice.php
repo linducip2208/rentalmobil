@@ -17,7 +17,6 @@ class CompetitorPrice extends Model
         'notes',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -26,7 +25,13 @@ class CompetitorPrice extends Model
         ];
     }
 
-    public function category(): BelongsTo { return $this->belongsTo(Category::class); }
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-    public function scopeRecent($query, int $days = 30) { return $query->where('observed_at', '>=', now()->subDays($days)); }
+    public function scopeRecent($query, int $days = 30)
+    {
+        return $query->where('observed_at', '>=', now()->subDays($days));
+    }
 }

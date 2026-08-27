@@ -16,7 +16,6 @@ class FraudPattern extends Model
         'is_active',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -26,7 +25,13 @@ class FraudPattern extends Model
         ];
     }
 
-    public function hits(): HasMany { return $this->hasMany(FraudHit::class); }
+    public function hits(): HasMany
+    {
+        return $this->hasMany(FraudHit::class);
+    }
 
-    public function scopeActive($query) { return $query->where('is_active', true); }
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

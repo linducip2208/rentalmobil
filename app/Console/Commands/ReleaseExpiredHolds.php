@@ -17,7 +17,7 @@ class ReleaseExpiredHolds extends Command
         $releasedCount = $availabilityEngine->releaseExpiredHolds();
 
         $this->info("Released {$releasedCount} expired hold(s).");
-        Log::info('ReleaseExpiredHolds: released ' . $releasedCount . ' holds');
+        Log::info('ReleaseExpiredHolds: released '.$releasedCount.' holds');
 
         return Command::SUCCESS;
     }

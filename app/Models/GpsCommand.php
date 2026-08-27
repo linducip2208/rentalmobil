@@ -14,7 +14,18 @@ class GpsCommand extends Model
         return ['parameters' => 'array', 'approved_at' => 'datetime', 'sent_at' => 'datetime'];
     }
 
-    public function tracker(): BelongsTo { return $this->belongsTo(GpsTracker::class, 'gps_tracker_id'); }
-    public function requestedBy(): BelongsTo { return $this->belongsTo(User::class, 'requested_by'); }
-    public function approvedBy(): BelongsTo { return $this->belongsTo(User::class, 'approved_by'); }
+    public function tracker(): BelongsTo
+    {
+        return $this->belongsTo(GpsTracker::class, 'gps_tracker_id');
+    }
+
+    public function requestedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'requested_by');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
 }

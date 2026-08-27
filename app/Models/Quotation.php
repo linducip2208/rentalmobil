@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class Quotation extends Model
 {
@@ -78,9 +77,9 @@ class Quotation extends Model
 
     public static function generateNumber(): string
     {
-        $prefix = 'QTN-' . date('Ym') . '-';
+        $prefix = 'QTN-'.date('Ym').'-';
         $last = static::withTrashed()
-            ->where('quotation_number', 'like', $prefix . '%')
+            ->where('quotation_number', 'like', $prefix.'%')
             ->latest('quotation_number')
             ->value('quotation_number');
 
@@ -90,7 +89,7 @@ class Quotation extends Model
             $sequence = 1;
         }
 
-        return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function customer(): BelongsTo
@@ -155,6 +154,6 @@ class Quotation extends Model
 
     public function isExpired(): bool
     {
-        return $this->valid_until && $this->valid_until->isPast() && !in_array($this->status, ['accepted', 'converted', 'rejected']);
+        return $this->valid_until && $this->valid_until->isPast() && ! in_array($this->status, ['accepted', 'converted', 'rejected']);
     }
 }

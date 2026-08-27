@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\JournalEntryResource\Pages;
 use App\Models\JournalEntry;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class JournalEntryResource extends Resource
 {
     protected static ?string $model = JournalEntry::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-pencil-square';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Finance';
+    protected static string|UnitEnum|null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 2;
 

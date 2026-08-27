@@ -5,7 +5,8 @@ namespace App\Services;
 use App\Models\DocumentOcrResult;
 use App\Models\Provider;
 use App\Models\SystemSetting;
-use Illuminate\Support\Facades\Http;
+use App\Models\Vehicle;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -69,7 +70,7 @@ class DocumentOcrService
         $target = $result->documentable;
         $data = $result->extracted ?? [];
 
-        if (!$target || empty($data)) {
+        if (! $target || empty($data)) {
             return ['applied' => false];
         }
 
@@ -79,11 +80,11 @@ class DocumentOcrService
             $value = data_get($data, str_replace('_due_date', '_expiry', $field));
 
             if ($value && strtotime((string) $value)) {
-                $updates[$field] = \Carbon\Carbon::parse($value)->toDateString();
+                $updates[$field] = Carbon::parse($value)->toDateString();
             }
         }
 
-        if ($target instanceof \App\Models\Vehicle && $updates !== []) {
+        if ($target instanceof Vehicle && $updates !== []) {
             $target->update($updates);
         }
 
@@ -93,9 +94,9 @@ class DocumentOcrService
     public static function promptForKind(string $kind): string
     {
         $fieldMap = [
-            'stnk' => "nomor_stnk, nama_pemilik, nomor_polisi, merek_tipe, berlaku_sampai (stnk_expiry), tahun",
-            'sim' => "nama, nomor_sim, jenis_sim, berlaku_sampai (sim_expiry)",
-            'ktp' => "nik, nama, tanggal_lahir, alamat",
+            'stnk' => 'nomor_stnk, nama_pemilik, nomor_polisi, merek_tipe, berlaku_sampai (stnk_expiry), tahun',
+            'sim' => 'nama, nomor_sim, jenis_sim, berlaku_sampai (sim_expiry)',
+            'ktp' => 'nik, nama, tanggal_lahir, alamat',
         ];
 
         $fields = $fieldMap[$kind] ?? 'semua field penting yang terlihat';
@@ -114,7 +115,7 @@ PROMPT;
     {
         $cleaned = ltrim(str_replace(['/storage/', config('app.url')], '', $path), '/');
 
-        if (!Storage::disk('public')->exists($cleaned)) {
+        if (! Storage::disk('public')->exists($cleaned)) {
             abort(422, "File dokumen tidak ditemukan: {$cleaned}");
         }
 

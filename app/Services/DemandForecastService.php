@@ -7,6 +7,7 @@ use App\Models\DemandForecast;
 use App\Models\Location;
 use App\Models\RentalOrder;
 use App\Models\SeasonPeriod;
+use App\Models\SystemSetting;
 use App\Models\Vehicle;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -80,10 +81,10 @@ class DemandForecastService
      */
     public function priceMultiplier(Vehicle $vehicle, string $startDate): array
     {
-        $config = \App\Models\SystemSetting::get('demand_forecast_pricing');
+        $config = SystemSetting::get('demand_forecast_pricing');
         $config = is_string($config) ? json_decode($config, true) : $config;
 
-        if (!is_array($config) || !filter_var($config['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+        if (! is_array($config) || ! filter_var($config['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             return ['multiplier' => 1.0, 'occupancy' => null];
         }
 
@@ -98,7 +99,7 @@ class DemandForecastService
             ->orderByRaw('category_id IS NULL, location_id IS NULL')
             ->first();
 
-        if (!$forecast) {
+        if (! $forecast) {
             return ['multiplier' => 1.0, 'occupancy' => null];
         }
 

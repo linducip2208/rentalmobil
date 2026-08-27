@@ -50,24 +50,24 @@ class RouteReplayService
             if ((float) $log->speed < 5) {
                 $currentStop ??= ['start' => $log->logged_at, 'lat' => (float) $log->latitude, 'lng' => (float) $log->longitude];
 
-                if ($log->logged_at->diffInMinutes($currentStop['start']) >= 5 && !isset($currentStop['end'])) {
+                if ($log->logged_at->diffInMinutes($currentStop['start']) >= 5 && ! isset($currentStop['end'])) {
                     $currentStop['end'] = $log->logged_at;
                     $currentStop['duration_min'] = $currentStop['start']->diffInMinutes($currentStop['end']);
                 }
             } elseif ($currentStop !== null) {
                 if (isset($currentStop['end'])) {
-                    $stops[] = $currentStop + ['address' => 'Lat ' . round($currentStop['lat'], 4) . ', Lng ' . round($currentStop['lng'], 4)];
+                    $stops[] = $currentStop + ['address' => 'Lat '.round($currentStop['lat'], 4).', Lng '.round($currentStop['lng'], 4)];
                 }
                 $currentStop = null;
             }
 
             if (isset($currentStop['end']) && ($index === $logs->count() - 1)) {
-                $stops[] = $currentStop + ['address' => 'Lat ' . round($currentStop['lat'], 4) . ', Lng ' . round($currentStop['lng'], 4)];
+                $stops[] = $currentStop + ['address' => 'Lat '.round($currentStop['lat'], 4).', Lng '.round($currentStop['lng'], 4)];
             }
         }
 
         if ($currentStop !== null && isset($currentStop['end'])) {
-            $stops[] = $currentStop + ['address' => 'Lat ' . round($currentStop['lat'], 4) . ', Lng ' . round($currentStop['lng'], 4)];
+            $stops[] = $currentStop + ['address' => 'Lat '.round($currentStop['lat'], 4).', Lng '.round($currentStop['lng'], 4)];
         }
 
         // Heat points: sampling maksimal 300 titik untuk performa peta

@@ -15,15 +15,21 @@ class GpsPositionIngestor
     {
         $map = $integration->field_mapping ?? [];
         $externalId = $this->value($record, $map, 'device_id');
-        if (blank($externalId)) throw new \RuntimeException('Mapping device_id tidak menghasilkan nilai.');
+        if (blank($externalId)) {
+            throw new \RuntimeException('Mapping device_id tidak menghasilkan nilai.');
+        }
 
         $tracker = GpsTracker::where('gps_integration_id', $integration->id)
             ->where('external_device_id', (string) $externalId)->first();
-        if (!$tracker?->vehicle_id) return null;
+        if (! $tracker?->vehicle_id) {
+            return null;
+        }
 
         $latitude = $this->value($record, $map, 'latitude');
         $longitude = $this->value($record, $map, 'longitude');
-        if (!is_numeric($latitude) || !is_numeric($longitude)) throw new \RuntimeException('Latitude/longitude provider tidak valid.');
+        if (! is_numeric($latitude) || ! is_numeric($longitude)) {
+            throw new \RuntimeException('Latitude/longitude provider tidak valid.');
+        }
 
         $recordedAt = $this->value($record, $map, 'recorded_at');
         $recordedAt = filled($recordedAt) ? Carbon::parse($recordedAt) : now();
@@ -42,19 +48,30 @@ class GpsPositionIngestor
             'recorded_at' => $recordedAt,
         ]);
 
-        if (!$log->wasRecentlyCreated) return null;
+        if (! $log->wasRecentlyCreated) {
+            return null;
+        }
         $tracker->updateLocation((float) $latitude, (float) $longitude, $this->numeric($speed), $this->integer($heading), $this->integer($battery));
         $this->alerts->evaluate($tracker, ['latitude' => $latitude, 'longitude' => $longitude, 'speed' => $speed, 'battery_level' => $battery], $recordedAt);
         app(GpsIntelligenceService::class)->evaluate($log);
+
         return $log;
     }
 
     private function value(array $record, array $map, string $field): mixed
     {
         $path = data_get($map, $field);
+
         return filled($path) ? data_get($record, $path) : null;
     }
 
-    private function numeric(mixed $value): ?float { return is_numeric($value) ? (float) $value : null; }
-    private function integer(mixed $value): ?int { return is_numeric($value) ? (int) $value : null; }
+    private function numeric(mixed $value): ?float
+    {
+        return is_numeric($value) ? (float) $value : null;
+    }
+
+    private function integer(mixed $value): ?int
+    {
+        return is_numeric($value) ? (int) $value : null;
+    }
 }

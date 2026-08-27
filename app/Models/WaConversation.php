@@ -16,7 +16,6 @@ class WaConversation extends Model
         'last_message_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -26,5 +25,8 @@ class WaConversation extends Model
         ];
     }
 
-    public function messages(): HasMany { return $this->hasMany(WaMessage::class); }
+    public function messages(): HasMany
+    {
+        return $this->hasMany(WaMessage::class);
+    }
 }

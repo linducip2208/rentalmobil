@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class NotificationQueue extends Model
@@ -46,12 +47,12 @@ class NotificationQueue extends Model
         return $this->morphTo();
     }
 
-    public function provider(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function provider(): BelongsTo
     {
         return $this->belongsTo(Provider::class);
     }
 
-    public function template(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function template(): BelongsTo
     {
         return $this->belongsTo(NotificationTemplate::class);
     }

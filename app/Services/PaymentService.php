@@ -4,11 +4,10 @@ namespace App\Services;
 
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\RentalOrder;
-use App\Services\AccountingService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Models\PaymentMethod;
 use App\Models\PaymentTransaction;
+use App\Models\RentalOrder;
+use Illuminate\Support\Facades\DB;
 
 class PaymentService
 {
@@ -59,10 +58,11 @@ class PaymentService
     {
         $invoice = $transaction->invoice;
         $methodId = data_get($transaction->provider->config, 'payment_method_id');
-        if (!$methodId || !\App\Models\PaymentMethod::whereKey($methodId)->where('is_active', true)->exists()) {
+        if (! $methodId || ! PaymentMethod::whereKey($methodId)->where('is_active', true)->exists()) {
             throw new \RuntimeException('Pilih metode pembayaran aktif pada konfigurasi provider.');
         }
-        $payment = $this->recordPayment(['invoice_id'=>$invoice->id,'payment_method_id'=>$methodId,'amount'=>$transaction->amount,'payment_date'=>today(),'reference_number'=>$transaction->external_id,'notes'=>'Pembayaran gateway BYOK '.$transaction->public_id]);
+        $payment = $this->recordPayment(['invoice_id' => $invoice->id, 'payment_method_id' => $methodId, 'amount' => $transaction->amount, 'payment_date' => today(), 'reference_number' => $transaction->external_id, 'notes' => 'Pembayaran gateway BYOK '.$transaction->public_id]);
+
         return $this->verifyPayment($payment, null);
     }
 
@@ -78,7 +78,7 @@ class PaymentService
 
         $verifyAmount = $amount ?? (float) $payment->amount;
 
-        return DB::transaction(function () use ($payment, $userId, $verifyAmount) {
+        return DB::transaction(function () use ($payment, $userId) {
             $payment->update([
                 'status' => 'verified',
                 'verified_by' => $userId,

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\BankStatementImport;
-use App\Models\BankStatementLine;
 use App\Models\Payment;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +38,7 @@ class BankReconciliationService
         $header = array_map(fn ($h) => mb_strtolower(trim($h, " \t\"'")), $parsed[$headerIndex]);
         $map = $this->mapColumns($header);
 
-        if (!isset($map['transaction_date'], $map['amount_in'])) {
+        if (! isset($map['transaction_date'], $map['amount_in'])) {
             return [];
         }
 
@@ -52,7 +51,7 @@ class BankReconciliationService
 
             $date = $this->parseDate($row[$map['transaction_date']] ?? '');
 
-            if (!$date) {
+            if (! $date) {
                 continue;
             }
 
@@ -182,7 +181,7 @@ class BankReconciliationService
 
     private function detectDelimiter(string $headerLine): string
     {
-        foreach ([";", ",", "\t"] as $d) {
+        foreach ([';', ',', "\t"] as $d) {
             if (substr_count($headerLine, $d) >= 1) {
                 return $d;
             }

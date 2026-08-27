@@ -19,7 +19,6 @@ class DocumentOcrResult extends Model
         'raw_response',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -28,7 +27,13 @@ class DocumentOcrResult extends Model
         ];
     }
 
-    public function documentable(): MorphTo { return $this->morphTo(); }
+    public function documentable(): MorphTo
+    {
+        return $this->morphTo();
+    }
 
-    public function provider(): BelongsTo { return $this->belongsTo(Provider::class); }
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }

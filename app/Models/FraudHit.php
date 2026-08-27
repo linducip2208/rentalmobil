@@ -19,7 +19,6 @@ class FraudHit extends Model
         'reviewed_by',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -28,13 +27,28 @@ class FraudHit extends Model
         ];
     }
 
-    public function pattern(): BelongsTo { return $this->belongsTo(FraudPattern::class, 'fraud_pattern_id'); }
+    public function pattern(): BelongsTo
+    {
+        return $this->belongsTo(FraudPattern::class, 'fraud_pattern_id');
+    }
 
-    public function customer(): BelongsTo { return $this->belongsTo(Customer::class); }
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
-    public function subject(): MorphTo { return $this->morphTo(); }
+    public function subject(): MorphTo
+    {
+        return $this->morphTo();
+    }
 
-    public function reviewedBy(): BelongsTo { return $this->belongsTo(User::class, 'reviewed_by'); }
+    public function reviewedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
 
-    public function scopeNew($query) { return $query->where('status', 'new'); }
+    public function scopeNew($query)
+    {
+        return $query->where('status', 'new');
+    }
 }

@@ -7,7 +7,6 @@ use App\Models\Page;
 use Filament\Actions;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -16,7 +15,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -25,9 +23,13 @@ use Illuminate\Support\Str;
 class PageResource extends EnterpriseResource
 {
     protected static ?string $model = Page::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+
     protected static \UnitEnum|string|null $navigationGroup = 'CMS';
+
     protected static ?string $navigationLabel = 'Halaman';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema

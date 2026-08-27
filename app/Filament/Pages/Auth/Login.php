@@ -6,5 +6,8 @@ class Login extends \Filament\Auth\Pages\Login
 {
     protected string $view = 'filament.pages.auth.login';
 
-    public function hasLogo(): bool { return false; }
+    public function hasLogo(): bool
+    {
+        return false;
+    }
 }

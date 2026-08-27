@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'Settings';
 
     protected static ?int $navigationSort = 1;
 
@@ -59,7 +59,7 @@ class UserResource extends Resource
                         'viewer' => 'Viewer',
                     ])
                     ->required(),
-                Forms\Components\Select::make('location_id')->label('Cabang akses')->relationship('location','name')->searchable()->preload()->helperText('Kosongkan untuk akses seluruh cabang.'),
+                Forms\Components\Select::make('location_id')->label('Cabang akses')->relationship('location', 'name')->searchable()->preload()->helperText('Kosongkan untuk akses seluruh cabang.'),
                 Forms\Components\TextInput::make('phone')
                     ->label('Telepon')
                     ->tel()

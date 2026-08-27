@@ -17,7 +17,6 @@ class EinvoiceSubmission extends Model
         'submitted_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -27,7 +26,13 @@ class EinvoiceSubmission extends Model
         ];
     }
 
-    public function invoice(): BelongsTo { return $this->belongsTo(Invoice::class); }
+    public function invoice(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class);
+    }
 
-    public function provider(): BelongsTo { return $this->belongsTo(Provider::class); }
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }

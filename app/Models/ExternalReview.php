@@ -19,7 +19,6 @@ class ExternalReview extends Model
         'imported_by',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -29,5 +28,8 @@ class ExternalReview extends Model
         ];
     }
 
-    public function importedBy(): BelongsTo { return $this->belongsTo(User::class, 'imported_by'); }
+    public function importedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'imported_by');
+    }
 }

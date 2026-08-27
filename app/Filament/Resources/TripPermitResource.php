@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\TripPermitResource\Pages;
 use App\Models\TripPermit;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Forms;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,9 +15,13 @@ use Filament\Tables\Table;
 class TripPermitResource extends Resource
 {
     protected static ?string $model = TripPermit::class;
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-map';
+
     protected static \UnitEnum|string|null $navigationGroup = 'Rental';
+
     protected static ?string $navigationLabel = 'SPJ Digital';
+
     protected static ?int $navigationSort = 7;
 
     public static function form(Schema $s): Schema
@@ -55,36 +59,36 @@ class TripPermitResource extends Resource
             Tables\Columns\TextColumn::make('status')->badge()->formatStateUsing(fn ($s) => $s === 'open' ? 'Berjalan' : 'Selesai')->color(fn ($s) => $s === 'open' ? 'warning' : 'success'),
             Tables\Columns\TextColumn::make('started_at')->dateTime('d/m H:i')->sortable(),
         ])
-        ->filters([
-            Tables\Filters\SelectFilter::make('status')->options(['open' => 'Berjalan', 'closed' => 'Selesai']),
-        ])
-        ->recordActions([
-            Actions\Action::make('printPdf')
-                ->label('Cetak PDF')
-                ->icon('heroicon-o-printer')
-                ->color('info')
-                ->action(function (TripPermit $record) {
-                    $pdf = Pdf::loadView('pdf.spj', ['permit' => $record->load(['rentalOrder.customer', 'driver'])]);
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')->options(['open' => 'Berjalan', 'closed' => 'Selesai']),
+            ])
+            ->recordActions([
+                Actions\Action::make('printPdf')
+                    ->label('Cetak PDF')
+                    ->icon('heroicon-o-printer')
+                    ->color('info')
+                    ->action(function (TripPermit $record) {
+                        $pdf = Pdf::loadView('pdf.spj', ['permit' => $record->load(['rentalOrder.customer', 'driver'])]);
 
-                    return response()->streamDownload(fn () => print ($pdf->output()), "{$record->spj_number}.pdf");
-                }),
-            Actions\Action::make('closeTrip')
-                ->label('Tutup Perjalanan')
-                ->icon('heroicon-o-flag')
-                ->color('danger')
-                ->visible(fn (TripPermit $r) => $r->status === 'open')
-                ->form([
-                    Forms\Components\Select::make('fuel_end_level')->options(TripPermit::fuelLevels())->required()->label('BBM saat kembali'),
-                    Forms\Components\TextInput::make('odometer_end')->numeric()->minValue(0)->label('KM akhir'),
-                    Forms\Components\TextInput::make('toll_cost')->numeric()->prefix('Rp')->label('Total tol aktual'),
-                    Forms\Components\TextInput::make('parking_cost')->numeric()->prefix('Rp')->label('Total parkir aktual'),
-                ])
-                ->action(function (TripPermit $r, array $data) {
-                    $r->update(array_merge($data, ['status' => 'closed', 'finished_at' => now()]));
-                }),
-            Actions\EditAction::make(),
-            Actions\DeleteAction::make(),
-        ]);
+                        return response()->streamDownload(fn () => print ($pdf->output()), "{$record->spj_number}.pdf");
+                    }),
+                Actions\Action::make('closeTrip')
+                    ->label('Tutup Perjalanan')
+                    ->icon('heroicon-o-flag')
+                    ->color('danger')
+                    ->visible(fn (TripPermit $r) => $r->status === 'open')
+                    ->form([
+                        Forms\Components\Select::make('fuel_end_level')->options(TripPermit::fuelLevels())->required()->label('BBM saat kembali'),
+                        Forms\Components\TextInput::make('odometer_end')->numeric()->minValue(0)->label('KM akhir'),
+                        Forms\Components\TextInput::make('toll_cost')->numeric()->prefix('Rp')->label('Total tol aktual'),
+                        Forms\Components\TextInput::make('parking_cost')->numeric()->prefix('Rp')->label('Total parkir aktual'),
+                    ])
+                    ->action(function (TripPermit $r, array $data) {
+                        $r->update(array_merge($data, ['status' => 'closed', 'finished_at' => now()]));
+                    }),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array

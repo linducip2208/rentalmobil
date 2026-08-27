@@ -8,8 +8,8 @@ use App\Models\Vehicle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Validator;
 
 class GpsTrackingController extends Controller
 {
@@ -33,10 +33,10 @@ class GpsTrackingController extends Controller
             ->where('is_active', true)
             ->first();
 
-        if (!$tracker || !$tracker->acceptsToken($request->bearerToken())) {
+        if (! $tracker || ! $tracker->acceptsToken($request->bearerToken())) {
             return response()->json(['message' => 'Kredensial tracker tidak valid.'], 401);
         }
-        if (!$tracker->vehicle_id) {
+        if (! $tracker->vehicle_id) {
             return response()->json(['message' => 'Tracker belum dipasangkan ke kendaraan.'], 409);
         }
 
@@ -77,7 +77,7 @@ class GpsTrackingController extends Controller
             ->where('is_active', true)
             ->whereNotNull('last_latitude')
             ->get()
-            ->map(fn(GpsTracker $t) => [
+            ->map(fn (GpsTracker $t) => [
                 'id' => $t->id,
                 'device_name' => $t->device_name ?? $t->device_id,
                 'vehicle' => $t->vehicle?->name ?? 'Unassigned',

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\GroupBooking;
 use App\Models\Vehicle;
-use Illuminate\Support\Facades\DB;
 
 class GroupBookingService
 {
@@ -37,7 +36,7 @@ class GroupBookingService
             ->get();
 
         if ($vehicles->count() < min($group->units_needed, 3)) {
-            throw new \RuntimeException('Stok armada tidak cukup untuk group booking ini. Tersedia ' . $vehicles->count() . ' unit.');
+            throw new \RuntimeException('Stok armada tidak cukup untuk group booking ini. Tersedia '.$vehicles->count().' unit.');
         }
 
         $total = 0.0;
@@ -67,7 +66,7 @@ class GroupBookingService
         $group->update([
             'quoted_total' => round($total, 2),
             'status' => 'quoted',
-            'notes' => $group->notes . "\n[QUOTE " . now()->toDateTimeString() . '] ' .
+            'notes' => $group->notes."\n[QUOTE ".now()->toDateTimeString().'] '.
                 json_encode(['details' => $details, 'grand_total' => round($total, 2)], JSON_UNESCAPED_UNICODE),
         ]);
 

@@ -5,6 +5,8 @@ namespace App\Filament\Pages;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\ReportExcelService;
+use Carbon\Carbon;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 
@@ -13,12 +15,17 @@ class LaporanKeuangan extends Page
     protected string $view = 'filament.pages.laporan-keuangan';
 
     protected static \UnitEnum|string|null $navigationGroup = 'Reports';
+
     protected static ?string $navigationLabel = 'Keuangan';
+
     protected static ?int $navigationSort = 2;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-currency-dollar';
+
     protected static ?string $title = 'Laporan Keuangan';
 
     public string $dateFrom;
+
     public string $dateTo;
 
     public function mount(): void
@@ -79,7 +86,7 @@ class LaporanKeuangan extends Page
         $months = array_unique(array_merge(array_keys($revenueData), array_keys($expenseData)));
         sort($months);
 
-        $labels = array_map(fn ($m) => \Carbon\Carbon::parse($m . '-01')->translatedFormat('M Y'), $months);
+        $labels = array_map(fn ($m) => Carbon::parse($m.'-01')->translatedFormat('M Y'), $months);
         $revenue = array_map(fn ($m) => (float) ($revenueData[$m] ?? 0), $months);
         $expenses = array_map(fn ($m) => (float) ($expenseData[$m] ?? 0), $months);
         $profit = array_map(fn ($i) => $revenue[$i] - $expenses[$i], array_keys($months));
@@ -123,6 +130,7 @@ class LaporanKeuangan extends Page
     public function exportExcel()
     {
         $rows = collect($this->getRecentPayments())->map(fn (array $payment) => [$payment['payment_number'], $payment['customer']['name'] ?? '-', $payment['payment_date'], $payment['payment_method']['name'] ?? '-', $payment['status'], (float) $payment['amount']]);
-        return app(\App\Services\ReportExcelService::class)->download('laporan-keuangan-'.$this->dateFrom.'-'.$this->dateTo, ['No. Pembayaran','Customer','Tanggal','Metode','Status','Jumlah'], $rows);
+
+        return app(ReportExcelService::class)->download('laporan-keuangan-'.$this->dateFrom.'-'.$this->dateTo, ['No. Pembayaran', 'Customer', 'Tanggal', 'Metode', 'Status', 'Jumlah'], $rows);
     }
 }

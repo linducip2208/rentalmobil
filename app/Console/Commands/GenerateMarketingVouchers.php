@@ -6,7 +6,6 @@ use App\Models\Customer;
 use App\Models\PromoVoucher;
 use App\Models\RentalOrder;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 class GenerateMarketingVouchers extends Command
 {
@@ -38,7 +37,7 @@ class GenerateMarketingVouchers extends Command
                     ->first();
 
                 // Hanya customer yang PERNAH sewa lalu diam 90+ hari.
-                if (!$lastOrder || $lastOrder->start_date->gt($cutoff)) {
+                if (! $lastOrder || $lastOrder->start_date->gt($cutoff)) {
                     continue;
                 }
 

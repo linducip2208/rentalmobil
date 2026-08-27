@@ -16,7 +16,6 @@ class DemandForecast extends Model
         'factors',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -27,9 +26,18 @@ class DemandForecast extends Model
         ];
     }
 
-    public function category(): BelongsTo { return $this->belongsTo(Category::class); }
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-    public function location(): BelongsTo { return $this->belongsTo(Location::class); }
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
 
-    public function scopeForDate($query, string $date) { return $query->where('forecast_date', $date); }
+    public function scopeForDate($query, string $date)
+    {
+        return $query->where('forecast_date', $date);
+    }
 }

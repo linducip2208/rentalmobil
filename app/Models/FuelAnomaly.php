@@ -21,7 +21,6 @@ class FuelAnomaly extends Model
         'reviewed_by',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -34,11 +33,23 @@ class FuelAnomaly extends Model
         ];
     }
 
-    public function vehicle(): BelongsTo { return $this->belongsTo(Vehicle::class); }
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
 
-    public function fuelLog(): BelongsTo { return $this->belongsTo(FuelLog::class); }
+    public function fuelLog(): BelongsTo
+    {
+        return $this->belongsTo(FuelLog::class);
+    }
 
-    public function reviewedBy(): BelongsTo { return $this->belongsTo(User::class, 'reviewed_by'); }
+    public function reviewedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
 
-    public function scopeOpen($query) { return $query->where('status', 'open'); }
+    public function scopeOpen($query)
+    {
+        return $query->where('status', 'open');
+    }
 }

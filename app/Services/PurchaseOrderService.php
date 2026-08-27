@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\SparePart;
 use App\Models\SparePartPurchaseOrder;
 use App\Models\SparePartPurchaseOrderItem;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -15,7 +16,7 @@ class PurchaseOrderService
 {
     public function draftForLowStock(?int $reorderMultiple = null): array
     {
-        $multiple = max(1, $reorderMultiple ?? (int) \App\Models\SystemSetting::get('sparepart_reorder_multiple', 2));
+        $multiple = max(1, $reorderMultiple ?? (int) SystemSetting::get('sparepart_reorder_multiple', 2));
 
         $lowStockParts = SparePart::query()
             ->whereColumn('stock', '<=', 'min_stock')
@@ -65,6 +66,7 @@ class PurchaseOrderService
 
                 if ($po->items()->count() === 0) {
                     $po->delete();
+
                     return;
                 }
 

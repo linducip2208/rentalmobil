@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\MaintenanceLogResource\Pages;
 use App\Models\MaintenanceLog;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class MaintenanceLogResource extends Resource
 {
     protected static ?string $model = MaintenanceLog::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Maintenance';
+    protected static string|UnitEnum|null $navigationGroup = 'Maintenance';
 
     protected static ?int $navigationSort = 1;
 

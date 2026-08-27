@@ -3,26 +3,26 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BlogPostResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\BlogPost;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Get;
-use App\Filament\Resources\EnterpriseResource as Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use UnitEnum;
-use BackedEnum;
 
 class BlogPostResource extends Resource
 {
     protected static ?string $model = BlogPost::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-pencil';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-pencil';
 
-    protected static string | UnitEnum | null $navigationGroup = 'CMS';
+    protected static string|UnitEnum|null $navigationGroup = 'CMS';
 
     protected static ?int $navigationSort = 1;
 

@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\GpsLogResource\Pages;
 use App\Models\GpsLog;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class GpsLogResource extends Resource
 {
     protected static ?string $model = GpsLog::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-map-pin';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static string | UnitEnum | null $navigationGroup = 'GPS & Monitoring';
+    protected static string|UnitEnum|null $navigationGroup = 'GPS & Monitoring';
 
     protected static ?int $navigationSort = 5;
 

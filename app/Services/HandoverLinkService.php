@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\Contract;
 use App\Models\RentalOrder;
 use App\Models\SecureToken;
+use App\Models\VehicleInspection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -16,6 +18,7 @@ use Illuminate\Support\Str;
 class HandoverLinkService
 {
     public const SCOPE_CONTRACT_SIGN = 'contract_sign';
+
     public const SCOPE_ORDER_CHECKIN = 'order_checkin';
 
     public function issueContractSigning(Contract $contract, int $expiresInDays = 7): string
@@ -70,13 +73,13 @@ class HandoverLinkService
 
             $token->revoke();
 
-            \Illuminate\Support\Facades\Log::info('Kontrak ditandatangani elektronik', ['contract' => $contract->contract_number, 'ip' => $ip]);
+            Log::info('Kontrak ditandatangani elektronik', ['contract' => $contract->contract_number, 'ip' => $ip]);
 
             return $contract;
         });
     }
 
-    public function submitCheckIn(SecureToken $token, array $validated, ?string $ip = null): \App\Models\VehicleInspection
+    public function submitCheckIn(SecureToken $token, array $validated, ?string $ip = null): VehicleInspection
     {
         /** @var RentalOrder $order */
         $order = $token->reference;
@@ -90,7 +93,7 @@ class HandoverLinkService
                 $photos[] = $photo->store('inspections', 'public');
             }
 
-            $inspection = \App\Models\VehicleInspection::create([
+            $inspection = VehicleInspection::create([
                 'rental_order_id' => $order->id,
                 'vehicle_id' => $order->vehicle_id,
                 'type' => 'checkout',

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
-use App\Models\RentalOrder;
+use App\Models\Customer;
 use App\Models\Vehicle;
 use App\Services\AvailabilityEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,14 +14,16 @@ class AvailabilityEngineTest extends TestCase
     use RefreshDatabase;
 
     protected Vehicle $vehicle;
+
     protected AvailabilityEngine $engine;
+
     protected int $customerId;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $customer = \App\Models\Customer::create([
+        $customer = Customer::create([
             'name' => 'Customer Test', 'email' => 'availability@test.local',
             'phone' => '080000000001', 'verification_status' => 'verified', 'is_active' => true,
         ]);
@@ -48,7 +50,7 @@ class AvailabilityEngineTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->engine = new AvailabilityEngine();
+        $this->engine = new AvailabilityEngine;
     }
 
     public function test_vehicle_available_for_dates(): void

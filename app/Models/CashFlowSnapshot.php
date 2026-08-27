@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-
 class CashFlowSnapshot extends Model
 {
     protected $fillable = [
@@ -16,7 +15,6 @@ class CashFlowSnapshot extends Model
         'breakdown',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -25,6 +23,4 @@ class CashFlowSnapshot extends Model
             'breakdown' => 'array',
         ];
     }
-
-
 }

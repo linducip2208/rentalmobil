@@ -75,8 +75,15 @@ class GpsTracker extends Model
         return $this->belongsTo(GpsIntegration::class, 'gps_integration_id');
     }
 
-    public function alerts(): HasMany { return $this->hasMany(GpsAlert::class); }
-    public function commands(): HasMany { return $this->hasMany(GpsCommand::class); }
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(GpsAlert::class);
+    }
+
+    public function commands(): HasMany
+    {
+        return $this->hasMany(GpsCommand::class);
+    }
 
     public function scopeActive($query)
     {

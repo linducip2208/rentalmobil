@@ -12,6 +12,7 @@ class RestPollingGpsAdapter implements GpsAdapter
     public function test(GpsIntegration $integration): array
     {
         $response = $this->request($integration, $integration->devices_endpoint ?: $integration->positions_endpoint);
+
         return ['ok' => $response->successful(), 'status' => $response->status(), 'message' => $response->successful() ? 'Koneksi berhasil.' : $response->body()];
     }
 
@@ -23,7 +24,7 @@ class RestPollingGpsAdapter implements GpsAdapter
         $recordsPath = data_get($integration->response_paths ?? [], 'positions');
         $records = filled($recordsPath) ? data_get($json, $recordsPath, []) : $json;
 
-        if (!is_array($records)) {
+        if (! is_array($records)) {
             throw new \RuntimeException('Path respons posisi tidak menghasilkan array.');
         }
 

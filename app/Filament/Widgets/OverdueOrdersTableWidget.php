@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\RentalOrder;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Models\RentalOrder;
 
 class OverdueOrdersTableWidget extends BaseWidget
 {
@@ -13,7 +13,7 @@ class OverdueOrdersTableWidget extends BaseWidget
 
     protected static ?int $sort = 4;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {

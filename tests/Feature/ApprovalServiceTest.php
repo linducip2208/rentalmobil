@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\ApprovalWorkflow;
-use App\Models\AuditLog;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Services\ApprovalService;
@@ -26,7 +25,7 @@ class ApprovalServiceTest extends TestCase
             'group_name' => 'approval',
         ]);
 
-        $this->service = new ApprovalService();
+        $this->service = new ApprovalService;
     }
 
     public function test_high_value_needs_approval(): void

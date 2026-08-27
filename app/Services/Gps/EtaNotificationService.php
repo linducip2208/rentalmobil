@@ -5,7 +5,7 @@ namespace App\Services\Gps;
 use App\Models\Delivery;
 use App\Models\GpsTracker;
 use App\Models\Location;
-use Illuminate\Support\Carbon;
+use App\Services\NotificationDispatcher;
 
 /**
  * Notifikasi ETA: hitung estimasi waktu tiba dari posisi live tracker
@@ -25,13 +25,13 @@ class EtaNotificationService
             ->get();
 
         foreach ($deliveries as $delivery) {
-            if (!$delivery->to_location_id) {
+            if (! $delivery->to_location_id) {
                 continue;
             }
 
             $destination = Location::find($delivery->to_location_id);
 
-            if (!$destination?->latitude || !$destination?->longitude) {
+            if (! $destination?->latitude || ! $destination?->longitude) {
                 continue;
             }
 
@@ -40,7 +40,7 @@ class EtaNotificationService
                 ->whereNotNull('last_latitude')
                 ->first();
 
-            if (!$tracker) {
+            if (! $tracker) {
                 continue;
             }
 
@@ -58,8 +58,8 @@ class EtaNotificationService
             $eta = now()->addMinutes($etaMinutes);
 
             foreach (self::NOTIFY_AT_MINUTES as $threshold) {
-                if ($etaMinutes <= $threshold && !$this->alreadyNotified($delivery, $threshold)) {
-                    app(\App\Services\NotificationDispatcher::class)->dispatch('delivery_eta', $delivery, [
+                if ($etaMinutes <= $threshold && ! $this->alreadyNotified($delivery, $threshold)) {
+                    app(NotificationDispatcher::class)->dispatch('delivery_eta', $delivery, [
                         'threshold_minutes' => $threshold,
                         'eta_at' => $eta->format('H:i'),
                         'distance_km' => round($distanceKm, 1),
@@ -84,7 +84,7 @@ class EtaNotificationService
     protected function markNotified(Delivery $delivery, int $threshold): void
     {
         $delivery->update([
-            'notes' => trim(($delivery->notes ? $delivery->notes . "\n" : '') . "[ETA] eta_{$threshold}_sent at " . now()->toDateTimeString()),
+            'notes' => trim(($delivery->notes ? $delivery->notes."\n" : '')."[ETA] eta_{$threshold}_sent at ".now()->toDateTimeString()),
         ]);
     }
 

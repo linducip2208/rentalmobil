@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Models\Customer;
-use App\Models\RentalOrder;
-use Illuminate\Support\Facades\DB;
 
 class LoyaltyService
 {
@@ -198,6 +196,7 @@ class LoyaltyService
     {
         $benefits = $this->getTierBenefits($tier);
         $multiplier = $benefits['points_multiplier'] ?? 1.0;
+
         return (int) floor($amount / 10000 * $multiplier);
     }
 

@@ -53,15 +53,15 @@ class BlogController extends Controller
                 'name' => 'RentalMobil',
             ],
             'image' => $post->featured_image,
-            'url' => url('/blog/' . $post->slug),
+            'url' => url('/blog/'.$post->slug),
         ];
 
         return view('blog.show', [
             'post' => $post,
             'related' => $related,
-            'seoTitle' => $post->meta_title ?? $post->title . ' | RentalMobil',
+            'seoTitle' => $post->meta_title ?? $post->title.' | RentalMobil',
             'seoDescription' => $post->meta_description ?? $post->excerpt,
-            'seoCanonical' => url('/blog/' . $post->slug),
+            'seoCanonical' => url('/blog/'.$post->slug),
             'seoJsonLd' => json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ]);
     }
@@ -73,29 +73,29 @@ class BlogController extends Controller
             ->limit(20)
             ->get();
 
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">' . "\n";
-        $xml .= '<channel>' . "\n";
-        $xml .= '  <title>RentalMobil Blog</title>' . "\n";
-        $xml .= '  <link>' . htmlspecialchars(config('app.url', 'https://rentalmobil.test')) . '</link>' . "\n";
-        $xml .= '  <description>Artikel tips dan panduan seputar rental mobil</description>' . "\n";
-        $xml .= '  <language>id-ID</language>' . "\n";
-        $xml .= '  <atom:link href="' . htmlspecialchars(url('/blog/feed.xml')) . '" rel="self" type="application/rss+xml"/>' . "\n";
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">'."\n";
+        $xml .= '<channel>'."\n";
+        $xml .= '  <title>RentalMobil Blog</title>'."\n";
+        $xml .= '  <link>'.htmlspecialchars(config('app.url', 'https://rentalmobil.test')).'</link>'."\n";
+        $xml .= '  <description>Artikel tips dan panduan seputar rental mobil</description>'."\n";
+        $xml .= '  <language>id-ID</language>'."\n";
+        $xml .= '  <atom:link href="'.htmlspecialchars(url('/blog/feed.xml')).'" rel="self" type="application/rss+xml"/>'."\n";
 
         foreach ($posts as $post) {
-            $xml .= '  <item>' . "\n";
-            $xml .= '    <title>' . htmlspecialchars($post->title) . '</title>' . "\n";
-            $xml .= '    <link>' . htmlspecialchars(url('/blog/' . $post->slug)) . '</link>' . "\n";
-            $xml .= '    <guid isPermaLink="true">' . htmlspecialchars(url('/blog/' . $post->slug)) . '</guid>' . "\n";
-            $xml .= '    <description>' . htmlspecialchars($post->excerpt ?? strip_tags($post->content)) . '</description>' . "\n";
-            $xml .= '    <pubDate>' . $post->published_at->toRfc2822String() . '</pubDate>' . "\n";
+            $xml .= '  <item>'."\n";
+            $xml .= '    <title>'.htmlspecialchars($post->title).'</title>'."\n";
+            $xml .= '    <link>'.htmlspecialchars(url('/blog/'.$post->slug)).'</link>'."\n";
+            $xml .= '    <guid isPermaLink="true">'.htmlspecialchars(url('/blog/'.$post->slug)).'</guid>'."\n";
+            $xml .= '    <description>'.htmlspecialchars($post->excerpt ?? strip_tags($post->content)).'</description>'."\n";
+            $xml .= '    <pubDate>'.$post->published_at->toRfc2822String().'</pubDate>'."\n";
             if ($post->category) {
-                $xml .= '    <category>' . htmlspecialchars($post->category->name) . '</category>' . "\n";
+                $xml .= '    <category>'.htmlspecialchars($post->category->name).'</category>'."\n";
             }
-            $xml .= '  </item>' . "\n";
+            $xml .= '  </item>'."\n";
         }
 
-        $xml .= '</channel>' . "\n";
+        $xml .= '</channel>'."\n";
         $xml .= '</rss>';
 
         return response($xml, 200, [

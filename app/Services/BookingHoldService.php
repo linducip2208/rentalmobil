@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\Booking;
 use App\Models\BookingHold;
 use App\Models\Vehicle;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Hold unit sementara (15-30 menit) saat proses checkout agar tidak double-booked.
@@ -16,8 +18,8 @@ class BookingHoldService
 
     public function createHold(Vehicle $vehicle, string $startDate, string $endDate, ?string $sessionId = null, int $minutes = self::DEFAULT_MINUTES): BookingHold
     {
-        $start = \Carbon\Carbon::parse($startDate);
-        $end = \Carbon\Carbon::parse($endDate);
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
 
         return DB::transaction(function () use ($vehicle, $start, $end, $sessionId, $minutes) {
             $conflict = BookingHold::where('vehicle_id', $vehicle->id)
@@ -34,7 +36,7 @@ class BookingHoldService
 
             return BookingHold::create([
                 'vehicle_id' => $vehicle->id,
-                'hold_token' => (string) \Illuminate\Support\Str::uuid(),
+                'hold_token' => (string) Str::uuid(),
                 'session_id' => $sessionId,
                 'start_date' => $start->toDateString(),
                 'end_date' => $end->toDateString(),

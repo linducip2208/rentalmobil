@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Booking;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
 use Carbon\Carbon;
@@ -41,7 +42,7 @@ class AvailabilityService
     {
         $vehicle = Vehicle::find($vehicleId);
 
-        if (!$vehicle || !$vehicle->is_active || !$vehicle->isAvailable()) {
+        if (! $vehicle || ! $vehicle->is_active || ! $vehicle->isAvailable()) {
             return false;
         }
 
@@ -59,7 +60,7 @@ class AvailabilityService
             ->where('end_date', '>=', $startDate)
             ->get(['start_date', 'end_date', 'order_number', 'status']);
 
-        $bookings = \App\Models\Booking::where('vehicle_id', $vehicleId)
+        $bookings = Booking::where('vehicle_id', $vehicleId)
             ->whereIn('status', ['pending', 'confirmed'])
             ->where('start_date', '<=', $endDate)
             ->where('end_date', '>=', $startDate)
@@ -85,7 +86,7 @@ class AvailabilityService
                 }
             }
 
-            if (!$isOccupied) {
+            if (! $isOccupied) {
                 foreach ($bookings as $booking) {
                     if ($current->gte($booking->start_date) && $current->lte($booking->end_date)) {
                         $isOccupied = true;
@@ -104,7 +105,7 @@ class AvailabilityService
                 'day' => $current->day,
                 'day_of_week' => $current->dayOfWeekIso,
                 'is_weekend' => in_array($current->dayOfWeekIso, [6, 7]),
-                'is_available' => !$isOccupied,
+                'is_available' => ! $isOccupied,
                 'reservation' => $reservationInfo,
             ];
 
@@ -136,7 +137,7 @@ class AvailabilityService
             ->pluck('vehicle_id')
             ->toArray();
 
-        $bookedVehicleIds = \App\Models\Booking::whereIn('status', ['pending', 'confirmed'])
+        $bookedVehicleIds = Booking::whereIn('status', ['pending', 'confirmed'])
             ->where('start_date', '<=', $endDate)
             ->where('end_date', '>=', $startDate)
             ->pluck('vehicle_id')
@@ -164,13 +165,13 @@ class AvailabilityService
             return false;
         }
 
-        $hasBookingConflict = \App\Models\Booking::where('vehicle_id', $vehicleId)
+        $hasBookingConflict = Booking::where('vehicle_id', $vehicleId)
             ->whereIn('status', ['pending', 'confirmed'])
             ->where('start_date', '<=', $endDate)
             ->where('end_date', '>=', $startDate)
             ->exists();
 
-        return !$hasBookingConflict;
+        return ! $hasBookingConflict;
     }
 
     public function getNextAvailableDate(int $vehicleId, Carbon $fromDate): ?Carbon

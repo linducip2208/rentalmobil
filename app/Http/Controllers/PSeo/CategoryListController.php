@@ -16,7 +16,7 @@ class CategoryListController extends BasePseoController
         ];
 
         $jsonLd = $this->jsonLdItemList(
-            array_map(fn($c) => ['name' => $c['name'], 'slug' => $c['slug']], $categories),
+            array_map(fn ($c) => ['name' => $c['name'], 'slug' => $c['slug']], $categories),
             'Kategori Sewa Mobil Indonesia',
             url('/sewa-mobil')
         );

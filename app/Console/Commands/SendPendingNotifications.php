@@ -25,6 +25,7 @@ class SendPendingNotifications extends Command
 
         if ($pending->isEmpty()) {
             $this->info('No pending notifications to send.');
+
             return Command::SUCCESS;
         }
 
@@ -55,7 +56,7 @@ class SendPendingNotifications extends Command
             $this->info("Retried {$retried} failed notifications.");
         }
 
-        $this->info("Notification processing complete:");
+        $this->info('Notification processing complete:');
         $this->info("  - Sent: {$sent}");
         $this->info("  - Failed: {$failed}");
 

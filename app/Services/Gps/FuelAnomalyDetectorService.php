@@ -5,8 +5,9 @@ namespace App\Services\Gps;
 use App\Models\FuelAnomaly;
 use App\Models\FuelLog;
 use App\Models\GpsLog;
+use App\Models\SystemSetting;
 use App\Models\Vehicle;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 /**
  * Deteksi kecurangan BBM: bandingkan liter yang diisi vs jarak GPS
@@ -32,7 +33,7 @@ class FuelAnomalyDetectorService
         }
 
         $created = 0;
-        $thresholdPct = (float) \App\Models\SystemSetting::get('fuel_anomaly_threshold_pct', 35);
+        $thresholdPct = (float) SystemSetting::get('fuel_anomaly_threshold_pct', 35);
 
         foreach ($logs as $index => $log) {
             if ($index === 0) {
@@ -42,7 +43,7 @@ class FuelAnomalyDetectorService
             $prev = $logs[$index - 1];
 
             // Skip jika odometer tidak terisi valid.
-            if (!$log->odometer_km || !$prev->odometer_km || $log->odometer_km <= $prev->odometer_km) {
+            if (! $log->odometer_km || ! $prev->odometer_km || $log->odometer_km <= $prev->odometer_km) {
                 $distanceKm = $this->gpsDistanceKm($vehicle, $prev->fuel_date, $log->fuel_date);
             } else {
                 $distanceKm = (float) ($log->odometer_km - $prev->odometer_km);
@@ -64,7 +65,7 @@ class FuelAnomalyDetectorService
 
             $alreadyFlagged = FuelAnomaly::where('fuel_log_id', $log->id)->exists();
 
-            if (!$alreadyFlagged && $deviationPct >= $thresholdPct) {
+            if (! $alreadyFlagged && $deviationPct >= $thresholdPct) {
                 FuelAnomaly::create([
                     'vehicle_id' => $vehicle->id,
                     'fuel_log_id' => $log->id,
@@ -91,7 +92,7 @@ class FuelAnomalyDetectorService
         $ratios = [];
 
         foreach ($logs as $index => $log) {
-            if ($index === 0 || !$log->odometer_km || !$logs[$index - 1]->odometer_km) {
+            if ($index === 0 || ! $log->odometer_km || ! $logs[$index - 1]->odometer_km) {
                 continue;
             }
 
@@ -104,7 +105,7 @@ class FuelAnomalyDetectorService
         }
 
         if (count($ratios) < 2) {
-            return (float) \App\Models\SystemSetting::get('default_fuel_efficiency_km_l', 10);
+            return (float) SystemSetting::get('default_fuel_efficiency_km_l', 10);
         }
 
         sort($ratios);
@@ -119,7 +120,7 @@ class FuelAnomalyDetectorService
     protected function gpsDistanceKm(Vehicle $vehicle, $fromDate, $toDate): float
     {
         $points = GpsLog::whereHas('tracker', fn ($q) => $q->where('vehicle_id', $vehicle->id))
-            ->whereBetween('logged_at', [\Carbon\Carbon::parse($fromDate)->startOfDay(), \Carbon\Carbon::parse($toDate)->endOfDay()])
+            ->whereBetween('logged_at', [Carbon::parse($fromDate)->startOfDay(), Carbon::parse($toDate)->endOfDay()])
             ->orderBy('logged_at')
             ->get(['latitude', 'longitude']);
 

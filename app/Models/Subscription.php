@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -64,7 +65,7 @@ class Subscription extends Model
             && ($this->current_period_end === null || $this->current_period_end->lte(now()));
     }
 
-    public function nextPeriodEnd(): \Carbon\CarbonInterface
+    public function nextPeriodEnd(): CarbonInterface
     {
         $base = $this->current_period_end ?? now();
 

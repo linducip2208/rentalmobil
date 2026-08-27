@@ -20,7 +20,7 @@ class SendRentalReminders extends Command
 
         $total = $bookingCount + $orderCount;
 
-        $this->info("Reminders sent:");
+        $this->info('Reminders sent:');
         $this->info("  - Pickup reminders (bookings): {$bookingCount}");
         $this->info("  - Return reminders (orders): {$orderCount}");
         $this->info("  - Total: {$total}");

@@ -63,7 +63,7 @@ class DepositRefundService
                 'refund_method' => 'cash_transfer_manual',
                 'refunded_at' => now(),
                 'approved_by' => $userId,
-                'notes' => trim(($deposit->notes ? $deposit->notes."\n" : '')."Refund Rp ".number_format($net, 0, ',', '.')."\n".implode("\n", $detail)),
+                'notes' => trim(($deposit->notes ? $deposit->notes."\n" : '').'Refund Rp '.number_format($net, 0, ',', '.')."\n".implode("\n", $detail)),
             ]);
 
             return $deposit->fresh();

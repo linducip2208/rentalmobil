@@ -3,24 +3,27 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ContractResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\Contract;
+use App\Services\HandoverLinkService;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class ContractResource extends Resource
 {
     protected static ?string $model = Contract::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-document-text';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Rental';
+    protected static string|UnitEnum|null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 6;
 
@@ -30,7 +33,7 @@ class ContractResource extends Resource
     {
         return $schema->components([
             Schemas\Components\Section::make('Informasi Kontrak')->schema([
-                Forms\Components\TextInput::make('contract_number')
+                TextInput::make('contract_number')
                     ->label('No. Kontrak')
                     ->disabled()
                     ->dehydrated(false),
@@ -76,38 +79,38 @@ class ContractResource extends Resource
                 Forms\Components\DatePicker::make('end_date')
                     ->label('Tanggal Akhir')
                     ->required(),
-                Forms\Components\TextInput::make('rental_type')
+                TextInput::make('rental_type')
                     ->label('Tipe Sewa')
                     ->maxLength(50),
-                Forms\Components\TextInput::make('daily_rate')
+                TextInput::make('daily_rate')
                     ->label('Tarif/Hari')
                     ->numeric()
                     ->prefix('Rp')
                     ->required(),
-                Forms\Components\TextInput::make('total_amount')
+                TextInput::make('total_amount')
                     ->label('Total')
                     ->numeric()
                     ->prefix('Rp')
                     ->required(),
-                Forms\Components\TextInput::make('deposit_amount')
+                TextInput::make('deposit_amount')
                     ->label('Deposit')
                     ->numeric()
                     ->prefix('Rp'),
-                Forms\Components\TextInput::make('km_limit')
+                TextInput::make('km_limit')
                     ->label('Batas KM')
                     ->numeric()
                     ->suffix('km'),
-                Forms\Components\TextInput::make('version')
+                TextInput::make('version')
                     ->label('Versi')
                     ->numeric()
                     ->default(1),
             ])->columns(2),
 
             Schemas\Components\Section::make('Kebijakan')->schema([
-                Forms\Components\TextInput::make('fuel_policy')
+                TextInput::make('fuel_policy')
                     ->label('Kebijakan Bahan Bakar')
                     ->maxLength(100),
-                Forms\Components\TextInput::make('usage_area')
+                TextInput::make('usage_area')
                     ->label('Area Penggunaan')
                     ->maxLength(255),
                 Forms\Components\Textarea::make('late_policy')
@@ -122,21 +125,21 @@ class ContractResource extends Resource
                 Forms\Components\Textarea::make('loss_policy')
                     ->label('Kebijakan Kehilangan')
                     ->rows(2),
-                Forms\Components\TextInput::make('insurance_policy')
+                TextInput::make('insurance_policy')
                     ->label('Asuransi')
                     ->maxLength(255),
             ])->columns(2),
 
             Schemas\Components\Section::make('Tanda Tangan & Catatan')->schema([
-                Forms\Components\TextInput::make('customer_signature_url')
+                TextInput::make('customer_signature_url')
                     ->label('TTD Customer')
                     ->maxLength(500),
-                Forms\Components\TextInput::make('staff_signature_url')
+                TextInput::make('staff_signature_url')
                     ->label('TTD Staff')
                     ->maxLength(500),
                 Forms\Components\DateTimePicker::make('signed_at')
                     ->label('Waktu Tanda Tangan'),
-                Forms\Components\TextInput::make('document_hash')
+                TextInput::make('document_hash')
                     ->label('Document Hash')
                     ->maxLength(255),
             ])->columns(2),
@@ -199,17 +202,17 @@ class ContractResource extends Resource
                     ->visible(fn ($record) => ! $record->isSigned())
                     ->modalHeading('Link Tanda Tangan Elektronik')
                     ->modalDescription('Bagikan link ini ke penyewa via WhatsApp/email. Link ber-hash aman & kedaluwarsa otomatis.')
-                    ->mountUsing(function (\Filament\Schemas\Schema $form, $record) {
-                        $link = app(\App\Services\HandoverLinkService::class)->issueContractSigning($record);
+                    ->mountUsing(function (Schema $form, $record) {
+                        $link = app(HandoverLinkService::class)->issueContractSigning($record);
                         $form->fill(['link' => $link]);
                     })
                     ->form([
-                        \Filament\Forms\Components\TextInput::make('link')
+                        TextInput::make('link')
                             ->label('URL tanda tangan')
                             ->readOnly()
                             ->copyable()
                             ->columnSpanFull(),
-                        \Filament\Forms\Components\ViewField::make('qr')
+                        ViewField::make('qr')
                             ->view('filament.contracts.qr-link')
                             ->columnSpanFull(),
                     ])

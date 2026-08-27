@@ -3,23 +3,26 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BankStatementImportResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\BankStatementImport;
 use App\Services\BankReconciliationService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Storage;
 
 class BankStatementImportResource extends Resource
 {
     protected static ?string $model = BankStatementImport::class;
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-building-library';
+
     protected static \UnitEnum|string|null $navigationGroup = 'Finance';
+
     protected static ?string $navigationLabel = 'Rekonsiliasi Bank';
+
     protected static ?int $navigationSort = 25;
 
     public static function form(Schema $s): Schema
@@ -56,28 +59,28 @@ class BankStatementImportResource extends Resource
                 default => 'gray',
             }),
         ])
-        ->recordActions([
-            Tables\Actions\Action::make('autoMatch')
-                ->label('Auto-match')
-                ->icon('heroicon-o-link')
-                ->color('info')
-                ->action(function (BankStatementImport $record) {
-                    $n = app(BankReconciliationService::class)->autoMatch($record);
-                    Notification::make()->title("{$n} baris cocok otomatis")->success()->send();
-                }),
-            Tables\Actions\Action::make('verifyAll')
-                ->label('Verifikasi semua yang cocok')
-                ->icon('heroicon-o-check-badge')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalDescription('Semua pembayaran yang cocok akan diverifikasi dan invoice diperbarui. Lanjutkan?')
-                ->action(function (BankStatementImport $record) {
-                    $n = app(BankReconciliationService::class)->verifyMatched($record, auth()->id());
-                    Notification::make()->title("{$n} pembayaran terverifikasi")->success()->send();
-                })
-                ->visible(fn (BankStatementImport $record) => $record->matched_count > 0),
-            Actions\DeleteAction::make(),
-        ]);
+            ->recordActions([
+                Tables\Actions\Action::make('autoMatch')
+                    ->label('Auto-match')
+                    ->icon('heroicon-o-link')
+                    ->color('info')
+                    ->action(function (BankStatementImport $record) {
+                        $n = app(BankReconciliationService::class)->autoMatch($record);
+                        Notification::make()->title("{$n} baris cocok otomatis")->success()->send();
+                    }),
+                Tables\Actions\Action::make('verifyAll')
+                    ->label('Verifikasi semua yang cocok')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalDescription('Semua pembayaran yang cocok akan diverifikasi dan invoice diperbarui. Lanjutkan?')
+                    ->action(function (BankStatementImport $record) {
+                        $n = app(BankReconciliationService::class)->verifyMatched($record, auth()->id());
+                        Notification::make()->title("{$n} pembayaran terverifikasi")->success()->send();
+                    })
+                    ->visible(fn (BankStatementImport $record) => $record->matched_count > 0),
+                Actions\DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array

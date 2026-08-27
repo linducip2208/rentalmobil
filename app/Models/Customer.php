@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Authenticatable
 {
@@ -53,12 +54,12 @@ class Customer extends Authenticatable
         'total_spent' => 'decimal:2',
         'total_orders' => 'integer',
         'loyalty_points' => 'integer',
-            'is_active' => 'boolean',
-            'password' => 'hashed',
-            'last_login_at' => 'datetime',
+        'is_active' => 'boolean',
+        'password' => 'hashed',
+        'last_login_at' => 'datetime',
     ];
 
-    public function corporateAccount(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function corporateAccount(): BelongsTo
     {
         return $this->belongsTo(CorporateAccount::class);
     }

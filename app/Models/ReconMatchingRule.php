@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-
 class ReconMatchingRule extends Model
 {
     protected $fillable = [
@@ -17,7 +16,6 @@ class ReconMatchingRule extends Model
         'is_active',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -27,5 +25,8 @@ class ReconMatchingRule extends Model
         ];
     }
 
-    public function scopeActive($query) { return $query->where('is_active', true)->orderBy('priority'); }
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true)->orderBy('priority');
+    }
 }

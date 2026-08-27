@@ -3,26 +3,27 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BookingResource\Pages;
-use App\Models\Booking;
-use Filament\Forms;
-use Filament\Schemas;
-use Filament\Schemas\Schema;
 use App\Filament\Resources\EnterpriseResource as Resource;
-use Filament\Tables;
-use Filament\Actions;
-use Filament\Tables\Table;
-use UnitEnum;
-use BackedEnum;
+use App\Models\Booking;
 use App\Services\ApprovalService;
 use App\Services\BookingService;
+use BackedEnum;
+use Filament\Actions;
+use Filament\Forms;
+use Filament\Notifications\Notification;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
+use Filament\Tables;
+use Filament\Tables\Table;
+use UnitEnum;
 
 class BookingResource extends Resource
 {
     protected static ?string $model = Booking::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-calendar';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Rental';
+    protected static string|UnitEnum|null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 2;
 
@@ -215,11 +216,12 @@ class BookingResource extends Resource
                         $approval = app(ApprovalService::class);
                         if ($approval->checkApprovalRequired('booking', (float) $record->total_amount)) {
                             $approval->submitForApproval($record, 'booking', auth()->id());
-                            \Filament\Notifications\Notification::make()->title('Booking dikirim untuk persetujuan')->warning()->send();
+                            Notification::make()->title('Booking dikirim untuk persetujuan')->warning()->send();
+
                             return;
                         }
                         $order = app(BookingService::class)->convertToOrder($record);
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title("Berhasil dikonversi! Order #{$order->order_number}")
                             ->success()
                             ->send();

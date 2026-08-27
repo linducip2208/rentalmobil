@@ -6,6 +6,7 @@ use App\Models\MaintenanceLog;
 use App\Models\RentalOrder;
 use App\Models\ServiceSchedule;
 use App\Models\Vehicle;
+use App\Services\ReportExcelService;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 
@@ -14,12 +15,17 @@ class LaporanOperasional extends Page
     protected string $view = 'filament.pages.laporan-operasional';
 
     protected static \UnitEnum|string|null $navigationGroup = 'Reports';
+
     protected static ?string $navigationLabel = 'Operasional';
+
     protected static ?int $navigationSort = 3;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
+
     protected static ?string $title = 'Laporan Operasional';
 
     public string $dateFrom;
+
     public string $dateTo;
 
     public function mount(): void
@@ -130,13 +136,15 @@ class LaporanOperasional extends Page
             ->withSum(['maintenanceLogs as maintenance_cost' => fn ($q) => $q->whereBetween('start_date', [$this->dateFrom, $this->dateTo])], 'cost')
             ->withSum(['fuelLogs as fuel_cost' => fn ($q) => $q->whereBetween('fuel_date', [$this->dateFrom, $this->dateTo])], 'cost')
             ->get()->map(function ($vehicle) {
-                $revenue = (float) ($vehicle->revenue ?? 0); $cost = (float) ($vehicle->maintenance_cost ?? 0) + (float) ($vehicle->fuel_cost ?? 0);
+                $revenue = (float) ($vehicle->revenue ?? 0);
+                $cost = (float) ($vehicle->maintenance_cost ?? 0) + (float) ($vehicle->fuel_cost ?? 0);
+
                 return ['name' => $vehicle->name, 'plate_number' => $vehicle->plate_number, 'revenue' => $revenue, 'cost' => $cost, 'profit' => $revenue - $cost, 'margin' => $revenue > 0 ? round((($revenue - $cost) / $revenue) * 100, 1) : 0];
             })->sortByDesc('profit')->values()->take(20)->all();
     }
 
     public function exportExcel()
     {
-        return app(\App\Services\ReportExcelService::class)->download('laporan-operasional-'.$this->dateFrom.'-'.$this->dateTo, ['Kendaraan','Plat','Pendapatan','Biaya','Laba','Margin (%)'], $this->getVehicleProfitability());
+        return app(ReportExcelService::class)->download('laporan-operasional-'.$this->dateFrom.'-'.$this->dateTo, ['Kendaraan', 'Plat', 'Pendapatan', 'Biaya', 'Laba', 'Margin (%)'], $this->getVehicleProfitability());
     }
 }

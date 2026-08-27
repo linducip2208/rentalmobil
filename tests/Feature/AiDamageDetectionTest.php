@@ -2,9 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
 use App\Models\DamageReport;
 use App\Models\Provider;
+use App\Models\RentalOrder;
+use App\Models\User;
+use App\Models\Vehicle;
 use App\Models\VehicleInspection;
+use App\Services\DamageDetectionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -33,9 +38,9 @@ class AiDamageDetectionTest extends TestCase
         Storage::fake('public');
         Storage::disk('public')->put('inspections/test.jpg', UploadedFile::fake()->image('test.jpg')->getContent());
 
-        $customer = \App\Models\Customer::create(['name' => 'Inspeksi User', 'email' => 'insp@test.local', 'phone' => '0815', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
-        $vehicle = \App\Models\Vehicle::create(['name' => 'Avanza Uji', 'slug' => 'avanza-uji', 'category_id' => 1, 'brand_id' => 1, 'location_id' => 1, 'plate_number' => 'B 7000 AI', 'year' => 2024, 'color' => 'Putih', 'transmission' => 'automatic', 'seat_count' => 7, 'daily_rate' => 500000, 'weekly_rate' => 3000000, 'monthly_rate' => 10000000, 'deposit_amount' => 500000, 'status' => 'available', 'is_active' => true]);
-        $order = \App\Models\RentalOrder::create(['customer_id' => $customer->id, 'vehicle_id' => $vehicle->id, 'location_id' => 1, 'start_date' => now()->subDays(2), 'end_date' => now(), 'rental_type' => 'self_drive', 'duration_days' => 2, 'daily_rate_snapshot' => 500000, 'subtotal' => 1000000, 'addon_total' => 0, 'discount_total' => 0, 'tax_total' => 110000, 'final_amount' => 1110000, 'amount_paid' => 0, 'balance_due' => 1110000, 'deposit_amount' => 500000, 'status' => 'active']);
+        $customer = Customer::create(['name' => 'Inspeksi User', 'email' => 'insp@test.local', 'phone' => '0815', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
+        $vehicle = Vehicle::create(['name' => 'Avanza Uji', 'slug' => 'avanza-uji', 'category_id' => 1, 'brand_id' => 1, 'location_id' => 1, 'plate_number' => 'B 7000 AI', 'year' => 2024, 'color' => 'Putih', 'transmission' => 'automatic', 'seat_count' => 7, 'daily_rate' => 500000, 'weekly_rate' => 3000000, 'monthly_rate' => 10000000, 'deposit_amount' => 500000, 'status' => 'available', 'is_active' => true]);
+        $order = RentalOrder::create(['customer_id' => $customer->id, 'vehicle_id' => $vehicle->id, 'location_id' => 1, 'start_date' => now()->subDays(2), 'end_date' => now(), 'rental_type' => 'self_drive', 'duration_days' => 2, 'daily_rate_snapshot' => 500000, 'subtotal' => 1000000, 'addon_total' => 0, 'discount_total' => 0, 'tax_total' => 110000, 'final_amount' => 1110000, 'amount_paid' => 0, 'balance_due' => 1110000, 'deposit_amount' => 500000, 'status' => 'active']);
 
         return VehicleInspection::create([
             'rental_order_id' => $order->id,
@@ -63,7 +68,7 @@ class AiDamageDetectionTest extends TestCase
             ], 200),
         ]);
 
-        $result = app(\App\Services\DamageDetectionService::class)->analyze($inspection);
+        $result = app(DamageDetectionService::class)->analyze($inspection);
 
         $this->assertSame('done', $result->ai_status);
         $this->assertSame('pintu depan kiri', $result->ai_analysis[0]['location_on_vehicle']);
@@ -74,7 +79,7 @@ class AiDamageDetectionTest extends TestCase
 
     public function test_draft_reports_created_from_ai_findings(): void
     {
-        $this->actingAs(\App\Models\User::find(1));
+        $this->actingAs(User::find(1));
         $this->provider();
 
         $inspection = $this->inspection();
@@ -86,7 +91,7 @@ class AiDamageDetectionTest extends TestCase
             ],
         ]);
 
-        $created = app(\App\Services\DamageDetectionService::class)->createDraftReportsFromAnalysis($inspection);
+        $created = app(DamageDetectionService::class)->createDraftReportsFromAnalysis($inspection);
 
         $this->assertSame(1, $created);
         $report = DamageReport::first();
@@ -101,6 +106,6 @@ class AiDamageDetectionTest extends TestCase
         $inspection = $this->inspection();
 
         $this->expectException(\RuntimeException::class);
-        app(\App\Services\DamageDetectionService::class)->analyze($inspection);
+        app(DamageDetectionService::class)->analyze($inspection);
     }
 }

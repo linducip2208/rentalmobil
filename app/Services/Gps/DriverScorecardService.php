@@ -3,11 +3,10 @@
 namespace App\Services\Gps;
 
 use App\Models\Driver;
-use App\Models\DriverRating;
 use App\Models\DriverBehaviorEvent;
+use App\Models\DriverRating;
 use App\Models\DriverScorecard;
 use App\Models\RentalOrder;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Scorecard driver: agregasi perilaku berkendara + rating pelanggan
@@ -23,8 +22,8 @@ class DriverScorecardService
 
         foreach ($drivers as $driver) {
             $events = DriverBehaviorEvent::where('driver_id', $driver->id)
-                ->whereBetween('occurred_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59'])
-                ->selectRaw("type, COUNT(*) as total")
+                ->whereBetween('occurred_at', [$periodStart.' 00:00:00', $periodEnd.' 23:59:59'])
+                ->selectRaw('type, COUNT(*) as total')
                 ->groupBy('type')
                 ->pluck('total', 'type');
 
@@ -34,7 +33,7 @@ class DriverScorecardService
                 ->count();
 
             $avgRating = (float) DriverRating::where('driver_id', $driver->id)
-                ->whereBetween('created_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59'])
+                ->whereBetween('created_at', [$periodStart.' 00:00:00', $periodEnd.' 23:59:59'])
                 ->avg('rating');
 
             $score = $this->calculateScore(

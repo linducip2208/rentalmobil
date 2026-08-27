@@ -18,7 +18,6 @@ class VehicleInvestment extends Model
         'status',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -29,11 +28,23 @@ class VehicleInvestment extends Model
         ];
     }
 
-    public function investorAccount(): BelongsTo { return $this->belongsTo(InvestorAccount::class); }
+    public function investorAccount(): BelongsTo
+    {
+        return $this->belongsTo(InvestorAccount::class);
+    }
 
-    public function vehicle(): BelongsTo { return $this->belongsTo(Vehicle::class); }
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
 
-    public function distributions(): HasMany { return $this->hasMany(InvestorDistribution::class); }
+    public function distributions(): HasMany
+    {
+        return $this->hasMany(InvestorDistribution::class);
+    }
 
-    public function scopeActive($query) { return $query->where('status', 'active'); }
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }

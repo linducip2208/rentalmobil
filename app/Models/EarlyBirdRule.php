@@ -18,7 +18,6 @@ class EarlyBirdRule extends Model
         'is_active',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -29,11 +28,27 @@ class EarlyBirdRule extends Model
         ];
     }
 
-    public function category(): BelongsTo { return $this->belongsTo(Category::class); }
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-    public function location(): BelongsTo { return $this->belongsTo(Location::class); }
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
 
-    public function scopeForVehicle($query, \App\Models\Vehicle $vehicle) { return $query->where('is_active', true)->where(fn ($q) => $q->whereNull('category_id')->orWhere('category_id', $vehicle->category_id))->where(fn ($q) => $q->whereNull('location_id')->orWhere('location_id', $vehicle->location_id)); }
+    public function scopeForVehicle($query, Vehicle $vehicle)
+    {
+        return $query->where('is_active', true)->where(fn ($q) => $q->whereNull('category_id')->orWhere('category_id', $vehicle->category_id))->where(fn ($q) => $q->whereNull('location_id')->orWhere('location_id', $vehicle->location_id));
+    }
 
-    public function matchesLeadDays(int $days): bool { if ($days < $this->min_lead_days) return false; return $this->max_lead_days === null || $days <= $this->max_lead_days; }
+    public function matchesLeadDays(int $days): bool
+    {
+        if ($days < $this->min_lead_days) {
+            return false;
+        }
+
+return $this->max_lead_days === null || $days <= $this->max_lead_days;
+    }
 }

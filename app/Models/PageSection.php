@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CmsBlockRenderer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,7 +20,7 @@ class PageSection extends Model
         static::saving(function (PageSection $section): void {
             if (in_array($section->block_type, ['rich_text', 'custom_html'], true) && isset($section->data['html'])) {
                 $data = $section->data;
-                $data['html'] = app(\App\Services\CmsBlockRenderer::class)->sanitizeHtml((string) $data['html']);
+                $data['html'] = app(CmsBlockRenderer::class)->sanitizeHtml((string) $data['html']);
                 $section->data = $data;
             }
         });

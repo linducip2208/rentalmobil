@@ -26,6 +26,7 @@ class GenerateInvoiceFromReturn extends Command
 
         if ($returns->isEmpty()) {
             $this->info('No returns need invoice generation.');
+
             return Command::SUCCESS;
         }
 
@@ -39,9 +40,10 @@ class GenerateInvoiceFromReturn extends Command
             try {
                 $order = $return->rentalOrder;
 
-                if (!$order) {
+                if (! $order) {
                     $this->warn("  SKIP Return #{$return->id}: No linked order.");
                     $failed++;
+
                     continue;
                 }
 
@@ -66,7 +68,7 @@ class GenerateInvoiceFromReturn extends Command
                 $this->info("  ✓ Invoice {$invoice->invoice_number} generated for order {$order->order_number} (Rp {$invoice->total_amount})");
                 $generated++;
 
-                Log::info("Invoice generated from return", [
+                Log::info('Invoice generated from return', [
                     'return_id' => $return->id,
                     'order_id' => $order->id,
                     'invoice_id' => $invoice->id,
@@ -82,7 +84,7 @@ class GenerateInvoiceFromReturn extends Command
             }
         }
 
-        $this->info("Invoice generation complete:");
+        $this->info('Invoice generation complete:');
         $this->info("  - Generated: {$generated}");
         $this->info("  - Failed: {$failed}");
 

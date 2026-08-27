@@ -4,13 +4,13 @@ namespace App\Services;
 
 use App\Models\ApprovalWorkflow;
 use App\Models\AuditLog;
+use App\Models\Booking;
+use App\Models\Expense;
+use App\Models\Payment;
 use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use App\Models\Booking;
-use App\Models\Payment;
-use App\Models\Expense;
 
 class ApprovalService
 {
@@ -118,7 +118,7 @@ class ApprovalService
         }
 
         if ($workflow->type === 'expense' && $reference instanceof Expense && $reference->status === 'pending') {
-            $reference->update(['status'=>'approved','approved_by'=>$approvedBy,'approved_at'=>now()]);
+            $reference->update(['status' => 'approved', 'approved_by' => $approvedBy, 'approved_at' => now()]);
             app(AccountingService::class)->recordExpense($reference);
         }
     }
@@ -145,7 +145,7 @@ class ApprovalService
         ]);
 
         if ($workflow->reference instanceof Expense) {
-            $workflow->reference->update(['status'=>'rejected','approved_by'=>$rejectedBy,'rejection_reason'=>$reason]);
+            $workflow->reference->update(['status' => 'rejected', 'approved_by' => $rejectedBy, 'rejection_reason' => $reason]);
         }
 
         $rejector = User::find($rejectedBy);

@@ -4,8 +4,8 @@ namespace App\Filament\Resources\GpsIntegrations\Schemas;
 
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -24,7 +24,7 @@ class GpsIntegrationForm
                         'traccar_compatible' => 'Traccar-compatible REST',
                         'tcp_gateway' => 'Gateway TCP/UDP eksternal',
                     ])->required()->live(),
-                    Select::make('auth_type')->label('Format autentikasi')->options(['none'=>'Tanpa auth','bearer'=>'Bearer token','header'=>'Custom header','query'=>'Query parameter','basic'=>'Basic auth'])->default('bearer')->required(),
+                    Select::make('auth_type')->label('Format autentikasi')->options(['none' => 'Tanpa auth', 'bearer' => 'Bearer token', 'header' => 'Custom header', 'query' => 'Query parameter', 'basic' => 'Basic auth'])->default('bearer')->required(),
                     TextInput::make('credential_key_name')->label('Nama header/query atau username')->placeholder('Diisi sesuai dokumentasi provider'),
                     TextInput::make('credential_secret')->label('API key / secret BYOK')->password()->revealable()->dehydrated(fn (?string $state) => filled($state))->helperText('Dienkripsi di database dan tidak ditampilkan kembali.'),
                     Toggle::make('is_active')->label('Aktif')->default(true),
@@ -34,7 +34,7 @@ class GpsIntegrationForm
                     TextInput::make('positions_endpoint')->label('Path posisi')->placeholder('/api/positions'),
                     TextInput::make('events_endpoint')->label('Path event')->placeholder('/api/events'),
                     TextInput::make('commands_endpoint')->label('Path perintah')->placeholder('/api/commands'),
-                    Select::make('http_method')->options(['GET'=>'GET','POST'=>'POST'])->default('GET'),
+                    Select::make('http_method')->options(['GET' => 'GET', 'POST' => 'POST'])->default('GET'),
                     TextInput::make('poll_interval_minutes')->label('Interval polling (menit)')->numeric()->minValue(1)->default(5),
                     KeyValue::make('request_parameters')->label('Parameter request')->columnSpanFull(),
                     KeyValue::make('response_paths')->label('Path koleksi respons')->helperText('Contoh key: positions atau webhook_records; value: data.positions')->columnSpanFull(),

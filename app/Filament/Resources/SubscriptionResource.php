@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\SubscriptionResource\Pages;
 use App\Models\Subscription;
 use App\Services\SubscriptionBillingService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,9 +16,13 @@ use Filament\Tables\Table;
 class SubscriptionResource extends Resource
 {
     protected static ?string $model = Subscription::class;
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
+
     protected static \UnitEnum|string|null $navigationGroup = 'Rental';
+
     protected static ?string $navigationLabel = 'Langganan Bulanan';
+
     protected static ?int $navigationSort = 30;
 
     public static function form(Schema $s): Schema
@@ -57,34 +61,34 @@ class SubscriptionResource extends Resource
                 default => 'gray',
             })->formatStateUsing(fn (string $state) => ['active' => 'Aktif', 'paused' => 'Jeda', 'cancelled' => 'Batal', 'expired' => 'Berakhir'][$state] ?? $state),
         ])
-        ->recordActions([
-            Tables\Actions\Action::make('billNow')
-                ->label('Tagih sekarang')
-                ->icon('heroicon-o-banknotes')
-                ->color('info')
-                ->visible(fn (Subscription $r) => $r->status === 'active')
-                ->requiresConfirmation()
-                ->modalDescription('Terbitkan invoice untuk periode berikutnya dan majukan tanggal periode?')
-                ->action(function (Subscription $r) {
-                    app(SubscriptionBillingService::class)->generateInvoice($r);
-                    Notification::make()->title('Invoice langganan diterbitkan')->success()->send();
-                }),
-            Tables\Actions\Action::make('cancelSub')
-                ->label('Batalkan')
-                ->icon('heroicon-o-x-circle')
-                ->color('danger')
-                ->visible(fn (Subscription $r) => in_array($r->status, ['active', 'paused']))
-                ->form([Forms\Components\Textarea::make('reason')->label('Alasan')->required()])
-                ->action(function (Subscription $r, array $data) {
-                    app(SubscriptionBillingService::class)->cancel($r, $data['reason']);
-                    Notification::make()->title('Langganan dibatalkan')->warning()->send();
-                }),
-            Actions\EditAction::make(),
-            Actions\DeleteAction::make(),
-        ])
-        ->filters([
-            Tables\Filters\SelectFilter::make('status')->options(['active' => 'Aktif', 'paused' => 'Jeda', 'cancelled' => 'Batal', 'expired' => 'Berakhir']),
-        ]);
+            ->recordActions([
+                Tables\Actions\Action::make('billNow')
+                    ->label('Tagih sekarang')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('info')
+                    ->visible(fn (Subscription $r) => $r->status === 'active')
+                    ->requiresConfirmation()
+                    ->modalDescription('Terbitkan invoice untuk periode berikutnya dan majukan tanggal periode?')
+                    ->action(function (Subscription $r) {
+                        app(SubscriptionBillingService::class)->generateInvoice($r);
+                        Notification::make()->title('Invoice langganan diterbitkan')->success()->send();
+                    }),
+                Tables\Actions\Action::make('cancelSub')
+                    ->label('Batalkan')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn (Subscription $r) => in_array($r->status, ['active', 'paused']))
+                    ->form([Forms\Components\Textarea::make('reason')->label('Alasan')->required()])
+                    ->action(function (Subscription $r, array $data) {
+                        app(SubscriptionBillingService::class)->cancel($r, $data['reason']);
+                        Notification::make()->title('Langganan dibatalkan')->warning()->send();
+                    }),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')->options(['active' => 'Aktif', 'paused' => 'Jeda', 'cancelled' => 'Batal', 'expired' => 'Berakhir']),
+            ]);
     }
 
     public static function getPages(): array

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class SeasonPeriod extends Model
 {
@@ -36,7 +37,7 @@ class SeasonPeriod extends Model
     /** Rule yang mencakup tanggal tertentu (bulan/tanggal saja jika recurring). */
     public static function forDate(string $date, ?int $locationId = null): ?self
     {
-        $day = \Illuminate\Support\Carbon::parse($date);
+        $day = Carbon::parse($date);
         $md = (int) $day->format('md');
 
         $candidates = static::query()->active()

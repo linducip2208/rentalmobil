@@ -12,12 +12,15 @@ use Filament\Widgets\Widget;
 class FleetDispatchWidget extends Widget
 {
     protected static ?int $sort = -20;
+
     protected int|string|array $columnSpan = 'full';
+
     protected string $view = 'filament.widgets.fleet-dispatch';
 
     public function data(): array
     {
         $today = today();
+
         return [
             'user' => auth()->user(),
             'departures' => RentalOrder::with(['vehicle', 'customer'])->whereDate('start_date', $today)->whereNotIn('status', ['cancelled'])->orderBy('start_date')->limit(6)->get(),

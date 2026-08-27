@@ -24,6 +24,7 @@ class ExpireOverdueOrders extends Command
 
         if ($orders->isEmpty()) {
             $this->info('No overdue orders found.');
+
             return Command::SUCCESS;
         }
 
@@ -48,11 +49,11 @@ class ExpireOverdueOrders extends Command
             ]);
 
             $expiredCount++;
-            $this->line("  {$order->order_number} → overdue (late fee: Rp " . number_format($lateFee, 0, ',', '.') . ")");
+            $this->line("  {$order->order_number} → overdue (late fee: Rp ".number_format($lateFee, 0, ',', '.').')');
         }
 
         $this->info("Expired {$expiredCount} overdue order(s).");
-        Log::info('ExpireOverdueOrders: expired ' . $expiredCount . ' orders');
+        Log::info('ExpireOverdueOrders: expired '.$expiredCount.' orders');
 
         return Command::SUCCESS;
     }

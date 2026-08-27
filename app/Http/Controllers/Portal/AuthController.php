@@ -17,7 +17,7 @@ class AuthController extends Controller
     {
         $credentials = $request->validate(['email' => ['required', 'email'], 'password' => ['required', 'string']]);
 
-        if (!Auth::guard('customer')->attempt([...$credentials, 'is_active' => true], $request->boolean('remember'))) {
+        if (! Auth::guard('customer')->attempt([...$credentials, 'is_active' => true], $request->boolean('remember'))) {
             return back()->withErrors(['email' => 'Email atau password tidak cocok.'])->onlyInput('email');
         }
 
@@ -32,6 +32,7 @@ class AuthController extends Controller
         Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('portal.login');
     }
 }

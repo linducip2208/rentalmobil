@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\CorporateAccount;
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\RentalOrder;
+use App\Models\Vehicle;
 use App\Services\CorporateBillingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -68,11 +70,11 @@ class CorporateBillingTest extends TestCase
         $c1 = $this->customer($account);
         $c2 = $this->customer($account);
 
-        $vehicle = \App\Models\Vehicle::create(['name' => 'Innova Korporat', 'slug' => 'innova-korporat-'.uniqid(), 'category_id' => 1, 'brand_id' => 1, 'location_id' => 1, 'plate_number' => 'B '.rand(1000, 9999).' KP', 'year' => 2024, 'color' => 'Silver', 'transmission' => 'automatic', 'seat_count' => 7, 'daily_rate' => 500000, 'weekly_rate' => 3000000, 'monthly_rate' => 10000000, 'deposit_amount' => 500000, 'status' => 'available', 'is_active' => true]);
+        $vehicle = Vehicle::create(['name' => 'Innova Korporat', 'slug' => 'innova-korporat-'.uniqid(), 'category_id' => 1, 'brand_id' => 1, 'location_id' => 1, 'plate_number' => 'B '.rand(1000, 9999).' KP', 'year' => 2024, 'color' => 'Silver', 'transmission' => 'automatic', 'seat_count' => 7, 'daily_rate' => 500000, 'weekly_rate' => 3000000, 'monthly_rate' => 10000000, 'deposit_amount' => 500000, 'status' => 'available', 'is_active' => true]);
 
         foreach ([$c1, $c2] as $i => $c) {
             $invoice = Invoice::create(['customer_id' => $c->id, 'type' => 'rental', 'subtotal' => 1000000 + $i, 'total_amount' => 1000000 + $i, 'balance_due' => 1000000 + $i, 'status' => 'issued']);
-            \App\Models\RentalOrder::create([
+            RentalOrder::create([
                 'customer_id' => $c->id, 'vehicle_id' => $vehicle->id, 'location_id' => 1,
                 'start_date' => now()->subDays(5), 'end_date' => now()->subDays(3),
                 'rental_type' => 'corporate', 'duration_days' => 2, 'daily_rate_snapshot' => 500000,
@@ -81,7 +83,7 @@ class CorporateBillingTest extends TestCase
                 'deposit_amount' => 0, 'status' => 'completed', 'purchase_order_number' => 'PO-TEST-'.$i,
                 'created_at' => now(),
             ]);
-            $invoice->update(['rental_order_id' => \App\Models\RentalOrder::where('customer_id', $c->id)->first()->id]);
+            $invoice->update(['rental_order_id' => RentalOrder::where('customer_id', $c->id)->first()->id]);
         }
 
         $rows = $service->statementRows($account, now()->subDays(7), now());

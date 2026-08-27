@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\AbandonedBooking;
 use App\Models\Booking;
+use App\Models\BookingHold;
 use App\Models\CorporateAccount;
 use App\Models\Customer;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
-use App\Services\NotificationDispatcher;
-use App\Services\PricingCalculator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -37,7 +37,7 @@ class BookingService
             if ($account) {
                 $estimate = (float) $vehicle->daily_rate * max(1, $startDate->diffInDays($endDate));
                 $credit = app(CorporateBillingService::class)->checkCreditLimit($account, $estimate);
-                abort_unless($credit['allowed'], 422, "Limit kredit akun korporat tidak cukup. Tersedia: Rp ".number_format($credit['available'], 0, ',', '.'));
+                abort_unless($credit['allowed'], 422, 'Limit kredit akun korporat tidak cukup. Tersedia: Rp '.number_format($credit['available'], 0, ',', '.'));
             }
         }
 
@@ -45,7 +45,7 @@ class BookingService
             throw new \InvalidArgumentException('End date must be after start date.');
         }
 
-        if (!$this->checkAvailability($vehicle->id, $startDate, $endDate)) {
+        if (! $this->checkAvailability($vehicle->id, $startDate, $endDate)) {
             throw new \RuntimeException('Vehicle is not available for the selected dates.');
         }
 
@@ -62,7 +62,7 @@ class BookingService
         }
 
         $durationDays = max(1, $startDate->diffInDays($endDate));
-        $pricing = app(PricingEngine::class)->calculateRentalPrice($vehicle,$startDate->toDateString(),$endDate->toDateString(),$data['rental_type']??'self_drive',$data['addon_ids']??[],$data['promo_code']??null);
+        $pricing = app(PricingEngine::class)->calculateRentalPrice($vehicle, $startDate->toDateString(), $endDate->toDateString(), $data['rental_type'] ?? 'self_drive', $data['addon_ids'] ?? [], $data['promo_code'] ?? null);
 
         // Rate card korporat: diskon % akun diterapkan setelah promo.
         $corporateCustomer = Customer::find($data['customer_id']);
@@ -108,26 +108,26 @@ class BookingService
             ]);
 
             // Konversi hold aktif milik session ini → converted (mengunci slot).
-            if (!empty($data['session_id'])) {
-                \App\Models\BookingHold::where('session_id', $data['session_id'])
+            if (! empty($data['session_id'])) {
+                BookingHold::where('session_id', $data['session_id'])
                     ->where('vehicle_id', $vehicle->id)
                     ->where('status', 'active')
                     ->update(['status' => 'converted', 'booking_id' => $booking->id]);
             }
 
             // Tandai abandoned booking terkait session sebagai recovered.
-            if (!empty($data['session_id'])) {
-                \App\Models\AbandonedBooking::where('session_id', $data['session_id'])
+            if (! empty($data['session_id'])) {
+                AbandonedBooking::where('session_id', $data['session_id'])
                     ->open()
                     ->update(['status' => 'recovered', 'recovered_booking_id' => $booking->id]);
             }
 
-            if (!empty($data['voucher_ids'])) {
+            if (! empty($data['voucher_ids'])) {
                 $this->applyVouchers($booking, $data['voucher_ids'], $data['customer_id']);
             }
 
             try {
-                app(\App\Services\WebhookDispatchService::class)->dispatch('booking.created', [
+                app(WebhookDispatchService::class)->dispatch('booking.created', [
                     'booking_number' => $booking->booking_number,
                     'customer_id' => $booking->customer_id,
                     'vehicle_id' => $booking->vehicle_id,
@@ -152,7 +152,7 @@ class BookingService
 
         $vehicle = Vehicle::findOrFail($booking->vehicle_id);
 
-        if (!$this->checkAvailability($vehicle->id, $booking->start_date, $booking->end_date, $booking->id)) {
+        if (! $this->checkAvailability($vehicle->id, $booking->start_date, $booking->end_date, $booking->id)) {
             throw new \RuntimeException('Vehicle is no longer available for the selected dates.');
         }
 
@@ -189,7 +189,7 @@ class BookingService
 
     public function convertToOrder(Booking $booking): RentalOrder
     {
-        if (!in_array($booking->status, ['pending_verification', 'confirmed'])) {
+        if (! in_array($booking->status, ['pending_verification', 'confirmed'])) {
             throw new \RuntimeException("Cannot convert booking with status '{$booking->status}' to order.");
         }
 
@@ -274,7 +274,7 @@ class BookingService
             $bookingQuery->where('id', '!=', $excludeBookingId);
         }
 
-        return !$bookingQuery->exists();
+        return ! $bookingQuery->exists();
     }
 
     protected function applyVouchers(Booking $booking, array $voucherIds, int $customerId): void

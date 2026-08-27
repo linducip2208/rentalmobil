@@ -55,6 +55,7 @@ class NotificationTemplate extends Model
         foreach ($data as $key => $value) {
             $body = str_replace("{{$key}}", $value, $body);
         }
+
         return $body;
     }
 }

@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\CorporateAccount;
+use App\Models\RentalOrder;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Collection;
 
 class CorporateBillingService
 {
@@ -22,7 +24,7 @@ class CorporateBillingService
     }
 
     /** Baris statement gabungan seluruh order customer milik akun pada periode. */
-    public function statementRows(CorporateAccount $account, $from, $to): \Illuminate\Support\Collection
+    public function statementRows(CorporateAccount $account, $from, $to): Collection
     {
         $customerIds = $account->customers()->pluck('id');
 
@@ -30,7 +32,7 @@ class CorporateBillingService
             return collect();
         }
 
-        return \App\Models\RentalOrder::with(['customer', 'vehicle', 'invoices'])
+        return RentalOrder::with(['customer', 'vehicle', 'invoices'])
             ->whereIn('customer_id', $customerIds)
             ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
             ->orderBy('created_at')

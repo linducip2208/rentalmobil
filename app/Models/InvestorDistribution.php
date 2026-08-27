@@ -18,7 +18,6 @@ class InvestorDistribution extends Model
         'paid_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -30,7 +29,13 @@ class InvestorDistribution extends Model
         ];
     }
 
-    public function investment(): BelongsTo { return $this->belongsTo(VehicleInvestment::class, 'vehicle_investment_id'); }
+    public function investment(): BelongsTo
+    {
+        return $this->belongsTo(VehicleInvestment::class, 'vehicle_investment_id');
+    }
 
-    public function markPaid(): void { $this->update(['status' => 'paid', 'paid_at' => now()]); }
+    public function markPaid(): void
+    {
+        $this->update(['status' => 'paid', 'paid_at' => now()]);
+    }
 }

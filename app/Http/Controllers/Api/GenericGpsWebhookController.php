@@ -18,11 +18,20 @@ class GenericGpsWebhookController extends Controller
         $payload = $request->json()->all();
         $path = data_get($integration->response_paths ?? [], 'webhook_records');
         $records = filled($path) ? data_get($payload, $path, []) : $payload;
-        if (!is_array($records)) return response()->json(['message' => 'Payload tidak sesuai mapping.'], 422);
-        if (!array_is_list($records)) $records = [$records];
+        if (! is_array($records)) {
+            return response()->json(['message' => 'Payload tidak sesuai mapping.'], 422);
+        }
+        if (! array_is_list($records)) {
+            $records = [$records];
+        }
 
         $saved = 0;
-        foreach ($records as $record) if (is_array($record) && $ingestor->ingest($integration, $record)) $saved++;
+        foreach ($records as $record) {
+            if (is_array($record) && $ingestor->ingest($integration, $record)) {
+                $saved++;
+            }
+        }
+
         return response()->json(['received' => count($records), 'saved' => $saved]);
     }
 

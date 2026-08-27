@@ -26,6 +26,7 @@ class EscalateOverdueOrders extends Command
 
         if ($activeOrders->isEmpty()) {
             $this->info('No overdue orders found.');
+
             return Command::SUCCESS;
         }
 
@@ -48,7 +49,7 @@ class EscalateOverdueOrders extends Command
             }
         }
 
-        $this->info("Escalation complete:");
+        $this->info('Escalation complete:');
         $this->info("  - Overdue (>24h): {$overdueCount}");
         $this->info("  - Missing (>72h): {$missingCount}");
         $this->info("  - Police report (>168h): {$policeCount}");
@@ -139,14 +140,14 @@ class EscalateOverdueOrders extends Command
             ->whereIn('status', ['open', 'in_progress'])
             ->first();
 
-        if (!$case) {
+        if (! $case) {
             $this->escalateToMissing($order);
             $case = InvestigationCase::where('rental_order_id', $order->id)
                 ->whereIn('status', ['open', 'in_progress'])
                 ->first();
         }
 
-        if (!$case) {
+        if (! $case) {
             return;
         }
 
@@ -155,7 +156,7 @@ class EscalateOverdueOrders extends Command
             return;
         }
 
-        $reportNumber = 'PR-' . now()->format('ymd') . '-' . str_pad(
+        $reportNumber = 'PR-'.now()->format('ymd').'-'.str_pad(
             PoliceReport::whereDate('created_at', now()->toDateString())->count() + 1,
             3, '0', STR_PAD_LEFT
         );
@@ -172,27 +173,27 @@ class EscalateOverdueOrders extends Command
             'incident_date' => $order->end_date,
             'incident_location' => $order->location->address ?? 'Unknown',
             'description' => implode("\n", [
-                "LAPORAN KEHILANGAN KENDARAAN",
-                "===========================",
-                "",
+                'LAPORAN KEHILANGAN KENDARAAN',
+                '===========================',
+                '',
                 "Nomor Kasus: {$case->case_number}",
                 "Nomor Pesanan: {$order->order_number}",
-                "",
-                "DATA KENDARAAN:",
+                '',
+                'DATA KENDARAAN:',
                 "- Merk/Type: {$vehicle->name}",
                 "- Tahun: {$vehicle->year}",
                 "- Warna: {$vehicle->color}",
                 "- Plat Nomor: {$vehicle->license_plate}",
-                "",
-                "DATA PEMESAN:",
+                '',
+                'DATA PEMESAN:',
                 "- Nama: {$customer->name}",
                 "- No. KTP: {$customer->id_card_number}",
                 "- Alamat: {$customer->address}",
                 "- No. Telp: {$customer->phone}",
-                "",
-                "KETERANGAN:",
-                "Kendaraan tidak dikembalikan melewati batas waktu yang telah ditentukan.",
-                "Customer tidak dapat dihubungi.",
+                '',
+                'KETERANGAN:',
+                'Kendaraan tidak dikembalikan melewati batas waktu yang telah ditentukan.',
+                'Customer tidak dapat dihubungi.',
             ]),
             'status' => 'pending',
             'notes' => "Auto-generated from investigation case {$case->case_number} (7+ days overdue)",

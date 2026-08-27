@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Customer;
 use App\Models\Referral;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -11,14 +12,14 @@ class ReferralService
 {
     public function generateCode(Customer $customer): Referral
     {
-        $code = strtoupper(Str::substr(md5($customer->id . config('app.key')), 0, 8));
+        $code = strtoupper(Str::substr(md5($customer->id.config('app.key')), 0, 8));
 
         return Referral::firstOrCreate(
             ['referrer_customer_id' => $customer->id],
             [
-                'code' => 'REF-' . $customer->id . '-' . $code,
+                'code' => 'REF-'.$customer->id.'-'.$code,
                 'reward_type' => 'points',
-                'reward_value' => (int) \App\Models\SystemSetting::get('referral_reward_points', 100),
+                'reward_value' => (int) SystemSetting::get('referral_reward_points', 100),
             ]
         );
     }
@@ -35,7 +36,7 @@ class ReferralService
     {
         $referral = Referral::where('code', strtoupper(trim($code)))->first();
 
-        if (!$referral || $referral->referrer_customer_id === $newCustomer->id) {
+        if (! $referral || $referral->referrer_customer_id === $newCustomer->id) {
             return null;
         }
 
@@ -71,7 +72,7 @@ class ReferralService
             ->where('status', 'registered')
             ->first();
 
-        if (!$referral) {
+        if (! $referral) {
             return null;
         }
 

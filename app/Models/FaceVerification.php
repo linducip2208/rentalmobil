@@ -19,7 +19,6 @@ class FaceVerification extends Model
         'checked_at',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -29,7 +28,13 @@ class FaceVerification extends Model
         ];
     }
 
-    public function customer(): BelongsTo { return $this->belongsTo(Customer::class); }
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
-    public function provider(): BelongsTo { return $this->belongsTo(Provider::class); }
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }

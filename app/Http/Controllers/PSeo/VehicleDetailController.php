@@ -19,7 +19,7 @@ class VehicleDetailController extends BasePseoController
             'luggage' => '3 koper',
             'mileage' => '< 50.000 km',
             'price_per_day' => 500000,
-            'description' => $vehicleName . ' merupakan pilihan ideal untuk perjalanan Anda. Dalam kondisi terawat, dilengkapi asuransi all-risk, dan siap menemani perjalanan di dalam maupun luar kota.',
+            'description' => $vehicleName.' merupakan pilihan ideal untuk perjalanan Anda. Dalam kondisi terawat, dilengkapi asuransi all-risk, dan siap menemani perjalanan di dalam maupun luar kota.',
         ];
 
         $jsonLd = $this->jsonLdProduct([

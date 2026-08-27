@@ -16,7 +16,6 @@ class SparePartPurchaseOrderItem extends Model
         'line_total',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -27,7 +26,13 @@ class SparePartPurchaseOrderItem extends Model
         ];
     }
 
-    public function purchaseOrder(): BelongsTo { return $this->belongsTo(SparePartPurchaseOrder::class, 'spare_part_purchase_order_id'); }
+    public function purchaseOrder(): BelongsTo
+    {
+        return $this->belongsTo(SparePartPurchaseOrder::class, 'spare_part_purchase_order_id');
+    }
 
-    public function sparePart(): BelongsTo { return $this->belongsTo(SparePart::class); }
+    public function sparePart(): BelongsTo
+    {
+        return $this->belongsTo(SparePart::class);
+    }
 }

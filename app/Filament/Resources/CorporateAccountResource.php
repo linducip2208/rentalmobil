@@ -3,21 +3,26 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CorporateAccountResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\CorporateAccount;
 use App\Services\CorporateBillingService;
 use Filament\Actions;
 use Filament\Forms;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Carbon;
 
 class CorporateAccountResource extends Resource
 {
     protected static ?string $model = CorporateAccount::class;
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-building-office-2';
+
     protected static \UnitEnum|string|null $navigationGroup = 'Customers';
+
     protected static ?string $navigationLabel = 'Akun Korporat';
+
     protected static ?int $navigationSort = 8;
 
     public static function form(Schema $s): Schema
@@ -51,28 +56,28 @@ class CorporateAccountResource extends Resource
             Tables\Columns\TextColumn::make('discount_percent')->suffix('%')->label('Diskon'),
             Tables\Columns\TextColumn::make('is_active')->badge()->formatStateUsing(fn ($state) => $state ? 'Aktif' : 'Nonaktif')->color(fn ($state) => $state ? 'success' : 'danger'),
         ])
-        ->recordActions([
-            Actions\Action::make('statement')
-                ->label('Statement PDF')
-                ->icon('heroicon-o-document-arrow-down')
-                ->color('info')
-                ->form([
-                    Forms\Components\DatePicker::make('from')->label('Dari')->required()->default(now()->startOfMonth()),
-                    Forms\Components\DatePicker::make('to')->label('Sampai')->required()->default(now()),
-                ])
-                ->action(function (CorporateAccount $record, array $data) {
-                    $from = \Illuminate\Support\Carbon::parse($data['from']);
-                    $to = \Illuminate\Support\Carbon::parse($data['to']);
-                    $pdf = app(CorporateBillingService::class)->generateStatementPdf($record, $from, $to);
+            ->recordActions([
+                Actions\Action::make('statement')
+                    ->label('Statement PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('info')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('Dari')->required()->default(now()->startOfMonth()),
+                        Forms\Components\DatePicker::make('to')->label('Sampai')->required()->default(now()),
+                    ])
+                    ->action(function (CorporateAccount $record, array $data) {
+                        $from = Carbon::parse($data['from']);
+                        $to = Carbon::parse($data['to']);
+                        $pdf = app(CorporateBillingService::class)->generateStatementPdf($record, $from, $to);
 
-                    return response()->streamDownload(
-                        fn () => print ($pdf->output()),
-                        "Statement-{$record->name}-{$from->format('Ymd')}-{$to->format('Ymd')}.pdf",
-                    );
-                }),
-            Actions\EditAction::make(),
-            Actions\DeleteAction::make(),
-        ]);
+                        return response()->streamDownload(
+                            fn () => print ($pdf->output()),
+                            "Statement-{$record->name}-{$from->format('Ymd')}-{$to->format('Ymd')}.pdf",
+                        );
+                    }),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array

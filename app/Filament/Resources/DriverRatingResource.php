@@ -3,23 +3,23 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DriverRatingResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\DriverRating;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class DriverRatingResource extends Resource
 {
     protected static ?string $model = DriverRating::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-star';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-star';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Fleet';
+    protected static string|UnitEnum|null $navigationGroup = 'Fleet';
 
     protected static ?int $navigationSort = 4;
 
@@ -66,19 +66,19 @@ class DriverRatingResource extends Resource
                 ->schema([
                     Forms\Components\Select::make('punctuality')
                         ->label('Ketepatan Waktu')
-                        ->options([1=>1,2=>2,3=>3,4=>4,5=>5])
+                        ->options([1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5])
                         ->nullable(),
                     Forms\Components\Select::make('driving_skill')
                         ->label('Keterampilan Mengemudi')
-                        ->options([1=>1,2=>2,3=>3,4=>4,5=>5])
+                        ->options([1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5])
                         ->nullable(),
                     Forms\Components\Select::make('attitude')
                         ->label('Sikap / Pelayanan')
-                        ->options([1=>1,2=>2,3=>3,4=>4,5=>5])
+                        ->options([1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5])
                         ->nullable(),
                     Forms\Components\Select::make('vehicle_cleanliness')
                         ->label('Kebersihan Kendaraan')
-                        ->options([1=>1,2=>2,3=>3,4=>4,5=>5])
+                        ->options([1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5])
                         ->nullable(),
                     Forms\Components\Textarea::make('comment')
                         ->label('Komentar')
@@ -100,28 +100,28 @@ class DriverRatingResource extends Resource
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label('Pelanggan')
                     ->searchable()
-                    ->formatStateUsing(fn($state, DriverRating $record) => $record->is_anonymous ? '(Anonymous)' : $state),
+                    ->formatStateUsing(fn ($state, DriverRating $record) => $record->is_anonymous ? '(Anonymous)' : $state),
                 Tables\Columns\TextColumn::make('rating')
                     ->label('Rating')
                     ->badge()
-                    ->color(fn(int $state) => match(true) {
+                    ->color(fn (int $state) => match (true) {
                         $state >= 4 => 'success',
                         $state === 3 => 'warning',
                         default => 'danger',
                     })
-                    ->formatStateUsing(fn(int $state) => str_repeat('â­', $state)),
+                    ->formatStateUsing(fn (int $state) => str_repeat('â­', $state)),
                 Tables\Columns\TextColumn::make('punctuality')
                     ->label('Tepat Waktu')
                     ->sortable()
-                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
+                    ->formatStateUsing(fn (?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
                 Tables\Columns\TextColumn::make('driving_skill')
                     ->label('Skill')
                     ->sortable()
-                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
+                    ->formatStateUsing(fn (?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
                 Tables\Columns\TextColumn::make('attitude')
                     ->label('Sikap')
                     ->sortable()
-                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
+                    ->formatStateUsing(fn (?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
                 Tables\Columns\TextColumn::make('comment')
                     ->label('Komentar')
                     ->limit(50)

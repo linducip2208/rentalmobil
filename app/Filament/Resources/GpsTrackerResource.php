@@ -2,24 +2,24 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\GpsTrackerResource\Pages;
 use App\Models\GpsTracker;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class GpsTrackerResource extends Resource
 {
     protected static ?string $model = GpsTracker::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-signal';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-signal';
 
-    protected static string | UnitEnum | null $navigationGroup = 'GPS & Monitoring';
+    protected static string|UnitEnum|null $navigationGroup = 'GPS & Monitoring';
 
     protected static ?int $navigationSort = 4;
 
@@ -149,7 +149,7 @@ class GpsTrackerResource extends Resource
                     ->color('gray'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn(string $state) => match($state) {
+                    ->color(fn (string $state) => match ($state) {
                         'active' => 'success',
                         'inactive' => 'gray',
                         'maintenance' => 'warning',
@@ -158,7 +158,7 @@ class GpsTrackerResource extends Resource
                 Tables\Columns\IconColumn::make('is_online')
                     ->label('Online')
                     ->boolean()
-                    ->getStateUsing(fn(GpsTracker $record): bool => $record->isOnline()),
+                    ->getStateUsing(fn (GpsTracker $record): bool => $record->isOnline()),
                 Tables\Columns\TextColumn::make('last_speed')
                     ->label('Speed')
                     ->suffix(' km/h')
@@ -167,7 +167,7 @@ class GpsTrackerResource extends Resource
                     ->label('Battery')
                     ->suffix('%')
                     ->sortable()
-                    ->color(fn(?int $state) => match(true) {
+                    ->color(fn (?int $state) => match (true) {
                         ($state ?? 0) < 20 => 'danger',
                         ($state ?? 0) < 50 => 'warning',
                         default => 'success',
@@ -176,7 +176,7 @@ class GpsTrackerResource extends Resource
                     ->label('Terakhir Update')
                     ->dateTime('d M H:i')
                     ->sortable()
-                    ->color(fn(?GpsTracker $record) => $record?->isOnline() ? 'success' : 'gray'),
+                    ->color(fn (?GpsTracker $record) => $record?->isOnline() ? 'success' : 'gray'),
             ])
             ->defaultSort('last_update_at', 'desc')
             ->actions([
@@ -185,11 +185,11 @@ class GpsTrackerResource extends Resource
                     ->label('Lihat di Peta')
                     ->icon('heroicon-o-map')
                     ->color('info')
-                    ->url(fn(GpsTracker $record) => $record->last_latitude
+                    ->url(fn (GpsTracker $record) => $record->last_latitude
                         ? "https://www.google.com/maps?q={$record->last_latitude},{$record->last_longitude}"
                         : '#')
                     ->openInNewTab()
-                    ->visible(fn(GpsTracker $record) => $record->last_latitude !== null),
+                    ->visible(fn (GpsTracker $record) => $record->last_latitude !== null),
             ])
             ->bulkActions([
                 Actions\DeleteBulkAction::make(),

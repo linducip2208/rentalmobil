@@ -9,7 +9,6 @@ use App\Models\RentalOrderItem;
 use App\Models\SurgePricingRule;
 use App\Models\Vehicle;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class PricingCalculator
 {
@@ -24,6 +23,7 @@ class PricingCalculator
         if ($days >= 7 && $vehicle->weekly_rate) {
             $fullWeeks = intdiv($days, 7);
             $remainingDays = $days % 7;
+
             return ($fullWeeks * (float) $vehicle->weekly_rate)
                 + ($remainingDays * (float) $vehicle->daily_rate);
         }
@@ -85,7 +85,7 @@ class PricingCalculator
 
     public function calculateDiscount(float $subtotal, ?PromoVoucher $voucher): float
     {
-        if (!$voucher || !$voucher->isValid()) {
+        if (! $voucher || ! $voucher->isValid()) {
             return 0.0;
         }
 
@@ -94,7 +94,7 @@ class PricingCalculator
 
     public function calculateLateFee(RentalOrder $order, Carbon $returnDate): float
     {
-        if (!$order->end_date || $returnDate->lte($order->end_date)) {
+        if (! $order->end_date || $returnDate->lte($order->end_date)) {
             return 0.0;
         }
 
@@ -107,6 +107,7 @@ class PricingCalculator
         }
 
         $dailyRate = max($hourlyRate * 24, (float) $order->daily_rate_snapshot * 1.5);
+
         return round($lateDays * $dailyRate, 2);
     }
 
@@ -118,6 +119,7 @@ class PricingCalculator
         float $otherCharges = 0.0
     ): float {
         $totalDeductions = $damageFee + $lateFee + $fuelCharge + $otherCharges;
+
         return round(max(0.0, $deposit - $totalDeductions), 2);
     }
 

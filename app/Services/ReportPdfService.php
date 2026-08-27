@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\DamageReport;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Location;
 use App\Models\RentalOrder;
-use App\Models\DamageReport;
 use App\Models\Vehicle;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -44,6 +44,7 @@ class ReportPdfService
         $topVehicles = $orders->groupBy('vehicle_id')
             ->map(function ($vehicleOrders) {
                 $vehicle = $vehicleOrders->first()->vehicle;
+
                 return [
                     'name' => $vehicle->name ?? 'N/A',
                     'plate' => $vehicle->license_plate ?? 'N/A',
@@ -73,7 +74,7 @@ class ReportPdfService
             ],
             'daily_breakdown' => $dailyBreakdown,
             'top_vehicles' => $topVehicles,
-            'orders' => $orders->map(fn($o) => [
+            'orders' => $orders->map(fn ($o) => [
                 'order_number' => $o->order_number,
                 'customer_name' => $o->customer->name ?? 'N/A',
                 'vehicle_name' => $o->vehicle->name ?? 'N/A',
@@ -142,7 +143,7 @@ class ReportPdfService
             'accounts_receivable' => [
                 'total' => $totalOutstanding,
                 'count' => $accountsReceivable->count(),
-                'overdue_count' => $accountsReceivable->filter(fn($i) => $i['is_overdue'])->count(),
+                'overdue_count' => $accountsReceivable->filter(fn ($i) => $i['is_overdue'])->count(),
                 'items' => $accountsReceivable,
             ],
             'expenses_by_category' => $expensesByCategory,
@@ -167,7 +168,7 @@ class ReportPdfService
         $vehicles = Vehicle::where('is_active', true)->get();
         $totalVehicles = $vehicles->count();
 
-        $ordersPerDay = $orders->groupBy(fn($o) => $o->start_date->format('Y-m-d'));
+        $ordersPerDay = $orders->groupBy(fn ($o) => $o->start_date->format('Y-m-d'));
         $avgDailyOrders = $ordersPerDay->count() > 0
             ? round($orders->count() / $ordersPerDay->count(), 1)
             : 0;
@@ -186,6 +187,7 @@ class ReportPdfService
 
         $vehiclePerformance = $vehicles->map(function ($vehicle) use ($orders) {
             $vehicleOrders = $orders->where('vehicle_id', $vehicle->id);
+
             return [
                 'name' => $vehicle->name,
                 'plate' => $vehicle->license_plate,
@@ -214,10 +216,10 @@ class ReportPdfService
             'vehicle_performance' => $vehiclePerformance,
             'damage_summary' => [
                 'total_reports' => $damageReports->count(),
-                'by_severity' => $damageReports->groupBy('severity')->map(fn($g) => $g->count()),
+                'by_severity' => $damageReports->groupBy('severity')->map(fn ($g) => $g->count()),
                 'total_estimated_cost' => round((float) $damageReports->sum('estimated_cost'), 2),
             ],
-            'overdue_orders' => $overdueOrders->map(fn($o) => [
+            'overdue_orders' => $overdueOrders->map(fn ($o) => [
                 'order_number' => $o->order_number,
                 'customer_name' => $o->customer->name ?? 'N/A',
                 'vehicle_name' => $o->vehicle->name ?? 'N/A',
@@ -252,7 +254,7 @@ class ReportPdfService
         $filename = "Invoice-{$invoice->invoice_number}.pdf";
         $path = storage_path("app/invoices/{$filename}");
 
-        if (!is_dir(dirname($path))) {
+        if (! is_dir(dirname($path))) {
             mkdir(dirname($path), 0755, true);
         }
 

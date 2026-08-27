@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\RentalOrder;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Models\RentalOrder;
 use Illuminate\Support\Carbon;
 
 class OverdueAlertsWidget extends BaseWidget
@@ -61,7 +61,7 @@ class OverdueAlertsWidget extends BaseWidget
                     ->sortable(),
                 Tables\Columns\TextColumn::make('late_fee')
                     ->label('Denda')
-                    ->formatStateUsing(fn ($state): string => 'Rp ' . number_format((float) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state): string => 'Rp '.number_format((float) $state, 0, ',', '.'))
                     ->sortable(),
             ])
             ->poll('30s');

@@ -70,7 +70,7 @@ class Invoice extends Model
             $sequence = 1;
         }
 
-        return $prefix . '-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.'-'.$date.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function rentalOrder(): BelongsTo
@@ -126,7 +126,7 @@ class Invoice extends Model
 
     public function isOverdue(): bool
     {
-        return !in_array($this->status, ['paid', 'cancelled', 'voided'])
+        return ! in_array($this->status, ['paid', 'cancelled', 'voided'])
             && $this->due_date
             && $this->due_date->isPast();
     }

@@ -44,7 +44,7 @@ class AiVisionService
         }
 
         $url = rtrim($provider->base_url, '/');
-        if (!str_ends_with($url, '/chat/completions')) {
+        if (! str_ends_with($url, '/chat/completions')) {
             $url .= '/chat/completions';
         }
 
@@ -89,7 +89,7 @@ PROMPT;
 
         $disk = Storage::disk('public');
 
-        if (!$disk->exists($path)) {
+        if (! $disk->exists($path)) {
             throw new RuntimeException("Foto inspeksi tidak ditemukan: {$path}");
         }
 

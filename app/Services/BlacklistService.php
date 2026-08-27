@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\BlacklistEntry;
 use App\Models\Customer;
-use App\Services\NotificationDispatcher;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class BlacklistService
@@ -58,7 +58,7 @@ class BlacklistService
 
     public function checkBlacklist(?string $name = null, ?string $phone = null, ?string $idNumber = null): ?BlacklistEntry
     {
-        if (!$name && !$phone && !$idNumber) {
+        if (! $name && ! $phone && ! $idNumber) {
             return null;
         }
 
@@ -93,7 +93,7 @@ class BlacklistService
     {
         $entry = BlacklistEntry::findOrFail($entryId);
 
-        if (!$entry->is_active) {
+        if (! $entry->is_active) {
             throw new \RuntimeException('Blacklist entry is already inactive.');
         }
 
@@ -174,7 +174,7 @@ class BlacklistService
         };
     }
 
-    public function getActiveEntries(?string $severity = null, int $limit = 50): \Illuminate\Support\Collection
+    public function getActiveEntries(?string $severity = null, int $limit = 50): Collection
     {
         $query = BlacklistEntry::active()
             ->notExpired()
@@ -214,7 +214,7 @@ class BlacklistService
     public function checkCustomerBeforeBooking(int $customerId): array
     {
         $customer = Customer::find($customerId);
-        if (!$customer) {
+        if (! $customer) {
             return ['blocked' => true, 'reason' => 'Customer not found'];
         }
 
@@ -228,7 +228,7 @@ class BlacklistService
             $actions = $this->getLevelActions($level);
 
             return [
-                'blocked' => !$actions['can_book'],
+                'blocked' => ! $actions['can_book'],
                 'reason' => $entry ? $entry->reason : 'Blacklisted',
                 'level' => $level,
                 'actions' => $actions,

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
+use App\Models\RentalOrder;
 use App\Models\SeasonPeriod;
 use App\Models\SystemSetting;
 use App\Models\Vehicle;
@@ -57,8 +59,8 @@ class DynamicPricingTest extends TestCase
         ]));
 
         // Buat 1 order aktif pada 1 kendaraan kategori ini -> occupancy tinggi (1/1 kendaraan).
-        $customer = \App\Models\Customer::create(['name' => 'Demand Uji', 'email' => 'dm'.uniqid().'@test.local', 'phone' => '0824', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
-        \App\Models\RentalOrder::create([
+        $customer = Customer::create(['name' => 'Demand Uji', 'email' => 'dm'.uniqid().'@test.local', 'phone' => '0824', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
+        RentalOrder::create([
             'customer_id' => $customer->id, 'vehicle_id' => $vehicle->id, 'location_id' => 1,
             'start_date' => now()->subDays(20), 'end_date' => now()->addDays(5),
             'rental_type' => 'self_drive', 'duration_days' => 25, 'daily_rate_snapshot' => 500000,

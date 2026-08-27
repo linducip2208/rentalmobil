@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 /**
  * Laporan utilisasi & profit riil per kendaraan
@@ -145,7 +143,7 @@ class UtilizationProfitService
      */
     protected function breakEvenEstimate(Vehicle $vehicle, float $revenuePeriod, float $monthlyDepreciation): array
     {
-        if (!$vehicle->purchase_price || !$vehicle->acquired_at || $revenuePeriod <= 0) {
+        if (! $vehicle->purchase_price || ! $vehicle->acquired_at || $revenuePeriod <= 0) {
             return ['break_even_months_left' => null];
         }
 

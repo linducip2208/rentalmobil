@@ -2,27 +2,28 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Models\Payment;
-use Filament\Forms;
-use Filament\Schemas;
-use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
-use Filament\Tables;
-use Filament\Actions;
-use Filament\Tables\Table;
-use UnitEnum;
-use BackedEnum;
 use App\Services\ApprovalService;
 use App\Services\PaymentService;
+use BackedEnum;
+use Filament\Actions;
+use Filament\Forms;
+use Filament\Notifications\Notification;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
+use Filament\Tables;
+use Filament\Tables\Table;
+use UnitEnum;
 
 class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-banknotes';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Finance';
+    protected static string|UnitEnum|null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 8;
 
@@ -155,7 +156,8 @@ class PaymentResource extends Resource
                         $approval = app(ApprovalService::class);
                         if ($approval->checkApprovalRequired('payment', (float) $record->amount)) {
                             $approval->submitForApproval($record, 'payment', auth()->id());
-                            \Filament\Notifications\Notification::make()->title('Pembayaran dikirim untuk persetujuan')->warning()->send();
+                            Notification::make()->title('Pembayaran dikirim untuk persetujuan')->warning()->send();
+
                             return;
                         }
                         app(PaymentService::class)->verifyPayment($record, auth()->id());

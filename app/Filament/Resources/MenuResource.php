@@ -17,9 +17,13 @@ use Filament\Tables\Table;
 class MenuResource extends EnterpriseResource
 {
     protected static ?string $model = Menu::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bars-3-bottom-left';
+
     protected static \UnitEnum|string|null $navigationGroup = 'CMS';
+
     protected static ?string $navigationLabel = 'Menu Website';
+
     protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema

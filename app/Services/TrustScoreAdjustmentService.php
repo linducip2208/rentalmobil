@@ -52,7 +52,7 @@ class TrustScoreAdjustmentService
     {
         $weights = $this->weights();
 
-        if (!isset($weights[$eventType])) {
+        if (! isset($weights[$eventType])) {
             return null;
         }
 
@@ -63,12 +63,12 @@ class TrustScoreAdjustmentService
     {
         $raw = SystemSetting::get('trust_score_events');
 
-        if (!$raw) {
+        if (! $raw) {
             return self::DEFAULT_WEIGHTS;
         }
 
         $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
 
-        return is_array($decoded) && !empty($decoded) ? $decoded : self::DEFAULT_WEIGHTS;
+        return is_array($decoded) && ! empty($decoded) ? $decoded : self::DEFAULT_WEIGHTS;
     }
 }

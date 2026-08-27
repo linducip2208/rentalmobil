@@ -1,3 +1,55 @@
 <?php
-namespace App\Filament\Resources;use App\Filament\Resources\VehicleInspectionResource\Pages;use App\Models\Provider;use App\Models\VehicleInspection;use App\Services\DamageDetectionService;use Filament\Actions;use Filament\Forms;use Filament\Notifications\Notification;use App\Filament\Resources\EnterpriseResource as Resource;use Filament\Schemas\Schema;use Filament\Tables;use Filament\Tables\Table;
-class VehicleInspectionResource extends Resource{protected static ?string $model=VehicleInspection::class;protected static \BackedEnum|string|null $navigationIcon='heroicon-o-clipboard-document-check';protected static \UnitEnum|string|null $navigationGroup='Rental';protected static ?string $navigationLabel='Inspeksi Digital';protected static ?int $navigationSort=5;public static function form(Schema $s):Schema{return $s->components([Forms\Components\Select::make('rental_order_id')->relationship('rentalOrder','order_number')->required()->searchable(),Forms\Components\Select::make('vehicle_id')->relationship('vehicle','name')->required()->searchable(),Forms\Components\Select::make('type')->options(['checkout'=>'Keluar','checkin'=>'Kembali','maintenance'=>'Maintenance'])->required(),Forms\Components\KeyValue::make('checklist')->required(),Forms\Components\FileUpload::make('photos')->multiple()->image()->disk('public')->directory('inspections'),Forms\Components\KeyValue::make('geo'),Forms\Components\Textarea::make('customer_signature'),Forms\Components\Textarea::make('staff_signature'),Forms\Components\Select::make('result')->options(['pass'=>'Lulus','attention'=>'Perhatian','fail'=>'Gagal'])->required(),Forms\Components\ViewField::make('ai_analysis_preview')->view('filament.inspections.ai-analysis')->label('Hasil Analisis AI'),Forms\Components\DateTimePicker::make('inspected_at')->default(now())->required()]);}public static function table(Table $t):Table{return $t->columns([Tables\Columns\TextColumn::make('rentalOrder.order_number'),Tables\Columns\TextColumn::make('vehicle.name'),Tables\Columns\TextColumn::make('type')->badge(),Tables\Columns\TextColumn::make('result')->badge(),Tables\Columns\TextColumn::make('ai_status')->badge()->color(fn(?string$state)=>match($state){'done'=>'success','failed'=>'danger','processing'=>'warning',default=>'gray'})->label('AI'),Tables\Columns\TextColumn::make('inspected_at')->dateTime()])->recordActions([Actions\EditAction::make(),Actions\Action::make('analyzeAi')->label('Analisis AI')->icon('heroicon-o-sparkles')->color('info')->visible(fn()=>Provider::active()->byType('ai')->exists())->requiresConfirmation()->modalDescription('Kirim semua foto inspeksi ini ke provider AI untuk deteksi kerusakan?')->action(function(VehicleInspection$r,DamageDetectionService$detection){try{$detection->analyze($r);Notification::make()->title('Analisis AI selesai')->body(count($r->ai_analysis??[]).' temuan terdeteksi.')->success()->send();}catch(\Throwable$e){Notification::make()->title('Analisis AI gagal')->body(str($e->getMessage())->limit(150))->danger()->send();}}),Actions\Action::make('draftReports')->label('Buat Draft Damage Report')->icon('heroicon-o-document-plus')->color('warning')->visible(fn(VehicleInspection$r)=>$r->ai_status==='done')->requiresConfirmation()->modalDescription('Buat draft damage report dari setiap temuan AI ber-severity moderate ke atas?')->action(function(VehicleInspection$r,DamageDetectionService$detection){$created=$detection->createDraftReportsFromAnalysis($r);Notification::make()->title("$created draft damage report dibuat")->success()->send();})]);}public static function getPages():array{return['index'=>Pages\ListVehicleInspections::route('/'),'create'=>Pages\CreateVehicleInspection::route('/create'),'edit'=>Pages\EditVehicleInspection::route('/{record}/edit')];}}
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\EnterpriseResource as Resource;
+use App\Filament\Resources\VehicleInspectionResource\Pages;
+use App\Models\Provider;
+use App\Models\VehicleInspection;
+use App\Services\DamageDetectionService;
+use Filament\Actions;
+use Filament\Forms;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
+use Filament\Tables;
+use Filament\Tables\Table;
+
+class VehicleInspectionResource extends Resource
+{
+    protected static ?string $model = VehicleInspection::class;
+
+    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-clipboard-document-check';
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Rental';
+
+    protected static ?string $navigationLabel = 'Inspeksi Digital';
+
+    protected static ?int $navigationSort = 5;
+
+    public static function form(Schema $s): Schema
+    {
+        return $s->components([Forms\Components\Select::make('rental_order_id')->relationship('rentalOrder', 'order_number')->required()->searchable(), Forms\Components\Select::make('vehicle_id')->relationship('vehicle', 'name')->required()->searchable(), Forms\Components\Select::make('type')->options(['checkout' => 'Keluar', 'checkin' => 'Kembali', 'maintenance' => 'Maintenance'])->required(), Forms\Components\KeyValue::make('checklist')->required(), Forms\Components\FileUpload::make('photos')->multiple()->image()->disk('public')->directory('inspections'), Forms\Components\KeyValue::make('geo'), Forms\Components\Textarea::make('customer_signature'), Forms\Components\Textarea::make('staff_signature'), Forms\Components\Select::make('result')->options(['pass' => 'Lulus', 'attention' => 'Perhatian', 'fail' => 'Gagal'])->required(), Forms\Components\ViewField::make('ai_analysis_preview')->view('filament.inspections.ai-analysis')->label('Hasil Analisis AI'), Forms\Components\DateTimePicker::make('inspected_at')->default(now())->required()]);
+    }
+
+    public static function table(Table $t): Table
+    {
+        return $t->columns([Tables\Columns\TextColumn::make('rentalOrder.order_number'), Tables\Columns\TextColumn::make('vehicle.name'), Tables\Columns\TextColumn::make('type')->badge(), Tables\Columns\TextColumn::make('result')->badge(), Tables\Columns\TextColumn::make('ai_status')->badge()->color(fn (?string $state) => match ($state) {
+            'done' => 'success','failed' => 'danger','processing' => 'warning',default => 'gray'
+        })->label('AI'), Tables\Columns\TextColumn::make('inspected_at')->dateTime()])->recordActions([Actions\EditAction::make(), Actions\Action::make('analyzeAi')->label('Analisis AI')->icon('heroicon-o-sparkles')->color('info')->visible(fn () => Provider::active()->byType('ai')->exists())->requiresConfirmation()->modalDescription('Kirim semua foto inspeksi ini ke provider AI untuk deteksi kerusakan?')->action(function (VehicleInspection $r, DamageDetectionService $detection) {
+            try {
+                $detection->analyze($r);
+                Notification::make()->title('Analisis AI selesai')->body(count($r->ai_analysis ?? []).' temuan terdeteksi.')->success()->send();
+            } catch (\Throwable$e) {
+                Notification::make()->title('Analisis AI gagal')->body(str($e->getMessage())->limit(150))->danger()->send();
+            }
+        }), Actions\Action::make('draftReports')->label('Buat Draft Damage Report')->icon('heroicon-o-document-plus')->color('warning')->visible(fn (VehicleInspection $r) => $r->ai_status === 'done')->requiresConfirmation()->modalDescription('Buat draft damage report dari setiap temuan AI ber-severity moderate ke atas?')->action(function (VehicleInspection $r, DamageDetectionService $detection) {
+            $created = $detection->createDraftReportsFromAnalysis($r);
+            Notification::make()->title("$created draft damage report dibuat")->success()->send();
+        })]);
+    }
+
+    public static function getPages(): array
+    {
+        return ['index' => Pages\ListVehicleInspections::route('/'), 'create' => Pages\CreateVehicleInspection::route('/create'), 'edit' => Pages\EditVehicleInspection::route('/{record}/edit')];
+    }
+}

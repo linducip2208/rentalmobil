@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Services\Seo\IndexNowService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class BlogPost extends Model
 {
@@ -53,7 +54,7 @@ class BlogPost extends Model
         static::saved(function (BlogPost $model) {
             Cache::forget('sitemap_xml');
             if ($model->isPublished()) {
-                app(\App\Services\Seo\IndexNowService::class)->ping('blog', $model->slug);
+                app(IndexNowService::class)->ping('blog', $model->slug);
             }
         });
         static::deleted(fn () => Cache::forget('sitemap_xml'));

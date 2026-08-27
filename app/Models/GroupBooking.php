@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class GroupBooking extends Model
 {
@@ -24,7 +25,6 @@ class GroupBooking extends Model
         'notes',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -35,11 +35,28 @@ class GroupBooking extends Model
         ];
     }
 
-    protected static function boot(): void { parent::boot(); static::creating(function (self $gb) { if (blank($gb->code)) { $gb->code = 'GRP-' . now()->format('ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(4)); } }); }
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function (self $gb) {
+            if (blank($gb->code)) {
+                $gb->code = 'GRP-'.now()->format('ymd').'-'.strtoupper(Str::random(4));
+            }
+        });
+    }
 
-    public function category(): BelongsTo { return $this->belongsTo(Category::class); }
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-    public function location(): BelongsTo { return $this->belongsTo(Location::class); }
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
 
-    public function bookings(): HasMany { return $this->hasMany(Booking::class); }
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

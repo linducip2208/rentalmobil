@@ -73,12 +73,13 @@ class AuditLog extends Model
         return $query->where('user_id', $userId);
     }
 
-    public function scopeByModel($query, string $type, int $id = null)
+    public function scopeByModel($query, string $type, ?int $id = null)
     {
         $query->where('auditable_type', $type);
         if ($id) {
             $query->where('auditable_id', $id);
         }
+
         return $query;
     }
 

@@ -23,7 +23,7 @@ class BasePseoController extends Controller
                 '@type' => 'ListItem',
                 'position' => $pos + 1,
                 'name' => $item['name'] ?? $item,
-                'url' => $item['url'] ?? url('/sewa/' . ($item['slug'] ?? '')),
+                'url' => $item['url'] ?? url('/sewa/'.($item['slug'] ?? '')),
             ];
         }, $items, array_keys($items));
 
@@ -70,7 +70,7 @@ class BasePseoController extends Controller
                 'addressLocality' => $city,
                 'addressCountry' => 'ID',
             ],
-            'url' => url("/sewa-mobil-di-" . str_replace(' ', '-', strtolower($city))),
+            'url' => url('/sewa-mobil-di-'.str_replace(' ', '-', strtolower($city))),
             'telephone' => '+6281234567890',
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }

@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\TransferResource\Pages;
 use App\Models\Transfer;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class TransferResource extends Resource
 {
     protected static ?string $model = Transfer::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Procurement & Inventory';
+    protected static string|UnitEnum|null $navigationGroup = 'Procurement & Inventory';
 
     protected static ?int $navigationSort = 3;
 

@@ -3,24 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AddonResource\Pages;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\Addon;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class AddonResource extends Resource
 {
     protected static ?string $model = Addon::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-plus-circle';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-plus-circle';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Rental';
+    protected static string|UnitEnum|null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 9;
 

@@ -7,6 +7,7 @@ use App\Models\RentalOrder;
 use App\Models\RentalOrderItem;
 use App\Models\SystemSetting;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceGenerationService
@@ -169,7 +170,7 @@ class InvoiceGenerationService
         return round((float) $invoice->total_amount - (float) $invoice->amount_paid, 2);
     }
 
-    protected function buildLineItems(RentalOrder $order): \Illuminate\Support\Collection
+    protected function buildLineItems(RentalOrder $order): Collection
     {
         $items = collect();
 

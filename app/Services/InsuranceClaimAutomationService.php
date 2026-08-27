@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DamageReport;
 use App\Models\InsuranceClaim;
+use App\Models\InsurancePolicy;
 use App\Models\PoliceReport;
 
 /**
@@ -20,7 +21,7 @@ class InsuranceClaimAutomationService
             return $existing;
         }
 
-        $policy = \App\Models\InsurancePolicy::where('vehicle_id', $report->vehicle_id)
+        $policy = InsurancePolicy::where('vehicle_id', $report->vehicle_id)
             ->where('status', 'active')
             ->orderByDesc('start_date')
             ->first();

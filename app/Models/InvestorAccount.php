@@ -17,7 +17,6 @@ class InvestorAccount extends Model
         'notes',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -25,7 +24,13 @@ class InvestorAccount extends Model
         ];
     }
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
-    public function investments(): HasMany { return $this->hasMany(VehicleInvestment::class); }
+    public function investments(): HasMany
+    {
+        return $this->hasMany(VehicleInvestment::class);
+    }
 }

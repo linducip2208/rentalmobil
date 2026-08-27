@@ -4,12 +4,15 @@ namespace Tests\Feature;
 
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\NotificationQueue;
+use App\Models\NotificationTemplate;
 use App\Models\Provider;
+use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\Webhook;
-use App\Services\PaymentGatewayService;
-use App\Models\PaymentTransaction;
-use App\Models\PaymentMethod;
+use App\Models\WebhookDelivery;
+use App\Services\BookingService;
+use App\Services\WebhookDispatchService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -27,10 +30,10 @@ class FinanceSystemOpsTest extends TestCase
             'events' => ['booking.created'], 'is_active' => true,
         ]);
 
-        $count = app(\App\Services\WebhookDispatchService::class)->dispatch('booking.created', ['booking_number' => 'BKG-1']);
+        $count = app(WebhookDispatchService::class)->dispatch('booking.created', ['booking_number' => 'BKG-1']);
 
         $this->assertSame(1, $count);
-        $delivery = \App\Models\WebhookDelivery::first();
+        $delivery = WebhookDelivery::first();
         $this->assertSame('delivered', $delivery->status);
         $this->assertSame(200, $delivery->response_code);
 
@@ -59,14 +62,14 @@ class FinanceSystemOpsTest extends TestCase
             'events' => ['payment.paid'], 'is_active' => true,
         ]);
 
-        app(\App\Services\WebhookDispatchService::class)->dispatch('payment.paid', ['tx' => 1]);
+        app(WebhookDispatchService::class)->dispatch('payment.paid', ['tx' => 1]);
 
-        $delivery = \App\Models\WebhookDelivery::first();
+        $delivery = WebhookDelivery::first();
         $this->assertSame('pending', $delivery->status);
         $this->assertNotNull($delivery->next_retry_at);
 
         // Retry dengan server pulih (response kedua pada sequence).
-        app(\App\Services\WebhookDispatchService::class)->retryFailed();
+        app(WebhookDispatchService::class)->retryFailed();
 
         $this->assertSame('delivered', $delivery->fresh()->status);
     }
@@ -79,7 +82,7 @@ class FinanceSystemOpsTest extends TestCase
         $customer = Customer::create(['name' => 'Hook User', 'email' => 'hk'.uniqid().'@test.local', 'phone' => '0827', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
         $vehicle = Vehicle::create(['name' => 'Hook Car', 'slug' => 'hook-car-'.uniqid(), 'category_id' => 1, 'brand_id' => 1, 'location_id' => 1, 'plate_number' => 'B '.rand(1000, 9999).' HK', 'year' => 2024, 'color' => 'Putih', 'transmission' => 'automatic', 'seat_count' => 5, 'daily_rate' => 300000, 'weekly_rate' => 1800000, 'monthly_rate' => 6000000, 'deposit_amount' => 300000, 'status' => 'available', 'is_active' => true]);
 
-        app(\App\Services\BookingService::class)->createBooking([
+        app(BookingService::class)->createBooking([
             'customer_id' => $customer->id,
             'vehicle_id' => $vehicle->id,
             'start_date' => now()->addDays(5)->toDateString(),
@@ -94,7 +97,7 @@ class FinanceSystemOpsTest extends TestCase
     public function test_dunning_command_sends_for_overdue_invoice(): void
     {
         $provider = Provider::create(['name' => 'WA Dunning', 'type' => 'whatsapp', 'api_format' => 'rest_json', 'base_url' => 'https://wa.test/send', 'is_active' => true]);
-        \App\Models\NotificationTemplate::create(['provider_id' => $provider->id, 'name' => 'Dunning', 'event_type' => 'payment_dunning', 'channel' => 'whatsapp', 'body' => 'INV {{invoice_number}} telat {{days_late}} hari. {{urgency_message}}', 'is_active' => true]);
+        NotificationTemplate::create(['provider_id' => $provider->id, 'name' => 'Dunning', 'event_type' => 'payment_dunning', 'channel' => 'whatsapp', 'body' => 'INV {{invoice_number}} telat {{days_late}} hari. {{urgency_message}}', 'is_active' => true]);
 
         $customer = Customer::create(['name' => 'Telat Bayar', 'email' => 'dn'.uniqid().'@test.local', 'phone' => '0828', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
         Invoice::create(['customer_id' => $customer->id, 'type' => 'rental', 'subtotal' => 1000000, 'total_amount' => 1000000, 'balance_due' => 1000000, 'due_date' => now()->subDays(10), 'status' => 'issued']);
@@ -108,15 +111,15 @@ class FinanceSystemOpsTest extends TestCase
 
         // Dedup: jalan lagi dalam 3 hari tidak kirim ulang.
         $this->artisan('finance:remind-overdue')->assertSuccessful();
-        $this->assertSame(1, \App\Models\NotificationQueue::where('event_type', 'payment_dunning')->where('notifiable_id', $customer->id)->count());
+        $this->assertSame(1, NotificationQueue::where('event_type', 'payment_dunning')->where('notifiable_id', $customer->id)->count());
     }
 
     public function test_daily_owner_report_dispatches_to_admin_users(): void
     {
         $provider = Provider::create(['name' => 'WA Report', 'type' => 'whatsapp', 'api_format' => 'rest_json', 'base_url' => 'https://wa.test/send', 'is_active' => true]);
-        \App\Models\NotificationTemplate::create(['provider_id' => $provider->id, 'name' => 'Report Harian', 'event_type' => 'daily_owner_report', 'channel' => 'whatsapp', 'body' => 'Laporan {{report_date}}: booking baru {{new_bookings}}', 'is_active' => true]);
+        NotificationTemplate::create(['provider_id' => $provider->id, 'name' => 'Report Harian', 'event_type' => 'daily_owner_report', 'channel' => 'whatsapp', 'body' => 'Laporan {{report_date}}: booking baru {{new_bookings}}', 'is_active' => true]);
 
-        $owner = \App\Models\User::find(1); // di-seed TestCase
+        $owner = User::find(1); // di-seed TestCase
 
         $this->artisan('report:daily-owner', ['--date' => now()->subDay()->toDateString()])->assertSuccessful();
 

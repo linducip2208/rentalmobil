@@ -101,6 +101,7 @@ class PromoVoucher extends Model
             if ($this->max_discount && $discount > $this->max_discount) {
                 $discount = $this->max_discount;
             }
+
             return $discount;
         }
 

@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Filament\Resources\PromoVoucherResource\Pages;
 use App\Models\PromoVoucher;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class PromoVoucherResource extends Resource
 {
     protected static ?string $model = PromoVoucher::class;
 
-    protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-ticket';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Sales & Marketing';
+    protected static string|UnitEnum|null $navigationGroup = 'Sales & Marketing';
 
     protected static ?int $navigationSort = 11;
 
@@ -116,7 +116,7 @@ class PromoVoucherResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('usage_limit')
                     ->label('Penggunaan')
-                    ->formatStateUsing(fn ($state, PromoVoucher $record): string => "{$record->used_count}/" . ($state ?? 'âˆž')),
+                    ->formatStateUsing(fn ($state, PromoVoucher $record): string => "{$record->used_count}/".($state ?? 'âˆž')),
                 Tables\Columns\TextColumn::make('start_date')
                     ->label('Mulai')
                     ->date('d M Y')

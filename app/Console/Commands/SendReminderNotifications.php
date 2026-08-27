@@ -26,7 +26,7 @@ class SendReminderNotifications extends Command
 
         $total = $returnCount + $paymentCount + $maintenanceCount;
 
-        $this->info("Reminders sent:");
+        $this->info('Reminders sent:');
         $this->info("  - Return reminders (H-1): {$returnCount}");
         $this->info("  - Payment due reminders: {$paymentCount}");
         $this->info("  - Maintenance reminders: {$maintenanceCount}");
@@ -112,7 +112,7 @@ class SendReminderNotifications extends Command
         $message = "Reminder: {$vehicle->name} needs {$schedule->service_type}";
         if ($daysUntil !== null) {
             if ($daysUntil < 0) {
-                $message .= " (OVERDUE by " . abs($daysUntil) . " days)";
+                $message .= ' (OVERDUE by '.abs($daysUntil).' days)';
             } else {
                 $message .= " in {$daysUntil} days";
             }

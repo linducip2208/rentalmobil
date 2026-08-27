@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class InsuranceClaim extends Model
 {
@@ -22,7 +23,6 @@ class InsuranceClaim extends Model
         'notes',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -35,11 +35,28 @@ class InsuranceClaim extends Model
         ];
     }
 
-    protected static function boot(): void { parent::boot(); static::creating(function (self $claim) { if (blank($claim->claim_number)) { $claim->claim_number = 'CLM-' . now()->format('ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)); } }); }
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function (self $claim) {
+            if (blank($claim->claim_number)) {
+                $claim->claim_number = 'CLM-'.now()->format('ymd').'-'.strtoupper(Str::random(5));
+            }
+        });
+    }
 
-    public function insurancePolicy(): BelongsTo { return $this->belongsTo(InsurancePolicy::class); }
+    public function insurancePolicy(): BelongsTo
+    {
+        return $this->belongsTo(InsurancePolicy::class);
+    }
 
-    public function damageReport(): BelongsTo { return $this->belongsTo(DamageReport::class); }
+    public function damageReport(): BelongsTo
+    {
+        return $this->belongsTo(DamageReport::class);
+    }
 
-    public function policeReport(): BelongsTo { return $this->belongsTo(PoliceReport::class); }
+    public function policeReport(): BelongsTo
+    {
+        return $this->belongsTo(PoliceReport::class);
+    }
 }

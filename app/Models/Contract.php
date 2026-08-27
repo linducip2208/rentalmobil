@@ -78,7 +78,7 @@ class Contract extends Model
             $sequence = 1;
         }
 
-        return $prefix . '-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.'-'.$date.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function rentalOrder(): BelongsTo

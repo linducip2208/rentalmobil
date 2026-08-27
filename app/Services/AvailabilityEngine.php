@@ -19,7 +19,7 @@ class AvailabilityEngine
         string $endDate,
         ?int $excludeBookingId = null
     ): array {
-        if (!$vehicle->is_active) {
+        if (! $vehicle->is_active) {
             return [
                 'available' => false,
                 'conflicts' => collect(),
@@ -31,7 +31,7 @@ class AvailabilityEngine
             return [
                 'available' => false,
                 'conflicts' => collect(),
-                'message' => 'Kendaraan sedang tidak tersedia (status: ' . $vehicle->status . ').',
+                'message' => 'Kendaraan sedang tidak tersedia (status: '.$vehicle->status.').',
             ];
         }
 
@@ -53,7 +53,7 @@ class AvailabilityEngine
             'conflicts' => $conflicts,
             'message' => $conflicts->isEmpty()
                 ? 'Kendaraan tersedia untuk periode ini.'
-                : 'Terdapat ' . $conflicts->count() . ' konflik pemesanan.',
+                : 'Terdapat '.$conflicts->count().' konflik pemesanan.',
         ];
     }
 
@@ -104,7 +104,7 @@ class AvailabilityEngine
 
         $busyIds = array_unique(array_merge($busyBookingIds, $busyOrderIds));
 
-        if (!empty($busyIds)) {
+        if (! empty($busyIds)) {
             $query->whereNotIn('id', $busyIds);
         }
 
@@ -198,7 +198,7 @@ class AvailabilityEngine
      */
     public function getVehicleCalendar(Vehicle $vehicle, string $month): array
     {
-        $startDate = Carbon::parse($month . '-01')->startOfMonth();
+        $startDate = Carbon::parse($month.'-01')->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();
 
         $orders = RentalOrder::where('vehicle_id', $vehicle->id)
@@ -257,7 +257,7 @@ class AvailabilityEngine
         }
 
         $totalDays = count($calendar);
-        $availableDays = count(array_filter($calendar, fn($day) => $day['is_available']));
+        $availableDays = count(array_filter($calendar, fn ($day) => $day['is_available']));
         $occupiedDays = $totalDays - $availableDays;
 
         return [

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Booking;
 use App\Models\Customer;
-use App\Models\User;
 use App\Models\Vehicle;
 use App\Services\AvailabilityEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -134,7 +133,7 @@ class RentalBookingTest extends TestCase
             'status' => 'confirmed',
         ]);
 
-        $engine = new AvailabilityEngine();
+        $engine = new AvailabilityEngine;
 
         $result = $engine->checkAvailability($vehicle, '2026-09-03', '2026-09-07');
         $this->assertFalse($result['available']);
@@ -195,7 +194,7 @@ class RentalBookingTest extends TestCase
         $this->assertTrue($booking->status === 'hold');
         $this->assertTrue($booking->hold_expires_at->isPast());
 
-        $engine = new AvailabilityEngine();
+        $engine = new AvailabilityEngine;
         $expiredCount = $engine->releaseExpiredHolds();
         $this->assertEquals(1, $expiredCount);
 

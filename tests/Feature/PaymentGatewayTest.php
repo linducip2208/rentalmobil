@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
-use App\Models\Provider;
 use App\Models\PaymentTransaction;
+use App\Models\Provider;
+use App\Services\PaymentGatewayService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -41,7 +44,7 @@ class PaymentGatewayTest extends TestCase
 
     private function invoice(): Invoice
     {
-        $customer = \App\Models\Customer::create(['name' => 'Pembayar', 'email' => 'pay@test.local', 'phone' => '0811', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
+        $customer = Customer::create(['name' => 'Pembayar', 'email' => 'pay@test.local', 'phone' => '0811', 'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true]);
 
         return Invoice::create(['customer_id' => $customer->id, 'type' => 'rental', 'subtotal' => 1000000, 'total_amount' => 1000000, 'balance_due' => 1000000, 'status' => 'issued']);
     }
@@ -52,7 +55,7 @@ class PaymentGatewayTest extends TestCase
             'https://gateway.test/v1/charges' => Http::response(['data' => ['id' => 'EXT-99', 'checkout_url' => 'https://pay.test/EXT-99']], 200),
         ]);
 
-        $tx = app(\App\Services\PaymentGatewayService::class)->create($this->provider(), $this->invoice());
+        $tx = app(PaymentGatewayService::class)->create($this->provider(), $this->invoice());
 
         $this->assertSame('pending', $tx->status);
         $this->assertSame('EXT-99', $tx->external_id);
@@ -107,10 +110,10 @@ class PaymentGatewayTest extends TestCase
         $headers = ['X-Signature' => hash_hmac('sha256', json_encode($payload), 'secret-key-123'), 'X-Event-Id' => 'EVT-DUP'];
 
         $this->postJson(route('payments.callback', $provider), $payload, $headers)->assertOk();
-        $firstCount = \App\Models\Payment::count();
+        $firstCount = Payment::count();
 
         $this->postJson(route('payments.callback', $provider), $payload, $headers)->assertOk();
 
-        $this->assertSame($firstCount, \App\Models\Payment::count());
+        $this->assertSame($firstCount, Payment::count());
     }
 }

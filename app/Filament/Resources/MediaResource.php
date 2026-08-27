@@ -15,9 +15,13 @@ use Filament\Tables\Table;
 class MediaResource extends EnterpriseResource
 {
     protected static ?string $model = Media::class;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-photo';
+
     protected static \UnitEnum|string|null $navigationGroup = 'CMS';
+
     protected static ?string $navigationLabel = 'Media Library';
+
     protected static ?int $navigationSort = 6;
 
     public static function form(Schema $schema): Schema

@@ -16,7 +16,6 @@ class DispatchRecommendation extends Model
         'status',
     ];
 
-
     protected function casts(): array
     {
         return [
@@ -25,9 +24,18 @@ class DispatchRecommendation extends Model
         ];
     }
 
-    public function delivery(): BelongsTo { return $this->belongsTo(Delivery::class); }
+    public function delivery(): BelongsTo
+    {
+        return $this->belongsTo(Delivery::class);
+    }
 
-    public function recommendedDriver(): BelongsTo { return $this->belongsTo(Driver::class, 'recommended_driver_id'); }
+    public function recommendedDriver(): BelongsTo
+    {
+        return $this->belongsTo(Driver::class, 'recommended_driver_id');
+    }
 
-    public function recommendedVehicle(): BelongsTo { return $this->belongsTo(Vehicle::class, 'recommended_vehicle_id'); }
+    public function recommendedVehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class, 'recommended_vehicle_id');
+    }
 }

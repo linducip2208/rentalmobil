@@ -16,5 +16,8 @@ class SeoMeta extends Model
         return ['is_indexable' => 'boolean', 'is_followable' => 'boolean', 'schema_json' => 'array'];
     }
 
-    public function seoable(): MorphTo { return $this->morphTo(); }
+    public function seoable(): MorphTo
+    {
+        return $this->morphTo();
+    }
 }
