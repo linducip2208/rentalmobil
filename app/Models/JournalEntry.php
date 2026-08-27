@@ -15,6 +15,7 @@ class JournalEntry extends Model
     protected $fillable = [
         'entry_number',
         'posting_key',
+        'location_id',
         'date',
         'description',
         'reference_type',
@@ -44,6 +45,9 @@ class JournalEntry extends Model
         parent::boot();
         static::creating(function (JournalEntry $model) {
             app(PeriodClosingService::class)->assertPostingAllowed($model->date);
+            if ($model->status === 'posted' && abs((float) $model->total_debit - (float) $model->total_credit) > 0.01) {
+                throw new \RuntimeException('Jurnal tidak seimbang dan tidak dapat diposting.');
+            }
             if (empty($model->entry_number)) {
                 $model->entry_number = static::generateEntryNumber();
             }
@@ -78,6 +82,11 @@ class JournalEntry extends Model
     public function postedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'posted_by');
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
     }
 
     public function reversalEntry(): BelongsTo

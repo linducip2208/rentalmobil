@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToLocation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,9 +10,11 @@ use Illuminate\Support\Str;
 
 class SparePartPurchaseOrder extends Model
 {
+    use BelongsToLocation;
+
     protected $fillable = [
         'po_number',
-        'supplier_id', 'location_id', 'warehouse_id',
+        'supplier_id', 'location_id', 'warehouse_id', 'purchase_requisition_id',
         'supplier_name',
         'supplier_phone',
         'status', 'order_date', 'subtotal', 'tax_amount', 'discount_amount',
@@ -77,5 +80,15 @@ class SparePartPurchaseOrder extends Model
     public function goodsReceipts(): HasMany
     {
         return $this->hasMany(GoodsReceipt::class);
+    }
+
+    public function requisition(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseRequisition::class, 'purchase_requisition_id');
+    }
+
+    public function supplierInvoices(): HasMany
+    {
+        return $this->hasMany(SupplierInvoice::class);
     }
 }
