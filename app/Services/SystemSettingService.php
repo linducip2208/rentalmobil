@@ -40,6 +40,8 @@ class SystemSettingService
             'booking_expiry_minutes' => $this->definition('booking', 'integer', 30, ['required', 'integer', 'min:5', 'max:10080']),
             'booking_minimum_notice_hours' => $this->definition('booking', 'integer', 2, ['required', 'integer', 'min:0', 'max:8760']),
             'allow_negative_stock' => $this->definition('inventory', 'boolean', false, ['required', 'boolean']),
+            'inventory_cost_method' => $this->definition('inventory', 'string', 'average', ['required', 'in:average']),
+            'purchase_order_approval_threshold' => $this->definition('procurement', 'decimal', 5000000, ['required', 'numeric', 'min:0']),
             'tax_rate' => $this->definition('tax', 'decimal', 0.11, ['required', 'numeric', 'between:0,1']),
             'default_deposit' => $this->definition('deposit', 'decimal', 0, ['required', 'numeric', 'min:0']),
             'late_fee_hourly' => $this->definition('late_fee', 'decimal', 0, ['required', 'numeric', 'min:0']),
@@ -62,7 +64,7 @@ class SystemSettingService
             'seo_default_description' => $this->definition('seo', 'text', '', ['nullable', 'string', 'max:170']),
             'seo_canonical_base_url' => $this->definition('seo', 'string', '', ['nullable', 'url', 'max:255']),
             'seo_default_og_image' => $this->definition('seo', 'string', '', ['nullable', 'string', 'max:500']),
-            'seo_robots' => $this->definition('seo', 'text', "index,follow", ['nullable', 'string', 'max:200']),
+            'seo_robots' => $this->definition('seo', 'text', 'index,follow', ['nullable', 'string', 'max:200']),
         ];
     }
 
