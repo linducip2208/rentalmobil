@@ -13,13 +13,13 @@ use App\Models\Driver;
 use App\Models\Faq;
 use App\Models\Location;
 use App\Models\Menu;
-use App\Models\PaymentMethod;
 use App\Models\Page;
+use App\Models\PaymentMethod;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
         $this->seedFaqs();
         $this->seedSystemSettings();
         $this->seedChartOfAccounts();
+        $this->call(EnterpriseProcurementSeeder::class);
         $this->seedCms();
         $this->call(RolePermissionSeeder::class);
     }
@@ -74,7 +75,7 @@ class DatabaseSeeder extends Seeder
         foreach ($categories as $category) {
             Category::updateOrCreate(
                 ['name' => $category['name']],
-                array_merge($category, ['is_active' => true, 'slug' => \Illuminate\Support\Str::slug($category['name'])])
+                array_merge($category, ['is_active' => true, 'slug' => Str::slug($category['name'])])
             );
         }
     }
@@ -92,7 +93,7 @@ class DatabaseSeeder extends Seeder
         foreach ($brands as $brand) {
             Brand::updateOrCreate(
                 ['name' => $brand['name']],
-                array_merge($brand, ['is_active' => true, 'slug' => \Illuminate\Support\Str::slug($brand['name'])])
+                array_merge($brand, ['is_active' => true, 'slug' => Str::slug($brand['name'])])
             );
         }
     }
@@ -133,7 +134,7 @@ class DatabaseSeeder extends Seeder
         foreach ($locations as $location) {
             Location::updateOrCreate(
                 ['name' => $location['name']],
-                array_merge($location, ['is_active' => true, 'slug' => \Illuminate\Support\Str::slug($location['name'])])
+                array_merge($location, ['is_active' => true, 'slug' => Str::slug($location['name'])])
             );
         }
     }
@@ -342,7 +343,7 @@ class DatabaseSeeder extends Seeder
                 ['plate_number' => $vehicle['plate_number']],
                 [
                     'name' => $vehicle['name'],
-                    'slug' => \Illuminate\Support\Str::slug($vehicle['name']),
+                    'slug' => Str::slug($vehicle['name']),
                     'category_id' => $category?->id,
                     'brand_id' => $brand?->id,
                     'location_id' => $location?->id,
@@ -604,7 +605,10 @@ class DatabaseSeeder extends Seeder
             ['code' => '1110', 'name' => 'Bank BCA', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '1120', 'name' => 'Bank Mandiri', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '1200', 'name' => 'Piutang Usaha', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1300', 'name' => 'Persediaan Suku Cadang', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1301', 'name' => 'Pajak Masukan', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '1500', 'name' => 'Kendaraan', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1590', 'name' => 'Akumulasi Depresiasi Kendaraan', 'type' => 'asset', 'normal_balance' => 'credit'],
             ['code' => '2100', 'name' => 'Hutang Usaha', 'type' => 'liability', 'normal_balance' => 'credit'],
             ['code' => '2101', 'name' => 'Deposit Pelanggan', 'type' => 'liability', 'normal_balance' => 'credit'],
             ['code' => '2102', 'name' => 'Pajak Keluaran', 'type' => 'liability', 'normal_balance' => 'credit'],
@@ -620,6 +624,7 @@ class DatabaseSeeder extends Seeder
             ['code' => '5200', 'name' => 'Biaya Perawatan', 'type' => 'expense', 'normal_balance' => 'debit'],
             ['code' => '5300', 'name' => 'Biaya Gaji Supir', 'type' => 'expense', 'normal_balance' => 'debit'],
             ['code' => '5400', 'name' => 'Biaya Asuransi', 'type' => 'expense', 'normal_balance' => 'debit'],
+            ['code' => '5500', 'name' => 'Beban Depresiasi Kendaraan', 'type' => 'expense', 'normal_balance' => 'debit'],
         ];
 
         foreach ($accounts as $account) {

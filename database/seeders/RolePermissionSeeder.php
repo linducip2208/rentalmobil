@@ -14,7 +14,7 @@ class RolePermissionSeeder extends Seeder
 {
     private const ACTIONS = [
         'view_any', 'view', 'create', 'update', 'delete', 'restore',
-        'force_delete', 'export', 'approve', 'cancel', 'post', 'close',
+        'force_delete', 'export', 'approve', 'reject', 'submit', 'cancel', 'post', 'close', 'reopen',
     ];
 
     private const ROLES = [
@@ -60,12 +60,12 @@ class RolePermissionSeeder extends Seeder
         $roles['Finance Manager']->syncPermissions($this->financePermissions($all, ['view_any', 'view', 'create', 'update', 'export', 'approve', 'post', 'close']));
         $roles['Finance Staff']->syncPermissions($this->financePermissions($all, ['view_any', 'view', 'create', 'update', 'export']));
         $roles['Accountant']->syncPermissions($this->financePermissions($all, ['view_any', 'view', 'create', 'update', 'export', 'post', 'close']));
-        $roles['Procurement']->syncPermissions($this->forModels($all, ['SparePart', 'SparePartPurchaseOrder', 'Expense'], ['view_any', 'view', 'create', 'update', 'export', 'approve']));
-        $roles['Warehouse']->syncPermissions($this->forModels($all, ['SparePart', 'SparePartPurchaseOrder'], ['view_any', 'view', 'create', 'update', 'export']));
+        $roles['Procurement']->syncPermissions($this->forModels($all, ['Supplier', 'PurchaseRequisition', 'SparePart', 'SparePartPurchaseOrder', 'GoodsReceipt', 'SupplierInvoice', 'Warehouse', 'InventoryStock', 'StockMovement'], ['view_any', 'view', 'create', 'update', 'export', 'submit', 'approve', 'reject', 'cancel']));
+        $roles['Warehouse']->syncPermissions($this->forModels($all, ['SparePart', 'SparePartPurchaseOrder', 'GoodsReceipt', 'Warehouse', 'InventoryStock', 'StockMovement', 'StockTransfer'], ['view_any', 'view', 'create', 'update', 'export', 'submit', 'approve']));
         $roles['Mechanic']->syncPermissions($this->forModels($all, ['Vehicle', 'ServiceSchedule', 'MaintenanceLog', 'MaintenancePrediction', 'SparePart', 'VehicleInspection'], ['view_any', 'view', 'create', 'update']));
         $roles['Driver']->syncPermissions($this->forModels($all, ['RentalOrder', 'Delivery', 'Vehicle', 'GpsAlert'], ['view_any', 'view', 'update']));
-        $roles['Marketing']->syncPermissions($this->forModels($all, ['PromoVoucher', 'BlogPost', 'Faq', 'Testimonial', 'Customer'], ['view_any', 'view', 'create', 'update', 'export']));
-        $roles['CMS Editor']->syncPermissions($this->forModels($all, ['BlogPost', 'Faq', 'Testimonial'], ['view_any', 'view', 'create', 'update', 'delete']));
+        $roles['Marketing']->syncPermissions($this->forModels($all, ['Page', 'Media', 'Menu', 'PromoVoucher', 'BlogPost', 'Faq', 'Testimonial', 'Customer'], ['view_any', 'view', 'create', 'update', 'export']));
+        $roles['CMS Editor']->syncPermissions($this->forModels($all, ['Page', 'Media', 'Menu', 'BlogPost', 'Faq', 'Testimonial'], ['view_any', 'view', 'create', 'update', 'delete']));
         $roles['Auditor']->syncPermissions(array_merge($read, $this->actions($all, ['export'])));
         $roles['Read Only']->syncPermissions($read);
 
@@ -108,7 +108,7 @@ class RolePermissionSeeder extends Seeder
         return $this->forModels($permissions, [
             'Invoice', 'Payment', 'PaymentMethod', 'PaymentTransaction', 'Deposit', 'Expense',
             'ExpenseCategory', 'BankAccount', 'BankStatementImport', 'BankStatementLine',
-            'ChartOfAccount', 'JournalEntry',
+            'ChartOfAccount', 'JournalEntry', 'AccountingPeriod', 'SupplierInvoice', 'SupplierPayment',
         ], $actions);
     }
 }
