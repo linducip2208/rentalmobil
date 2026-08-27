@@ -4,6 +4,16 @@
 @source '../../../../resources/views/filament';
 @source '../../../../vendor/filament/**/*.blade.php';
 
+/* Executive mobility design tokens */
+:root {
+  --rm-ink: #091321;
+  --rm-navy: #10243d;
+  --rm-blue: #1d5b91;
+  --rm-sky: #77b7d8;
+  --rm-brass: #c7994a;
+  --rm-canvas: #f4f7f9;
+}
+
 /* ============================================================
    RentalMobil — Premium Filament Theme
    Indigo/Violet primary · Dark mode · Responsive · Print
@@ -35,6 +45,21 @@
 .fi-btn.fi-btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;box-shadow:0 2px 8px rgba(37,99,235,.28)}
 .fi-btn.fi-btn-primary:hover{box-shadow:0 4px 16px rgba(37,99,235,.38)}
 .fi-sidebar-item-active::before{background:linear-gradient(180deg,#2563eb,#f59e0b)}
+
+/* Compact information architecture and command palette */
+.fi-sidebar{width:15rem!important}.fi-main{background:radial-gradient(circle at 92% 0,rgba(119,183,216,.09),transparent 28%),var(--rm-canvas)}
+.fi-sidebar-group-btn svg{width:1rem!important;height:1rem!important;color:var(--rm-brass)!important}
+.fi-sidebar-group-items{padding-left:.15rem}.fi-sidebar-item-icon{display:block!important;flex:none!important;color:#8fc7e3!important}
+.fi-sidebar-item-active .fi-sidebar-item-icon{color:#fff!important}.fi-sidebar-item-grouped-border{display:none!important}
+.fi-topbar{min-height:4.25rem}.fi-topbar nav{gap:.75rem}
+.rm-command{display:flex;flex:1;max-width:34rem;margin-inline:1rem}.rm-command-trigger{display:flex;width:100%;min-height:2.45rem;align-items:center;gap:.6rem;padding:.45rem .65rem .45rem .8rem;border:1px solid rgba(148,163,184,.3);border-radius:.75rem;background:rgba(248,250,252,.78);color:#64748b;font-size:.78rem;transition:.2s}
+.rm-command-trigger:hover{border-color:#77b7d8;background:#fff;box-shadow:0 8px 24px -18px #0f172a}.rm-command-trigger span{flex:1;text-align:left}.rm-command-trigger kbd{padding:.18rem .4rem;border:1px solid #d8e0e7;border-radius:.35rem;background:#fff;color:#64748b;font:600 .62rem/1.2 ui-monospace,monospace}
+.rm-command-overlay{position:fixed;z-index:100;inset:0;display:grid;place-items:start center;padding:12vh 1rem 1rem;background:rgba(4,12,22,.68);backdrop-filter:blur(8px)}
+.rm-command-dialog{width:min(42rem,100%);overflow:hidden;border:1px solid rgba(255,255,255,.18);border-radius:1rem;background:#fff;box-shadow:0 36px 100px -28px rgba(2,6,23,.75)}
+.rm-command-dialog>header{display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border-bottom:1px solid #e7edf2;color:var(--rm-blue)}.rm-command-dialog input{flex:1;border:0!important;outline:0!important;box-shadow:none!important;font-size:.92rem}.rm-command-dialog header button{border:1px solid #dce4ea;border-radius:.4rem;padding:.2rem .4rem;color:#64748b;font-size:.65rem}
+.rm-command-list{max-height:28rem;overflow:auto;padding:.6rem}.rm-command-caption{padding:.45rem .6rem;color:#8a97a7;font-size:.66rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.rm-command-item{display:flex;align-items:center;border-radius:.7rem}.rm-command-item:hover{background:#eef6fa}.rm-command-open{display:flex;flex:1;align-items:center;gap:.75rem;padding:.65rem;text-align:left}.rm-command-open>span:last-child{display:grid}.rm-command-open strong{color:var(--rm-ink);font-size:.8rem}.rm-command-open small{color:#8491a0;font-size:.66rem}.rm-command-icon{display:grid;width:2rem;height:2rem;place-items:center;border-radius:.55rem;background:#dceef7;color:var(--rm-blue);font-weight:900}.rm-command-star{padding:.65rem;color:var(--rm-brass);font-size:1.15rem}.rm-command-empty{padding:2.5rem;text-align:center;color:#718096}.rm-command-dialog>footer{display:flex;gap:1rem;padding:.65rem 1rem;border-top:1px solid #e7edf2;background:#f7f9fa;color:#8491a0;font-size:.62rem}
+.fi-section,.fi-ta-ctn,.fi-wi-stats-overview-stat{border-color:#dfe7ec!important;box-shadow:0 12px 32px -28px rgba(9,19,33,.55)!important}.fi-section-header{border-bottom:1px solid #edf1f4}.fi-ta-header-cell{background:#f7f9fa}.fi-ta-row:hover{background:#f3f8fb!important}
+@media(max-width:900px){.rm-command{margin-inline:.25rem}.rm-command-trigger span,.rm-command-trigger kbd{display:none}.rm-command-trigger{width:2.55rem;justify-content:center}.fi-sidebar{width:min(17.5rem,88vw)!important}}
 
 /* Professional workflow navigation — adapted from Bengkel's dense sidebar */
 .fi-sidebar{background:linear-gradient(180deg,#0b1426 0%,#101c31 58%,#0b1426 100%)!important;border-right:1px solid rgba(148,163,184,.14)!important;box-shadow:18px 0 45px -38px rgba(2,6,23,.95)}

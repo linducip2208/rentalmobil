@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\GpsTracker;
 use Filament\Pages\Page;
 
 class DriverTracking extends Page

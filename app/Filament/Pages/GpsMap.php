@@ -14,11 +14,11 @@ class GpsMap extends Page
 
     protected static \UnitEnum|string|null $navigationGroup = 'GPS & Monitoring';
 
-    protected static int|null $navigationSort = 2;
+    protected static ?int $navigationSort = 2;
 
-    protected static string|null $navigationLabel = 'Peta Armada';
+    protected static ?string $navigationLabel = 'Peta Armada';
 
-    protected static string|null $title = 'GPS Tracking Map';
+    protected static ?string $title = 'GPS Tracking Map';
 
     protected string $view = 'filament.pages.gps-map';
 
@@ -41,7 +41,7 @@ class GpsMap extends Page
             ->where('is_active', true)
             ->whereNotNull('last_latitude')
             ->get()
-            ->map(fn(GpsTracker $t) => [
+            ->map(fn (GpsTracker $t) => [
                 'id' => $t->id,
                 'device_name' => $t->device_name ?? $t->device_id,
                 'vehicle' => $t->vehicle?->name ?? 'Unassigned',
@@ -68,7 +68,7 @@ class GpsMap extends Page
             'replayTo' => 'required|date|after_or_equal:replayFrom',
         ]);
 
-        abort_if(!$this->replayTrackerId, 422, 'Pilih tracker terlebih dahulu.');
+        abort_if(! $this->replayTrackerId, 422, 'Pilih tracker terlebih dahulu.');
 
         $tracker = GpsTracker::findOrFail($this->replayTrackerId);
         $replay = app(RouteReplayService::class)->replay($tracker, $this->replayFrom, $this->replayTo);
