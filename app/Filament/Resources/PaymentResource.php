@@ -7,7 +7,7 @@ use App\Models\Payment;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -22,7 +22,7 @@ class PaymentResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
+    protected static string | UnitEnum | null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 8;
 
@@ -43,7 +43,7 @@ class PaymentResource extends Resource
                     ->relationship('rentalOrder', 'order_number')
                     ->searchable()
                     ->preload()
-                    ->placeholder('— Tanpa order —'),
+                    ->placeholder('â€” Tanpa order â€”'),
                 Forms\Components\Select::make('customer_id')
                     ->label('Customer')
                     ->relationship('customer', 'name')

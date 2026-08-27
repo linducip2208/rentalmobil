@@ -9,7 +9,7 @@ use Filament\Pages\Page;
 class FleetCalendar extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
-    protected static \UnitEnum|string|null $navigationGroup = '📅 Reservasi & Rental';
+    protected static \UnitEnum|string|null $navigationGroup = 'Rental';
     protected static ?string $navigationLabel = 'Kalender Armada';
     protected static ?int $navigationSort = 3;
     protected string $view = 'filament.pages.fleet-calendar';

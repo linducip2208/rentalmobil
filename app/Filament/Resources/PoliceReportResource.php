@@ -7,7 +7,7 @@ use App\Models\PoliceReport;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class PoliceReportResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-building-library';
 
-    protected static string | UnitEnum | null $navigationGroup = '🛡️ Risiko & Keamanan';
+    protected static string | UnitEnum | null $navigationGroup = 'Risk & Security';
 
     protected static ?int $navigationSort = 5;
 

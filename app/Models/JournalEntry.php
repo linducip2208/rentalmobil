@@ -13,6 +13,7 @@ class JournalEntry extends Model
 
     protected $fillable = [
         'entry_number',
+        'posting_key',
         'date',
         'description',
         'reference_type',

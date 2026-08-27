@@ -12,7 +12,9 @@ use App\Models\Customer;
 use App\Models\Driver;
 use App\Models\Faq;
 use App\Models\Location;
+use App\Models\Menu;
 use App\Models\PaymentMethod;
+use App\Models\Page;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -37,6 +39,8 @@ class DatabaseSeeder extends Seeder
         $this->seedFaqs();
         $this->seedSystemSettings();
         $this->seedChartOfAccounts();
+        $this->seedCms();
+        $this->call(RolePermissionSeeder::class);
     }
 
     protected function seedUsers(): void
@@ -595,14 +599,21 @@ class DatabaseSeeder extends Seeder
     {
         $accounts = [
             ['code' => '1100', 'name' => 'Kas', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1101', 'name' => 'Kas & Bank Operasional', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1102', 'name' => 'Piutang Usaha Sistem', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '1110', 'name' => 'Bank BCA', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '1120', 'name' => 'Bank Mandiri', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '1200', 'name' => 'Piutang Usaha', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '1500', 'name' => 'Kendaraan', 'type' => 'asset', 'normal_balance' => 'debit'],
             ['code' => '2100', 'name' => 'Hutang Usaha', 'type' => 'liability', 'normal_balance' => 'credit'],
+            ['code' => '2101', 'name' => 'Deposit Pelanggan', 'type' => 'liability', 'normal_balance' => 'credit'],
+            ['code' => '2102', 'name' => 'Pajak Keluaran', 'type' => 'liability', 'normal_balance' => 'credit'],
             ['code' => '2200', 'name' => 'Hutang Pajak', 'type' => 'liability', 'normal_balance' => 'credit'],
             ['code' => '3100', 'name' => 'Modal Disetor', 'type' => 'equity', 'normal_balance' => 'credit'],
             ['code' => '4100', 'name' => 'Pendapatan Sewa', 'type' => 'revenue', 'normal_balance' => 'credit'],
+            ['code' => '4101', 'name' => 'Pendapatan Rental Sistem', 'type' => 'revenue', 'normal_balance' => 'credit'],
+            ['code' => '4102', 'name' => 'Pendapatan Denda Keterlambatan', 'type' => 'revenue', 'normal_balance' => 'credit'],
+            ['code' => '4103', 'name' => 'Pendapatan Pemulihan Kerusakan', 'type' => 'revenue', 'normal_balance' => 'credit'],
             ['code' => '4200', 'name' => 'Pendapatan Supir', 'type' => 'revenue', 'normal_balance' => 'credit'],
             ['code' => '4300', 'name' => 'Pendapatan Addon', 'type' => 'revenue', 'normal_balance' => 'credit'],
             ['code' => '5100', 'name' => 'Biaya BBM', 'type' => 'expense', 'normal_balance' => 'debit'],
@@ -616,6 +627,46 @@ class DatabaseSeeder extends Seeder
                 ['code' => $account['code']],
                 array_merge($account, ['is_active' => true])
             );
+        }
+    }
+
+    protected function seedCms(): void
+    {
+        $page = Page::updateOrCreate(['slug' => 'home'], [
+            'title' => 'Rental Mobil Lebih Terkendali',
+            'template' => 'landing',
+            'status' => 'published',
+            'author_id' => User::where('email', 'admin@rentalmobil.test')->value('id'),
+            'publish_at' => now(),
+        ]);
+
+        if ($page->sections()->count() === 0) {
+            $page->sections()->createMany([
+                ['block_type' => 'hero', 'name' => 'Hero Utama', 'sort_order' => 10, 'data' => ['eyebrow' => 'Rental mobil profesional', 'heading' => 'Armada siap jalan, proses sewa transparan.', 'description' => 'Pilih kendaraan terawat, cek harga secara langsung, dan kelola perjalanan Anda dengan dukungan tim operasional yang responsif.', 'button_label' => 'Cek Mobil Tersedia', 'button_url' => '/booking']],
+                ['block_type' => 'heading', 'name' => 'Judul Armada', 'sort_order' => 20, 'data' => ['text' => 'Armada pilihan untuk setiap kebutuhan']],
+                ['block_type' => 'vehicle_list', 'name' => 'Daftar Armada', 'sort_order' => 30, 'data' => ['limit' => 6]],
+                ['block_type' => 'heading', 'name' => 'Judul FAQ', 'sort_order' => 40, 'data' => ['text' => 'Pertanyaan yang sering diajukan']],
+                ['block_type' => 'faq', 'name' => 'FAQ', 'sort_order' => 50, 'data' => ['limit' => 8]],
+                ['block_type' => 'cta', 'name' => 'CTA Akhir', 'sort_order' => 60, 'data' => ['heading' => 'Butuh mobil hari ini?', 'description' => 'Lihat ketersediaan dan estimasi harga tanpa menunggu balasan manual.', 'button_label' => 'Mulai Booking', 'button_url' => '/booking']],
+            ]);
+        }
+
+        $page->seoMeta()->updateOrCreate([], [
+            'meta_title' => 'Rental Mobil Indonesia — Armada Terawat & Harga Transparan',
+            'meta_description' => 'Booking rental mobil harian, mingguan, dan bulanan dengan armada terawat, harga transparan, dan dukungan operasional profesional.',
+            'is_indexable' => true,
+            'is_followable' => true,
+        ]);
+
+        $header = Menu::updateOrCreate(['location' => 'header'], ['name' => 'Menu Utama', 'is_active' => true]);
+        if ($header->allItems()->count() === 0) {
+            $header->allItems()->createMany([
+                ['label' => 'Armada', 'url' => '/sewa-mobil', 'sort_order' => 10, 'is_active' => true],
+                ['label' => 'Booking', 'url' => '/booking', 'sort_order' => 20, 'is_active' => true],
+                ['label' => 'Blog', 'url' => '/blog', 'sort_order' => 30, 'is_active' => true],
+                ['label' => 'Dokumentasi', 'url' => '/docs', 'sort_order' => 40, 'is_active' => true],
+                ['label' => 'Kontak', 'url' => '/contact', 'sort_order' => 50, 'is_active' => true],
+            ]);
         }
     }
 }

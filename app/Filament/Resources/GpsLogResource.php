@@ -7,7 +7,7 @@ use App\Models\GpsLog;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class GpsLogResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static string | UnitEnum | null $navigationGroup = '📡 GPS & Monitoring';
+    protected static string | UnitEnum | null $navigationGroup = 'GPS & Monitoring';
 
     protected static ?int $navigationSort = 5;
 
@@ -51,7 +51,7 @@ class GpsLogResource extends Resource
                     ->numeric()
                     ->step(0.01),
                 Forms\Components\TextInput::make('heading')
-                    ->label('Arah (°)')
+                    ->label('Arah (Â°)')
                     ->numeric()
                     ->minValue(0)
                     ->maxValue(360),

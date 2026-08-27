@@ -6,7 +6,7 @@ use App\Filament\Resources\GpsAlertResource\Pages;
 use App\Models\GpsAlert;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,12 +15,10 @@ class GpsAlertResource extends Resource
 {
     protected static ?string $model = GpsAlert::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-bell-alert';
-    protected static \UnitEnum|string|null $navigationGroup = '🛡️ Risiko & Keamanan';
+    protected static \UnitEnum|string|null $navigationGroup = 'GPS & Monitoring';
     protected static ?string $navigationLabel = 'Peringatan GPS';
     protected static ?int $navigationSort = 6;
 
-    public static function shouldRegisterNavigation(): bool { return in_array(auth()->user()?->role, ['super_admin','owner','admin','manager'], true); }
-    public static function canViewAny(): bool { return static::shouldRegisterNavigation(); }
 
     public static function form(Schema $schema): Schema
     {

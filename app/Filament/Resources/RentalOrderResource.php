@@ -7,7 +7,7 @@ use App\Models\RentalOrder;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class RentalOrderResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
+    protected static string | UnitEnum | null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 5;
 
@@ -51,7 +51,7 @@ class RentalOrderResource extends Resource
                     ->relationship('driver', 'name')
                     ->searchable()
                     ->preload()
-                    ->placeholder('— Tanpa supir —'),
+                    ->placeholder('â€” Tanpa supir â€”'),
                 Forms\Components\Select::make('location_id')
                     ->label('Lokasi')
                     ->relationship('location', 'name')
@@ -250,7 +250,7 @@ class RentalOrderResource extends Resource
                     ->color('info')
                     ->visible(fn ($record) => ! in_array($record->status, ['checked_out', 'active', 'completed', 'cancelled'], true))
                     ->modalHeading('Self Check-in Pelanggan')
-                    ->modalDescription('Bagikan QR/link ini saat serah terima — pelanggan foto kondisi mobil & isi BBM/odometer sendiri.')
+                    ->modalDescription('Bagikan QR/link ini saat serah terima â€” pelanggan foto kondisi mobil & isi BBM/odometer sendiri.')
                     ->mountUsing(function (\Filament\Schemas\Schema $form, $record) {
                         $link = app(\App\Services\HandoverLinkService::class)->issueCheckIn($record);
                         $form->fill(['link' => $link]);

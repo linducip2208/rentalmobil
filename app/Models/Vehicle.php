@@ -33,6 +33,9 @@ class Vehicle extends Model
         'late_fee_per_hour',
         'late_fee_per_day',
         'deposit_amount',
+        'purchase_price',
+        'useful_life_months',
+        'acquired_at',
         'status',
         'features',
         'photo_url',
@@ -58,6 +61,9 @@ class Vehicle extends Model
         'late_fee_per_hour' => 'decimal:2',
         'late_fee_per_day' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
+        'purchase_price' => 'decimal:2',
+        'useful_life_months' => 'integer',
+        'acquired_at' => 'date',
         'stnk_due_date' => 'date',
         'tax_due_date' => 'date',
         'tax_5y_due_date' => 'date',
@@ -158,6 +164,28 @@ class Vehicle extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function holds()
+    {
+        return $this->hasMany(BookingHold::class);
+    }
+
+    public function investments()
+    {
+        return $this->hasMany(VehicleInvestment::class);
+    }
+
+    /**
+     * Depresiasi garis lurus per bulan dari purchase_price & useful_life_months.
+     */
+    public function monthlyDepreciation(): float
+    {
+        if (!$this->purchase_price || !$this->useful_life_months) {
+            return 0.0;
+        }
+
+        return round((float) $this->purchase_price / (int) $this->useful_life_months, 2);
     }
 
     // Scopes

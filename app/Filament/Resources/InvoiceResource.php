@@ -7,7 +7,7 @@ use App\Models\Invoice;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class InvoiceResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-receipt-percent';
 
-    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
+    protected static string | UnitEnum | null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 7;
 

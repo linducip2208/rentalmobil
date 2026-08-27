@@ -6,7 +6,7 @@ use App\Filament\Resources\DriverRatingResource\Pages;
 use App\Models\DriverRating;
 use Filament\Forms;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -19,7 +19,7 @@ class DriverRatingResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-star';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚚 Serah Terima & Logistik';
+    protected static string | UnitEnum | null $navigationGroup = 'Fleet';
 
     protected static ?int $navigationSort = 4;
 
@@ -109,19 +109,19 @@ class DriverRatingResource extends Resource
                         $state === 3 => 'warning',
                         default => 'danger',
                     })
-                    ->formatStateUsing(fn(int $state) => str_repeat('⭐', $state)),
+                    ->formatStateUsing(fn(int $state) => str_repeat('â­', $state)),
                 Tables\Columns\TextColumn::make('punctuality')
                     ->label('Tepat Waktu')
                     ->sortable()
-                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('★', $state) : '-'),
+                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
                 Tables\Columns\TextColumn::make('driving_skill')
                     ->label('Skill')
                     ->sortable()
-                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('★', $state) : '-'),
+                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
                 Tables\Columns\TextColumn::make('attitude')
                     ->label('Sikap')
                     ->sortable()
-                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('★', $state) : '-'),
+                    ->formatStateUsing(fn(?int $state) => $state ? str_repeat('â˜…', $state) : '-'),
                 Tables\Columns\TextColumn::make('comment')
                     ->label('Komentar')
                     ->limit(50)

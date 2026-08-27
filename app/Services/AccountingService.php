@@ -9,7 +9,9 @@ use App\Models\JournalLine;
 use App\Models\Payment;
 use App\Models\RentalOrder;
 use App\Models\SystemSetting;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class AccountingService
 {
@@ -34,9 +36,27 @@ class AccountingService
     {
         $totalAmount = (float) $order->final_amount;
         $taxAmount = (float) $order->tax_total;
-        $revenueAmount = $totalAmount - $taxAmount;
+        $lateFee = (float) $order->late_fee;
+        $damageFee = (float) $order->damage_fee;
+        $revenueAmount = round($totalAmount - $taxAmount - $lateFee - $damageFee, 2);
+
+        if ($revenueAmount < 0) {
+            throw new RuntimeException('Komponen jurnal rental melebihi total transaksi. Periksa pajak dan biaya tambahan.');
+        }
+
+        if ($existing = $this->existingPosting("rental-income:{$order->id}")) {
+            return $existing;
+        }
+
+        $this->requireAccounts([
+            'accounts receivable' => $this->accountsReceivableId,
+            'rental revenue' => $this->rentalRevenueAccountId,
+            'late fee revenue' => $lateFee > 0 ? $this->lateFeeRevenueId : 1,
+            'damage revenue' => $damageFee > 0 ? $this->damageRevenueId : 1,
+        ]);
 
         $entry = JournalEntry::create([
+            'posting_key' => "rental-income:{$order->id}",
             'date' => now()->toDateString(),
             'description' => "Rental income - {$order->order_number}",
             'reference_type' => RentalOrder::class,
@@ -76,23 +96,23 @@ class AccountingService
             }
         }
 
-        if ((float) $order->late_fee > 0) {
+        if ($lateFee > 0) {
             JournalLine::create([
                 'journal_entry_id' => $entry->id,
                 'account_id' => $this->lateFeeRevenueId,
                 'description' => "Late fee revenue - {$order->order_number}",
                 'debit' => 0,
-                'credit' => (float) $order->late_fee,
+                'credit' => $lateFee,
             ]);
         }
 
-        if ((float) $order->damage_fee > 0) {
+        if ($damageFee > 0) {
             JournalLine::create([
                 'journal_entry_id' => $entry->id,
                 'account_id' => $this->damageRevenueId,
                 'description' => "Damage fee revenue - {$order->order_number}",
                 'debit' => 0,
-                'credit' => (float) $order->damage_fee,
+                'credit' => $damageFee,
             ]);
         }
 
@@ -101,8 +121,14 @@ class AccountingService
 
     public function recordPayment(Payment $payment): JournalEntry
     {
+        if ($existing = $this->existingPosting("payment:{$payment->id}")) {
+            return $existing;
+        }
+
+        $this->requireAccounts(['cash/bank' => $this->cashAccountId, 'accounts receivable' => $this->accountsReceivableId]);
         $amount = (float) $payment->amount;
         $entry = JournalEntry::create([
+            'posting_key' => "payment:{$payment->id}",
             'date' => $payment->payment_date ?? now()->toDateString(),
             'description' => "Payment received - {$payment->payment_number}",
             'reference_type' => Payment::class,
@@ -134,9 +160,18 @@ class AccountingService
 
     public function recordExpense(Expense $expense): JournalEntry
     {
+        if ($existing = $this->existingPosting("expense:{$expense->id}")) {
+            return $existing;
+        }
+
         $amount = (float) $expense->amount;
 
+        $expenseAccountId = $this->findExpenseAccountForCategory($expense->expense_category_id)
+            ?? $this->findAccountByType('expense');
+        $this->requireAccounts(['cash/bank' => $this->cashAccountId, 'expense' => $expenseAccountId]);
+
         $entry = JournalEntry::create([
+            'posting_key' => "expense:{$expense->id}",
             'date' => $expense->expense_date,
             'description' => "Expense - {$expense->title} ({$expense->expense_number})",
             'reference_type' => Expense::class,
@@ -146,9 +181,6 @@ class AccountingService
             'status' => 'posted',
             'posted_by' => auth()->id(),
         ]);
-
-        $expenseAccountId = $this->findExpenseAccountForCategory($expense->expense_category_id)
-            ?? $this->findAccountByType('expense');
 
         JournalLine::create([
             'journal_entry_id' => $entry->id,
@@ -177,7 +209,14 @@ class AccountingService
             return null;
         }
 
+        if ($existing = $this->existingPosting("deposit-received:{$order->id}")) {
+            return $existing;
+        }
+
+        $this->requireAccounts(['cash/bank' => $this->cashAccountId, 'customer deposit liability' => $this->depositLiabilityId]);
+
         $entry = JournalEntry::create([
+            'posting_key' => "deposit-received:{$order->id}",
             'date' => now()->toDateString(),
             'description' => "Deposit received - {$order->order_number}",
             'reference_type' => RentalOrder::class,
@@ -213,7 +252,15 @@ class AccountingService
             return null;
         }
 
+        $postingKey = 'deposit-refund:'.$order->id.':'.number_format($refundAmount, 2, '.', '');
+        if ($existing = $this->existingPosting($postingKey)) {
+            return $existing;
+        }
+
+        $this->requireAccounts(['cash/bank' => $this->cashAccountId, 'customer deposit liability' => $this->depositLiabilityId]);
+
         $entry = JournalEntry::create([
+            'posting_key' => $postingKey,
             'date' => now()->toDateString(),
             'description' => "Deposit refund - {$order->order_number}",
             'reference_type' => RentalOrder::class,
@@ -320,5 +367,20 @@ class AccountingService
         }
 
         return $this->findAccountByType('expense');
+    }
+
+    protected function existingPosting(string $postingKey): ?JournalEntry
+    {
+        return JournalEntry::query()->where('posting_key', $postingKey)->first();
+    }
+
+    /** @param array<string, int|null> $accounts */
+    protected function requireAccounts(array $accounts): void
+    {
+        $missing = array_keys(array_filter($accounts, static fn (?int $id): bool => $id === null));
+
+        if ($missing !== []) {
+            throw new RuntimeException('Konfigurasi chart of accounts belum lengkap: '.implode(', ', $missing).'.');
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SeasonPeriodResource\Pages;
 use App\Models\SeasonPeriod;use Filament\Actions;
 use Filament\Forms;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -14,7 +14,7 @@ class SeasonPeriodResource extends Resource
 {
     protected static ?string $model = SeasonPeriod::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar-days';
-    protected static \UnitEnum|string|null $navigationGroup = '🗂️ Data Utama';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sales & Marketing';
     protected static ?string $navigationLabel = 'Kalender Musim';
     protected static ?int $navigationSort = 9;
 
@@ -37,7 +37,7 @@ class SeasonPeriodResource extends Resource
             Tables\Columns\TextColumn::make('name')->searchable(),
             Tables\Columns\TextColumn::make('start_date')->date('d M')->label('Mulai'),
             Tables\Columns\TextColumn::make('end_date')->date('d M')->label('Selesai'),
-            Tables\Columns\TextColumn::make('multiplier')->badge()->color(fn ($state) => (float) $state > 1 ? 'danger' : 'success')->formatStateUsing(fn ($state) => '×'.$state),
+            Tables\Columns\TextColumn::make('multiplier')->badge()->color(fn ($state) => (float) $state > 1 ? 'danger' : 'success')->formatStateUsing(fn ($state) => 'Ã—'.$state),
             Tables\Columns\IconColumn::make('is_recurring_annual')->boolean()->label('Tahunan'),
             Tables\Columns\TextColumn::make('location.name')->placeholder('Semua cabang'),
         ])

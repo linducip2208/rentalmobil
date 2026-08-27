@@ -108,12 +108,9 @@ class PricingEngine
             }
         }
 
-        $afterDiscount = round(max(0.0, $subtotal - $discountAmount), 2);
-        $taxRate = $this->getTaxRate();
-        $taxAmount = round($afterDiscount * $taxRate, 2);
-        $total = round($afterDiscount + $taxAmount, 2);
-
-        return [
+        // Modifier diskon waktu: early bird (lead time) & flash sale.
+        $afterDiscount = round($subtotal - $discountAmount, 2);
+        $quote = [
             'daily_rate' => $dailyRate,
             'surge_multiplier' => $surgeMultiplier,
             'effective_daily_rate' => $effectiveDailyRate,
@@ -126,11 +123,26 @@ class PricingEngine
             'subtotal' => $subtotal,
             'discount_amount' => $discountAmount,
             'after_discount' => $afterDiscount,
+        ];
+
+        try {
+            $quote = app(DiscountModifierService::class)->apply($vehicle, $startDate, $quote);
+        } catch (\Throwable) {
+            // Modifier diskon bersifat best-effort — jangan blok quote utama.
+        }
+
+        $discountAmount = $quote['discount_amount'];
+        $afterDiscount = $quote['after_discount'];
+        $taxRate = $this->getTaxRate();
+        $taxAmount = round($afterDiscount * $taxRate, 2);
+        $total = round($afterDiscount + $taxAmount, 2);
+
+        return $quote + [
             'tax_rate' => $taxRate,
             'tax_amount' => $taxAmount,
             'deposit' => (float) $vehicle->deposit_amount,
             'total' => $total,
-            'breakdown' => [
+            'breakdown' => ($quote['breakdown'] ?? []) + [
                 'base_daily_rate' => $dailyRate,
                 'surge_applied' => !empty($surgeBreakdown),
                 'surge_details' => $surgeBreakdown,
@@ -138,7 +150,7 @@ class PricingEngine
                 'demand_occupancy' => $demandInfo['occupancy'],
                 'driver_fee_per_day' => $rentalType === 'with_driver' ? $driverFeePerDay : 0,
                 'addons' => $addonDetails,
-                'promo_applied' => $discountAmount > 0,
+                'promo_applied' => str_contains((string) json_encode($quote['breakdown']['time_modifiers'] ?? []), 'Early') || $promoDetails !== null,
                 'promo_details' => $promoDetails,
             ],
         ];

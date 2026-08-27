@@ -9,7 +9,7 @@ use App\Services\BankReconciliationService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -19,7 +19,7 @@ class BankStatementLineResource extends Resource
 {
     protected static ?string $model = BankStatementLine::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-list-bullet';
-    protected static \UnitEnum|string|null $navigationGroup = '💰 Keuangan';
+    protected static \UnitEnum|string|null $navigationGroup = 'Finance';
     protected static ?string $navigationLabel = 'Baris Mutasi Bank';
     protected static ?int $navigationSort = 26;
     protected static bool $hasNavigationBadge = false;
@@ -70,7 +70,7 @@ class BankStatementLineResource extends Resource
                     ->form([
                         Forms\Components\Select::make('payment_id')
                             ->label('Pembayaran pending')
-                            ->options(fn () => Payment::where('status', 'pending')->orderByDesc('id')->limit(200)->get()->mapWithKeys(fn ($p) => [$p->id => "{$p->payment_number} — Rp ".number_format((float) $p->amount, 0, ',', '.')])->all())
+                            ->options(fn () => Payment::where('status', 'pending')->orderByDesc('id')->limit(200)->get()->mapWithKeys(fn ($p) => [$p->id => "{$p->payment_number} â€” Rp ".number_format((float) $p->amount, 0, ',', '.')])->all())
                             ->searchable()
                             ->required(),
                     ])

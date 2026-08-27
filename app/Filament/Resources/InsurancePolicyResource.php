@@ -7,7 +7,7 @@ use App\Models\InsurancePolicy;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class InsurancePolicyResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static string | UnitEnum | null $navigationGroup = '🛠️ Perawatan Armada';
+    protected static string | UnitEnum | null $navigationGroup = 'Fleet';
 
     protected static ?int $navigationSort = 6;
 

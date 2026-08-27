@@ -7,7 +7,7 @@ use App\Models\ExpenseCategory;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class ExpenseCategoryResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-folder-open';
 
-    protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
+    protected static string | UnitEnum | null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 4;
 
@@ -39,7 +39,7 @@ class ExpenseCategoryResource extends Resource
                     ->relationship('parent', 'name')
                     ->searchable()
                     ->preload()
-                    ->placeholder('— Tanpa induk —'),
+                    ->placeholder('â€” Tanpa induk â€”'),
                 Forms\Components\Textarea::make('description')
                     ->label('Deskripsi')
                     ->rows(2),

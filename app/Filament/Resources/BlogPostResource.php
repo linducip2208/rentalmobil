@@ -8,7 +8,7 @@ use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Get;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -22,7 +22,7 @@ class BlogPostResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-pencil';
 
-    protected static string | UnitEnum | null $navigationGroup = '📢 Konten & Marketing';
+    protected static string | UnitEnum | null $navigationGroup = 'CMS';
 
     protected static ?int $navigationSort = 1;
 

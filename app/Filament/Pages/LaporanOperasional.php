@@ -13,7 +13,7 @@ class LaporanOperasional extends Page
 {
     protected string $view = 'filament.pages.laporan-operasional';
 
-    protected static \UnitEnum|string|null $navigationGroup = '📊 Laporan';
+    protected static \UnitEnum|string|null $navigationGroup = 'Reports';
     protected static ?string $navigationLabel = 'Operasional';
     protected static ?int $navigationSort = 3;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';

@@ -7,7 +7,7 @@ use App\Models\ServiceSchedule;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class ServiceScheduleResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-clock';
 
-    protected static string | UnitEnum | null $navigationGroup = '🛠️ Perawatan Armada';
+    protected static string | UnitEnum | null $navigationGroup = 'Maintenance';
 
     protected static ?int $navigationSort = 2;
 

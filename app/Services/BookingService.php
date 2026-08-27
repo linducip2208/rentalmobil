@@ -81,9 +81,13 @@ class BookingService
         return DB::transaction(function () use ($data, $pricing, $durationDays, $vehicle) {
             $booking = Booking::create([
                 'customer_id' => $data['customer_id'],
+                'group_booking_id' => $data['group_booking_id'] ?? null,
                 'vehicle_id' => $vehicle->id,
                 'pickup_location_id' => $data['pickup_location_id'] ?? $vehicle->location_id,
                 'return_location_id' => $data['return_location_id'] ?? $vehicle->location_id,
+                'pickup_city' => $data['pickup_city'] ?? null,
+                'return_city' => $data['return_city'] ?? null,
+                'relocation_fee' => $pricing['breakdown']['relocation_fee'] ?? ($data['relocation_fee'] ?? 0),
                 'driver_id' => $data['driver_id'] ?? null,
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
@@ -97,13 +101,43 @@ class BookingService
                 'status' => 'pending_verification',
                 'notes' => $data['notes'] ?? null,
                 'source' => $data['source'] ?? 'admin',
+                'session_id' => $data['session_id'] ?? null,
                 'addon_ids' => array_values($data['addon_ids'] ?? []),
                 'pricing_snapshot' => $pricing,
                 'created_by' => $data['created_by'] ?? auth()->id(),
             ]);
 
+            // Konversi hold aktif milik session ini → converted (mengunci slot).
+            if (!empty($data['session_id'])) {
+                \App\Models\BookingHold::where('session_id', $data['session_id'])
+                    ->where('vehicle_id', $vehicle->id)
+                    ->where('status', 'active')
+                    ->update(['status' => 'converted', 'booking_id' => $booking->id]);
+            }
+
+            // Tandai abandoned booking terkait session sebagai recovered.
+            if (!empty($data['session_id'])) {
+                \App\Models\AbandonedBooking::where('session_id', $data['session_id'])
+                    ->open()
+                    ->update(['status' => 'recovered', 'recovered_booking_id' => $booking->id]);
+            }
+
             if (!empty($data['voucher_ids'])) {
                 $this->applyVouchers($booking, $data['voucher_ids'], $data['customer_id']);
+            }
+
+            try {
+                app(\App\Services\WebhookDispatchService::class)->dispatch('booking.created', [
+                    'booking_number' => $booking->booking_number,
+                    'customer_id' => $booking->customer_id,
+                    'vehicle_id' => $booking->vehicle_id,
+                    'start_date' => $booking->start_date?->toDateString(),
+                    'end_date' => $booking->end_date?->toDateString(),
+                    'total_amount' => (float) $booking->total_amount,
+                    'status' => $booking->status,
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
             }
 
             return $booking;

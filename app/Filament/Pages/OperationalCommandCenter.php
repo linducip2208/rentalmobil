@@ -13,7 +13,7 @@ use Filament\Pages\Page;
 class OperationalCommandCenter extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-command-line';
-    protected static \UnitEnum|string|null $navigationGroup = '📡 GPS & Monitoring';
+    protected static \UnitEnum|string|null $navigationGroup = 'GPS & Monitoring';
     protected static ?string $navigationLabel = 'Pusat Kendali';
     protected static ?int $navigationSort = 1;
     protected string $view = 'filament.pages.operational-command-center';

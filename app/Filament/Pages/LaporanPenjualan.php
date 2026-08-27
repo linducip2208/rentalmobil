@@ -12,7 +12,7 @@ class LaporanPenjualan extends Page
 {
     protected string $view = 'filament.pages.laporan-penjualan';
 
-    protected static \UnitEnum|string|null $navigationGroup = '📊 Laporan';
+    protected static \UnitEnum|string|null $navigationGroup = 'Reports';
     protected static ?string $navigationLabel = 'Penjualan';
     protected static ?int $navigationSort = 1;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';

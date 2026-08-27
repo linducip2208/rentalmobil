@@ -6,7 +6,7 @@ use App\Filament\Resources\GpsTrackerResource\Pages;
 use App\Models\GpsTracker;
 use Filament\Forms;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -19,7 +19,7 @@ class GpsTrackerResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-signal';
 
-    protected static string | UnitEnum | null $navigationGroup = '📡 GPS & Monitoring';
+    protected static string | UnitEnum | null $navigationGroup = 'GPS & Monitoring';
 
     protected static ?int $navigationSort = 4;
 
@@ -36,7 +36,7 @@ class GpsTrackerResource extends Resource
                         ->searchable()
                         ->preload()
                         ->nullable(),
-                    Forms\Components\Select::make('gps_integration_id')->label('Integrasi GPS')->relationship('integration', 'id')->getOptionLabelFromRecordUsing(fn ($record) => $record->provider?->name.' — '.$record->adapter_format)->searchable()->preload(),
+                    Forms\Components\Select::make('gps_integration_id')->label('Integrasi GPS')->relationship('integration', 'id')->getOptionLabelFromRecordUsing(fn ($record) => $record->provider?->name.' â€” '.$record->adapter_format)->searchable()->preload(),
                     Forms\Components\TextInput::make('external_device_id')->label('ID perangkat pada provider')->helperText('IMEI, uniqueId, deviceId, atau identifier lain sesuai provider.'),
                     Forms\Components\TextInput::make('device_id')
                         ->label('Device ID (IMEI)')

@@ -9,7 +9,7 @@ class DriverTracking extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-device-phone-mobile';
 
-    protected static \UnitEnum|string|null $navigationGroup = '📡 GPS & Monitoring';
+    protected static \UnitEnum|string|null $navigationGroup = 'GPS & Monitoring';
 
     protected static ?int $navigationSort = 3;
 

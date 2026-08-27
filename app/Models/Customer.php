@@ -37,6 +37,7 @@ class Customer extends Authenticatable
         'total_spent',
         'total_orders',
         'loyalty_tier',
+        'loyalty_points',
         'verification_status',
         'notes',
         'is_active',
@@ -51,6 +52,7 @@ class Customer extends Authenticatable
         'trust_score' => 'integer',
         'total_spent' => 'decimal:2',
         'total_orders' => 'integer',
+        'loyalty_points' => 'integer',
             'is_active' => 'boolean',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
@@ -72,6 +74,31 @@ class Customer extends Authenticatable
     public function rentalOrders()
     {
         return $this->hasMany(RentalOrder::class);
+    }
+
+    public function loyaltyLedgers()
+    {
+        return $this->hasMany(LoyaltyLedger::class);
+    }
+
+    public function referralsMade()
+    {
+        return $this->hasMany(Referral::class, 'referrer_customer_id');
+    }
+
+    public function referralsReceived()
+    {
+        return $this->hasOne(Referral::class, 'referred_customer_id');
+    }
+
+    public function faceVerifications()
+    {
+        return $this->hasMany(FaceVerification::class);
+    }
+
+    public function fraudHits()
+    {
+        return $this->hasMany(FraudHit::class);
     }
 
     public function documents()

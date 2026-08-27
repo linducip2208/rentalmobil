@@ -7,7 +7,7 @@ use App\Models\Expense;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class ExpenseResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-arrow-trending-down';
 
-    protected static string | UnitEnum | null $navigationGroup = '💰 Keuangan';
+    protected static string | UnitEnum | null $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 3;
 

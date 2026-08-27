@@ -7,7 +7,7 @@ use App\Models\DamageReport;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class DamageReportResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-exclamation-triangle';
 
-    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
+    protected static string | UnitEnum | null $navigationGroup = 'Risk & Security';
 
     protected static ?int $navigationSort = 10;
 
@@ -51,7 +51,7 @@ class DamageReportResource extends Resource
                     ->relationship('returnRecord', 'actual_return_date')
                     ->searchable()
                     ->preload()
-                    ->placeholder('— Tidak terkait —'),
+                    ->placeholder('â€” Tidak terkait â€”'),
             ])->columns(2),
 
             Schemas\Components\Section::make('Detail Kerusakan')->schema([

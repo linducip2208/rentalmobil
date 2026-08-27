@@ -23,6 +23,7 @@ class HandoverRecord extends Model
         'accessories',
         'checklist',
         'photos',
+        'video_urls',
         'customer_signature_url',
         'staff_signature_url',
         'notes',
@@ -37,6 +38,7 @@ class HandoverRecord extends Model
             'accessories' => 'array',
             'checklist' => 'array',
             'photos' => 'array',
+            'video_urls' => 'array',
             'recorded_at' => 'datetime',
         ];
     }

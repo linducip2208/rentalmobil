@@ -7,7 +7,7 @@ use App\Models\Customer;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class CustomerResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
+    protected static string | UnitEnum | null $navigationGroup = 'Customers';
 
     protected static ?int $navigationSort = 5;
 

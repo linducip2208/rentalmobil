@@ -8,7 +8,7 @@ use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Get;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -22,7 +22,7 @@ class CategoryResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-tag';
 
-    protected static string | UnitEnum | null $navigationGroup = '🗂️ Data Utama';
+    protected static string | UnitEnum | null $navigationGroup = 'Fleet';
 
     protected static ?int $navigationSort = 1;
 
@@ -50,7 +50,7 @@ class CategoryResource extends Resource
                     ->relationship('parent', 'name')
                     ->searchable()
                     ->preload()
-                    ->placeholder('— Tidak ada induk —'),
+                    ->placeholder('â€” Tidak ada induk â€”'),
 
                 Forms\Components\Textarea::make('description')
                     ->label('Deskripsi')

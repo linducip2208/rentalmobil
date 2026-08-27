@@ -8,7 +8,7 @@ use App\Services\BankReconciliationService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,7 +18,7 @@ class BankStatementImportResource extends Resource
 {
     protected static ?string $model = BankStatementImport::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-building-library';
-    protected static \UnitEnum|string|null $navigationGroup = '💰 Keuangan';
+    protected static \UnitEnum|string|null $navigationGroup = 'Finance';
     protected static ?string $navigationLabel = 'Rekonsiliasi Bank';
     protected static ?int $navigationSort = 25;
 
@@ -29,7 +29,7 @@ class BankStatementImportResource extends Resource
                 ->relationship('bankAccount', 'name')
                 ->label('Rekening bank')
                 ->searchable()
-                ->helperText('Opsional — untuk pencatatan.'),
+                ->helperText('Opsional â€” untuk pencatatan.'),
             Forms\Components\FileUpload::make('file')
                 ->label('File rekening koran (CSV)')
                 ->disk('local')

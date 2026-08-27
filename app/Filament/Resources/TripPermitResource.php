@@ -7,7 +7,7 @@ use App\Models\TripPermit;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,7 +16,7 @@ class TripPermitResource extends Resource
 {
     protected static ?string $model = TripPermit::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-map';
-    protected static \UnitEnum|string|null $navigationGroup = '🚚 Serah Terima & Logistik';
+    protected static \UnitEnum|string|null $navigationGroup = 'Rental';
     protected static ?string $navigationLabel = 'SPJ Digital';
     protected static ?int $navigationSort = 7;
 

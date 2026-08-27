@@ -9,7 +9,7 @@ use App\Services\Gps\GpsCommandService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,12 +18,10 @@ class GpsCommandResource extends Resource
 {
     protected static ?string $model = GpsCommand::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-command-line';
-    protected static \UnitEnum|string|null $navigationGroup = '🛡️ Risiko & Keamanan';
+    protected static \UnitEnum|string|null $navigationGroup = 'GPS & Monitoring';
     protected static ?string $navigationLabel = 'Perintah GPS';
     protected static ?int $navigationSort = 7;
 
-    public static function shouldRegisterNavigation(): bool { return in_array(auth()->user()?->role, ['super_admin','owner','admin','manager'], true); }
-    public static function canViewAny(): bool { return static::shouldRegisterNavigation(); }
 
     public static function form(Schema $schema): Schema
     {

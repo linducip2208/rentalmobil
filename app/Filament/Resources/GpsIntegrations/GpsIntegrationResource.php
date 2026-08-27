@@ -9,7 +9,7 @@ use App\Filament\Resources\GpsIntegrations\Schemas\GpsIntegrationForm;
 use App\Filament\Resources\GpsIntegrations\Tables\GpsIntegrationsTable;
 use App\Models\GpsIntegration;
 use BackedEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 
@@ -18,12 +18,10 @@ class GpsIntegrationResource extends Resource
     protected static ?string $model = GpsIntegration::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cloud-arrow-down';
-    protected static \UnitEnum|string|null $navigationGroup = '⚙️ Sistem & Integrasi';
+    protected static \UnitEnum|string|null $navigationGroup = 'GPS & Monitoring';
     protected static ?string $navigationLabel = 'Integrasi GPS BYOK';
     protected static ?int $navigationSort = 5;
 
-    public static function shouldRegisterNavigation(): bool { return in_array(auth()->user()?->role, ['super_admin','owner','admin'], true); }
-    public static function canViewAny(): bool { return static::shouldRegisterNavigation(); }
 
     public static function form(Schema $schema): Schema
     {

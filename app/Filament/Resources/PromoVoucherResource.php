@@ -7,7 +7,7 @@ use App\Models\PromoVoucher;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class PromoVoucherResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
+    protected static string | UnitEnum | null $navigationGroup = 'Sales & Marketing';
 
     protected static ?int $navigationSort = 11;
 
@@ -116,7 +116,7 @@ class PromoVoucherResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('usage_limit')
                     ->label('Penggunaan')
-                    ->formatStateUsing(fn ($state, PromoVoucher $record): string => "{$record->used_count}/" . ($state ?? '∞')),
+                    ->formatStateUsing(fn ($state, PromoVoucher $record): string => "{$record->used_count}/" . ($state ?? 'âˆž')),
                 Tables\Columns\TextColumn::make('start_date')
                     ->label('Mulai')
                     ->date('d M Y')

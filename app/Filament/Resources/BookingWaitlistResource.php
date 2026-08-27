@@ -4,7 +4,7 @@ use App\Filament\Resources\BookingWaitlistResource\Pages;
 use App\Models\BookingWaitlist;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -12,7 +12,7 @@ class BookingWaitlistResource extends Resource
 {
     protected static ?string $model = BookingWaitlist::class;
     protected static \BackedEnum|string|null $navigationIcon='heroicon-o-queue-list';
-    protected static \UnitEnum|string|null $navigationGroup='📅 Reservasi & Rental';
+    protected static \UnitEnum|string|null $navigationGroup='Rental';
     protected static ?string $navigationLabel='Daftar Tunggu'; protected static ?int $navigationSort=4;
     public static function form(Schema $schema): Schema { return $schema->components([
         Forms\Components\Select::make('customer_id')->relationship('customer','name')->searchable()->preload()->required(),

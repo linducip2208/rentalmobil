@@ -15,9 +15,13 @@ class Booking extends Model
         'purchase_order_number',
         'booking_number',
         'customer_id',
+        'group_booking_id',
         'vehicle_id',
         'pickup_location_id',
         'return_location_id',
+        'pickup_city',
+        'return_city',
+        'relocation_fee',
         'driver_id',
         'start_date',
         'end_date',
@@ -74,6 +78,11 @@ class Booking extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function groupBooking()
+    {
+        return $this->belongsTo(GroupBooking::class);
     }
 
     public function vehicle()

@@ -7,7 +7,7 @@ use App\Models\Booking;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -22,7 +22,7 @@ class BookingResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-calendar';
 
-    protected static string | UnitEnum | null $navigationGroup = '📅 Reservasi & Rental';
+    protected static string | UnitEnum | null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 2;
 
@@ -54,7 +54,7 @@ class BookingResource extends Resource
                     ->relationship('driver', 'name')
                     ->searchable()
                     ->preload()
-                    ->placeholder('— Tanpa supir —'),
+                    ->placeholder('â€” Tanpa supir â€”'),
                 Forms\Components\Select::make('pickup_location_id')
                     ->label('Lokasi Pengambilan')
                     ->relationship('pickupLocation', 'name')

@@ -46,16 +46,19 @@ class AdminPanelProvider extends PanelProvider
             ->topbar(true)
             ->maxContentWidth('full')
             ->navigationGroups([
-                NavigationGroup::make('🗂️ Data Utama')->icon('heroicon-o-circle-stack')->collapsed(false),
-                NavigationGroup::make('📅 Reservasi & Rental')->icon('heroicon-o-calendar-days')->collapsed(false),
-                NavigationGroup::make('🚚 Serah Terima & Logistik')->icon('heroicon-o-truck')->collapsed(true),
-                NavigationGroup::make('🛠️ Perawatan Armada')->icon('heroicon-o-wrench-screwdriver')->collapsed(true),
-                NavigationGroup::make('📡 GPS & Monitoring')->icon('heroicon-o-signal')->collapsed(true),
-                NavigationGroup::make('🛡️ Risiko & Keamanan')->icon('heroicon-o-shield-exclamation')->collapsed(true),
-                NavigationGroup::make('💰 Keuangan')->icon('heroicon-o-banknotes')->collapsed(true),
-                NavigationGroup::make('📊 Laporan')->icon('heroicon-o-chart-bar-square')->collapsed(true),
-                NavigationGroup::make('📢 Konten & Marketing')->icon('heroicon-o-megaphone')->collapsed(true),
-                NavigationGroup::make('⚙️ Sistem & Integrasi')->icon('heroicon-o-cog-8-tooth')->collapsed(true),
+                NavigationGroup::make('Dashboard')->icon('heroicon-o-squares-2x2')->collapsed(false),
+                NavigationGroup::make('Rental')->icon('heroicon-o-calendar-days')->collapsed(false),
+                NavigationGroup::make('Fleet')->icon('heroicon-o-truck')->collapsed(false),
+                NavigationGroup::make('Maintenance')->icon('heroicon-o-wrench-screwdriver')->collapsed(true),
+                NavigationGroup::make('Customers')->icon('heroicon-o-users')->collapsed(true),
+                NavigationGroup::make('GPS & Monitoring')->icon('heroicon-o-signal')->collapsed(true),
+                NavigationGroup::make('Finance')->icon('heroicon-o-banknotes')->collapsed(true),
+                NavigationGroup::make('Procurement & Inventory')->icon('heroicon-o-archive-box')->collapsed(true),
+                NavigationGroup::make('Risk & Security')->icon('heroicon-o-shield-exclamation')->collapsed(true),
+                NavigationGroup::make('Sales & Marketing')->icon('heroicon-o-megaphone')->collapsed(true),
+                NavigationGroup::make('CMS')->icon('heroicon-o-window')->collapsed(true),
+                NavigationGroup::make('Reports')->icon('heroicon-o-chart-bar-square')->collapsed(true),
+                NavigationGroup::make('Settings')->icon('heroicon-o-cog-8-tooth')->collapsed(true),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

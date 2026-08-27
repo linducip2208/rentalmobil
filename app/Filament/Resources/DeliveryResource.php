@@ -7,7 +7,7 @@ use App\Models\Delivery;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class DeliveryResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-truck';
 
-    protected static string | UnitEnum | null $navigationGroup = '🚚 Serah Terima & Logistik';
+    protected static string | UnitEnum | null $navigationGroup = 'Rental';
 
     protected static ?int $navigationSort = 2;
 

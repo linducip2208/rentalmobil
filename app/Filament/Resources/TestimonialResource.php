@@ -7,7 +7,7 @@ use App\Models\Testimonial;
 use Filament\Forms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
@@ -20,7 +20,7 @@ class TestimonialResource extends Resource
 
     protected static BackedEnum | string | null $navigationIcon = 'heroicon-o-star';
 
-    protected static string | UnitEnum | null $navigationGroup = '📢 Konten & Marketing';
+    protected static string | UnitEnum | null $navigationGroup = 'CMS';
 
     protected static ?int $navigationSort = 2;
 

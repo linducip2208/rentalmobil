@@ -12,14 +12,10 @@ use App\Http\Controllers\PSeo\VehicleDetailController;
 use App\Http\Controllers\ProgrammaticSeoController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\CmsPageController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect('/admin');
-    }
-    return response()->view('marketing.home');
-})->name('home');
+Route::get('/', [CmsPageController::class, 'home'])->name('home');
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/feed.xml', [BlogController::class, 'feed'])->name('blog.feed');
@@ -42,6 +38,12 @@ Route::post('/booking/quote', [\App\Http\Controllers\PublicBookingController::cl
 Route::post('/booking', [\App\Http\Controllers\PublicBookingController::class,'store'])->middleware('throttle:10,1')->name('booking.store');
 Route::get('/booking/{booking}/berhasil', [\App\Http\Controllers\PublicBookingController::class,'success'])->middleware('signed')->name('booking.success');
 Route::post('/payments/callback/{provider}', \App\Http\Controllers\PaymentCallbackController::class)->middleware('throttle:300,1')->name('payments.callback');
+
+// ===== Embeddable booking widget (mitra) + API ketersediaan publik =====
+Route::get('/embed/booking', fn () => response()->view('embed.booking'))->name('embed.booking');
+Route::get('/api/public/availability', [\App\Http\Controllers\EmbedBookingController::class, 'availability'])->middleware('throttle:60,1')->name('api.public.availability');
+Route::get('/api/public/meta', [\App\Http\Controllers\EmbedBookingController::class, 'meta'])->middleware('throttle:60,1')->name('api.public.meta');
+Route::post('/booking/hold', [\App\Http\Controllers\PublicBookingController::class, 'hold'])->middleware('throttle:20,1')->name('booking.hold');
 
 Route::get('/handover/kontrak/{token}', [\App\Http\Controllers\PublicHandoverController::class, 'showContract'])->name('handover.contract.show');
 Route::post('/handover/kontrak/{token}/otp', [\App\Http\Controllers\PublicHandoverController::class, 'sendOtp'])->middleware('throttle:5,1')->name('handover.contract.otp');
@@ -68,6 +70,8 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::post('/invoice/{invoice}/bukti-bayar', [\App\Http\Controllers\Portal\DashboardController::class, 'uploadPaymentProof'])->middleware('throttle:10,1')->name('invoices.payment-proof');
         Route::post('/invoice/{invoice}/bayar', [\App\Http\Controllers\Portal\DashboardController::class, 'checkoutPayment'])->middleware('throttle:10,1')->name('invoices.pay');
         Route::post('/pesanan/{order}/perpanjang', [\App\Http\Controllers\Portal\DashboardController::class, 'requestExtension'])->middleware('throttle:5,1')->name('orders.extend');
+        Route::get('/referral', [\App\Http\Controllers\Portal\DashboardController::class, 'referrals'])->name('referrals');
+        Route::get('/poin', [\App\Http\Controllers\Portal\DashboardController::class, 'loyaltyPoints'])->name('loyalty');
         Route::post('/logout', [\App\Http\Controllers\Portal\AuthController::class, 'destroy'])->name('logout');
     });
 });
@@ -83,3 +87,8 @@ Route::get('/best-{category}-{year}', [ProgrammaticSeoController::class, 'bestCa
 Route::get('/compare/{a}-vs-{b}', [ProgrammaticSeoController::class, 'compareVehicles'])->name('pseo.compare-en');
 Route::get('/beli-aplikasi-rental-mobil', [ProgrammaticSeoController::class, 'sourceCode'])->name('pseo.source-code');
 Route::get('/source-code-rental-mobil', [ProgrammaticSeoController::class, 'sourceCode'])->name('pseo.source-code-alt');
+
+// Harus diletakkan paling akhir agar slug CMS tidak menimpa route bisnis/public lain.
+Route::get('/{pageSlug}', [CmsPageController::class, 'show'])
+    ->where('pageSlug', '[a-z0-9][a-z0-9-]*')
+    ->name('cms.page');

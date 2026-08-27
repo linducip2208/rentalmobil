@@ -22,17 +22,19 @@ class SystemSetting extends Model
     {
         return Cache::remember("setting_{$key}", 3600, function () use ($key, $default) {
             $setting = static::where('key', $key)->first();
-            return $setting ? $setting->value : $default;
+            return $setting ? $setting->value_by_type : $default;
         });
     }
 
     public static function set(string $key, $value): void
     {
-        static::query()->updateOrCreate(
+        $setting = static::query()->updateOrCreate(
             ['key' => $key],
             ['value' => is_array($value) ? json_encode($value) : $value, 'group_name' => static::query()->where('key', $key)->value('group_name') ?? 'general']
         );
         Cache::forget("setting_{$key}");
+        Cache::forget("setting_group_{$setting->group_name}");
+        Cache::forget('settings_all');
     }
 
     public static function getGroup(string $groupName): array
@@ -60,6 +62,7 @@ class SystemSetting extends Model
         $settings = static::all();
         foreach ($settings as $setting) {
             Cache::forget("setting_{$setting->key}");
+            Cache::forget("setting_group_{$setting->group_name}");
         }
         Cache::forget('settings_all');
     }

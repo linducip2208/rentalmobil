@@ -24,6 +24,31 @@ class DashboardController extends Controller
         return view('portal.dashboard', compact('customer', 'orders', 'invoices'));
     }
 
+    public function referrals(Request $request)
+    {
+        $customer = $request->user('customer');
+        $service = app(\App\Services\ReferralService::class);
+
+        $stats = $service->statsFor($customer);
+        $referrals = \App\Models\Referral::where('referrer_customer_id', $customer->id)->latest()->paginate(15);
+        $bookingUrl = config('app.url') . '/booking?ref=' . $stats['code'];
+
+        return view('portal.referrals', compact('customer', 'stats', 'referrals', 'bookingUrl'));
+    }
+
+    public function loyaltyPoints(Request $request)
+    {
+        $customer = $request->user('customer');
+        $loyalty = app(\App\Services\LoyaltyRedemptionService::class);
+
+        $balance = $loyalty->balance($customer);
+        $pointValue = $loyalty->pointValue($balance);
+        $ledgers = \App\Models\LoyaltyLedger::where('customer_id', $customer->id)->latest()->paginate(15);
+        $tierProgress = app(\App\Services\LoyaltyService::class)->getTierProgress($customer);
+
+        return view('portal.loyalty', compact('customer', 'balance', 'pointValue', 'ledgers', 'tierProgress'));
+    }
+
     public function orders(Request $request)
     {
         $orders = RentalOrder::with(['vehicle', 'payments', 'invoices'])

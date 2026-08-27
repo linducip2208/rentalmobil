@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RiskAssessmentResource\Pages;
 use App\Models\RiskAssessment;
-use Filament\Resources\Resource;
+use App\Filament\Resources\EnterpriseResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -13,7 +13,7 @@ class RiskAssessmentResource extends Resource
 {
     protected static ?string $model = RiskAssessment::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-shield-exclamation';
-    protected static \UnitEnum|string|null $navigationGroup = '🛡️ Risiko & Keamanan';
+    protected static \UnitEnum|string|null $navigationGroup = 'Risk & Security';
     protected static ?string $navigationLabel = 'Hasil Penilaian Risiko';
     protected static ?int $navigationSort = 9;
 
