@@ -71,6 +71,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('CMS & Marketing')->collapsed(true),
                 NavigationGroup::make('Settings')->collapsed(true),
             ])
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.components.admin-theme-settings'))
             ->renderHook(PanelsRenderHook::TOPBAR_END, fn (): View => view('filament.components.command-palette'))
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

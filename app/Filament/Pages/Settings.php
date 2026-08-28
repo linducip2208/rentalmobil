@@ -76,6 +76,20 @@ class Settings extends Page
                                 FileUpload::make('brand_favicon')->label('Favicon')->image()->disk('public')->directory('branding'),
                                 ColorPicker::make('primary_color')->label('Warna utama')->required(),
                             ]),
+                            Section::make('Tampilan Admin')->description('Atur warna sidebar, menu, aksen, dan tipografi tanpa mengubah source code.')->columns(3)->schema([
+                                Select::make('admin_font')->label('Font admin')->options([
+                                    'Inter' => 'Inter', 'Manrope' => 'Manrope', 'Plus Jakarta Sans' => 'Plus Jakarta Sans',
+                                    'DM Sans' => 'DM Sans', 'System UI' => 'System UI',
+                                ])->required(),
+                                ColorPicker::make('admin_sidebar_color')->label('Sidebar awal')->required(),
+                                ColorPicker::make('admin_sidebar_end_color')->label('Sidebar akhir')->required(),
+                                ColorPicker::make('admin_sidebar_text_color')->label('Teks menu')->required(),
+                                ColorPicker::make('admin_sidebar_muted_color')->label('Teks grup')->required(),
+                                ColorPicker::make('admin_sidebar_icon_color')->label('Ikon menu')->required(),
+                                ColorPicker::make('admin_active_menu_color')->label('Menu aktif')->required(),
+                                ColorPicker::make('admin_accent_color')->label('Aksen')->required(),
+                                ColorPicker::make('admin_content_background')->label('Background konten')->required(),
+                            ]),
                         ]),
                         Tab::make('Rental & Booking')->icon('heroicon-o-calendar-days')->schema([
                             Section::make('Rental Rules')->columns(3)->schema([

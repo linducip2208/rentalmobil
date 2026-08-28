@@ -21,12 +21,16 @@ class SystemSettingServiceTest extends TestCase
         $values['company_name'] = 'PT Rental Enterprise Indonesia';
         $values['allow_negative_stock'] = true;
         $values['security_max_login_attempts'] = 7;
+        $values['admin_font'] = 'Plus Jakarta Sans';
+        $values['admin_sidebar_text_color'] = '#f8fafc';
 
         $service->save($values);
 
         $this->assertSame('PT Rental Enterprise Indonesia', SystemSetting::get('company_name'));
         $this->assertTrue(SystemSetting::get('allow_negative_stock'));
         $this->assertSame(7, SystemSetting::get('security_max_login_attempts'));
+        $this->assertSame('Plus Jakarta Sans', SystemSetting::get('admin_font'));
+        $this->assertSame('#f8fafc', SystemSetting::get('admin_sidebar_text_color'));
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'setting.updated',
             'auditable_type' => SystemSetting::class,
