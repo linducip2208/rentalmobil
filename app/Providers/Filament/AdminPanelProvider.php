@@ -10,6 +10,7 @@ use App\Filament\Widgets\RecentOrdersTableWidget;
 use App\Filament\Widgets\RevenueChartWidget;
 use App\Filament\Widgets\StatsOverviewWidget;
 use App\Http\Middleware\EnsureAdminRoleAccess;
+use App\Services\WhitelabelService;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,14 +32,19 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $brand = app(WhitelabelService::class);
+
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
             ->simplePageMaxContentWidth('full')
-            ->brandName('RentalMobil')
-            ->favicon(asset('favicon.ico'))
+            ->brandName(fn (): string => $brand->name())
+            ->brandLogo(fn (): ?string => $brand->asset('brand_logo'))
+            ->darkModeBrandLogo(fn (): ?string => $brand->asset('brand_logo_dark', $brand->asset('brand_logo')))
+            ->brandLogoHeight('2.25rem')
+            ->favicon(fn (): ?string => $brand->asset('brand_favicon', asset('favicon.ico')))
             ->colors([
                 'primary' => Color::Blue,
                 'success' => Color::Emerald,

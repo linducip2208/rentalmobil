@@ -71,10 +71,25 @@ class Settings extends Page
                                 Select::make('locale')->options(['id' => 'Bahasa Indonesia', 'en' => 'English'])->required(),
                                 TextInput::make('date_format')->label('Format tanggal')->required(),
                             ]),
-                            Section::make('Branding')->columns(2)->schema([
-                                FileUpload::make('brand_logo')->label('Logo')->image()->disk('public')->directory('branding'),
+                            Section::make('Identitas Whitelabel')->description('Digunakan konsisten di admin, login, portal pelanggan, dan frontend.')->columns(2)->schema([
+                                TextInput::make('brand_name')->label('Nama aplikasi / merek')->required(),
+                                TextInput::make('brand_short_name')->label('Nama singkat')->required()->maxLength(30),
+                                TextInput::make('brand_tagline')->label('Tagline')->columnSpanFull(),
+                                FileUpload::make('brand_logo')->label('Logo utama')->image()->disk('public')->directory('branding'),
+                                FileUpload::make('brand_logo_dark')->label('Logo background gelap')->image()->disk('public')->directory('branding'),
                                 FileUpload::make('brand_favicon')->label('Favicon')->image()->disk('public')->directory('branding'),
                                 ColorPicker::make('primary_color')->label('Warna utama')->required(),
+                                Select::make('public_font')->label('Font frontend & portal')->options([
+                                    'Inter' => 'Inter', 'Manrope' => 'Manrope', 'Plus Jakarta Sans' => 'Plus Jakarta Sans',
+                                    'DM Sans' => 'DM Sans', 'System UI' => 'System UI',
+                                ])->required(),
+                                TextInput::make('brand_copyright')->label('Teks copyright')->columnSpanFull(),
+                                Toggle::make('show_powered_by')->label('Tampilkan Powered by')->helperText('Nonaktifkan untuk whitelabel penuh.'),
+                            ]),
+                            Section::make('Halaman Login')->columns(2)->schema([
+                                TextInput::make('login_eyebrow')->label('Label kecil'),
+                                TextInput::make('login_headline')->label('Headline')->columnSpanFull(),
+                                Textarea::make('login_description')->label('Deskripsi')->columnSpanFull(),
                             ]),
                             Section::make('Tampilan Admin')->description('Atur warna sidebar, menu, aksen, dan tipografi tanpa mengubah source code.')->columns(3)->schema([
                                 Select::make('admin_font')->label('Font admin')->options([

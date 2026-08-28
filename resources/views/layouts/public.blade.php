@@ -1,10 +1,12 @@
 <!DOCTYPE html>
+@php($brand = app(\App\Services\WhitelabelService::class)->viewData())
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $pageTitle ?? config('app.name') }}</title>
-    <meta name="description" content="{{ $seoDescription ?? 'RentalMobil — Sistem rental mobil profesional' }}">
+    <title>{{ $pageTitle ?? $brand['name'] }}</title>
+    <meta name="description" content="{{ $seoDescription ?? $brand['tagline'] }}">
+    <link rel="icon" href="{{ $brand['favicon'] }}">
     @if(isset($seoCanonical))<link rel="canonical" href="{{ $seoCanonical }}">@endif
     @if(isset($seoJsonLd))<script type="application/ld+json">{!! $seoJsonLd !!}</script>@endif
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +14,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        :root { --brand-primary: {{ $brand['primaryColor'] }}; }
+        body { font-family: '{{ $brand['font'] }}', sans-serif; }
         @keyframes fadeSlideUp { 0%{transform:translateY(30px);opacity:0} 100%{transform:translateY(0);opacity:1} }
         @keyframes floatSlow { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
         .animate-float-slow { animation:floatSlow 5s ease-in-out infinite }
@@ -28,7 +31,7 @@
     <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-200">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <a href="/" class="flex items-center gap-2 font-bold text-xl text-indigo-600">
-                <span class="text-2xl">🚗</span> RentalMobil
+                @if($brand['logo'])<img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}" class="h-10 max-w-44 object-contain">@else<span class="grid h-9 w-9 place-items-center rounded-lg text-sm text-white" style="background:var(--brand-primary)">{{ $brand['initials'] }}</span> {{ $brand['name'] }}@endif
             </a>
 
             {{-- Desktop nav --}}
@@ -63,7 +66,7 @@
 
     <footer class="bg-stone-900 text-stone-400 py-12 mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
-            <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} {{ $brand['name'] }}. {{ $brand['copyright'] }} @if($brand['showPoweredBy']) · Powered by RentalMobil @endif</p>
         </div>
     </footer>
 
