@@ -1,3 +1,4 @@
+@php($brand = app(\App\Services\WhitelabelService::class)->viewData())
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
@@ -47,8 +48,7 @@
     <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-stone-200/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
             <a href="{{ route('home') }}" class="flex items-center gap-2">
-                <span class="text-xl">🚗</span>
-                <span class="font-bold text-lg text-stone-900">RentalMobil</span>
+                @if($brand['logo'])<img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}" class="h-9 max-w-40 object-contain">@else<span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs text-white">{{ $brand['initials'] }}</span><span class="font-bold text-lg text-stone-900">{{ $brand['name'] }}</span>@endif
             </a>
             <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
                 <a href="{{ route('home') }}" class="text-stone-500 hover:text-brand-600 transition-colors">Beranda</a>
@@ -58,7 +58,7 @@
                 <a href="/contact" class="text-stone-500 hover:text-brand-600 transition-colors">Kontak</a>
                 <a href="/docs" class="text-stone-500 hover:text-brand-600 transition-colors">Dokumentasi</a>
             </nav>
-            <a href="{{ route('portal.login') }}" class="px-4 py-2 bg-brand-600 text-white text-sm font-semibold rounded-lg hover:bg-brand-700 transition-all">Masuk</a>
+                <div class="flex items-center gap-2"><a href="/admin/login" class="hidden px-3 py-2 text-sm font-semibold text-stone-600 sm:inline-flex">Masuk Admin</a><a href="{{ route('portal.login') }}" class="px-4 py-2 bg-brand-600 text-white text-sm font-semibold rounded-lg hover:bg-brand-700 transition-all">Booking saya</a></div>
         </div>
     </header>
 

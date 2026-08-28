@@ -1,3 +1,4 @@
+@php($brand = app(\App\Services\WhitelabelService::class)->viewData())
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -22,8 +23,8 @@
 <body class="bg-slate-50 text-slate-800 antialiased">
 <header class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-        <a href="{{ route('home') }}" class="text-xl font-extrabold text-blue-700">{{ \App\Models\SystemSetting::get('company_name', config('app.name')) }}</a>
-        <div class="flex items-center gap-3"><a href="{{ route('booking.index') }}" class="rounded-xl bg-blue-600 px-4 py-2.5 font-semibold text-white">Booking Mobil</a></div>
+        <a href="{{ route('home') }}" class="flex items-center gap-2 text-xl font-extrabold text-blue-700">@if($brand['logo'])<img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}" class="h-9 max-w-40 object-contain">@else<span class="grid h-8 w-8 place-items-center rounded-lg bg-blue-700 text-xs text-white">{{ $brand['initials'] }}</span>{{ $brand['name'] }}@endif</a>
+        <div class="flex items-center gap-2"><a href="{{ route('portal.login') }}" class="hidden px-3 py-2 text-sm font-semibold text-slate-600 sm:inline-flex">Booking saya</a><a href="{{ route('filament.admin.auth.login') }}" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">Masuk Admin</a><a href="{{ route('booking.index') }}" class="rounded-xl bg-blue-600 px-4 py-2.5 font-semibold text-white">Booking Mobil</a></div>
     </div>
 </header>
 
