@@ -91,8 +91,8 @@ Route::get('/sewa/{vehicle}', VehicleDetailController::class)->name('pseo.vehicl
 Route::get('/bandingkan/{a}-vs-{b}', CompareController::class)->name('pseo.compare');
 Route::get('/alternatives-to-{slug}', AlternativeController::class)->name('pseo.alternatives');
 
-Route::get('/best-{category}', [ProgrammaticSeoController::class, 'bestCategory'])->name('pseo.best-category');
 Route::get('/best-{category}-{year}', [ProgrammaticSeoController::class, 'bestCategory'])->name('pseo.best-category-year');
+Route::get('/best-{category}', [ProgrammaticSeoController::class, 'bestCategory'])->name('pseo.best-category');
 Route::get('/compare/{a}-vs-{b}', [ProgrammaticSeoController::class, 'compareVehicles'])->name('pseo.compare-en');
 Route::get('/beli-aplikasi-rental-mobil', [ProgrammaticSeoController::class, 'sourceCode'])->name('pseo.source-code');
 Route::get('/source-code-rental-mobil', [ProgrammaticSeoController::class, 'sourceCode'])->name('pseo.source-code-alt');
