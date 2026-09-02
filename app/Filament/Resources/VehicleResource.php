@@ -68,7 +68,7 @@ class VehicleResource extends Resource
             ])->columns(2),
 
             Schemas\Components\Section::make('Detail Kendaraan')->schema([
-                Forms\Components\TextInput::make('license_plate')
+                Forms\Components\TextInput::make('plate_number')
                     ->label('No. Polisi')
                     ->required()
                     ->maxLength(20)
@@ -82,7 +82,7 @@ class VehicleResource extends Resource
                 Forms\Components\TextInput::make('color')
                     ->label('Warna')
                     ->maxLength(50),
-                Forms\Components\TextInput::make('seats')
+                Forms\Components\TextInput::make('seat_count')
                     ->label('Jumlah Kursi')
                     ->numeric()
                     ->default(4),
@@ -94,23 +94,38 @@ class VehicleResource extends Resource
                     ->options([
                         'manual' => 'Manual',
                         'automatic' => 'Automatic',
-                        'cvt' => 'CVT',
                     ])
                     ->required(),
                 Forms\Components\Select::make('fuel_type')
                     ->label('Jenis BBM')
                     ->options([
-                        'gasoline' => 'Bensin',
+                        'pertalite' => 'Pertalite',
+                        'pertamax' => 'Pertamax',
+                        'premium' => 'Premium',
                         'diesel' => 'Diesel',
                         'electric' => 'Listrik',
-                        'hybrid' => 'Hybrid',
-                        'lpg' => 'LPG',
                     ])
                     ->required(),
-                Forms\Components\TextInput::make('current_km')
+                Forms\Components\TextInput::make('mileage')
                     ->label('Kilometer Saat Ini')
                     ->numeric()
                     ->default(0),
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'available' => 'Tersedia',
+                        'reserved' => 'Direservasi',
+                        'preparing' => 'Disiapkan',
+                        'rented' => 'Disewa',
+                        'overdue' => 'Terlambat',
+                        'inspection' => 'Inspeksi',
+                        'cleaning' => 'Pembersihan',
+                        'maintenance' => 'Servis',
+                        'damaged' => 'Rusak',
+                        'inactive' => 'Tidak Aktif',
+                    ])
+                    ->default('available')
+                    ->required(),
                 Forms\Components\Toggle::make('is_active')
                     ->label('Aktif')
                     ->default(true),
@@ -143,17 +158,62 @@ class VehicleResource extends Resource
                     ->prefix('Rp'),
             ])->columns(3),
 
-            Schemas\Components\Section::make('Foto & Fitur')->schema([
-                Forms\Components\FileUpload::make('image')
-                    ->label('Foto Utama')
-                    ->image()
-                    ->disk('public')
-                    ->directory('vehicles')
-                    ->maxSize(5120),
+            Schemas\Components\Section::make('Galeri Foto')
+                ->description('Foto pertama menjadi cover. Atur ulang urutan, tambah alt text, dan tentukan jenis foto untuk galeri halaman kendaraan.')
+                ->schema([
+                    Forms\Components\Repeater::make('gallery')
+                        ->label('Foto')
+                        ->relationship('photos')
+                        ->schema([
+                            Forms\Components\FileUpload::make('photo_url')
+                                ->label('Berkas Gambar')
+                                ->image()
+                                ->imageEditor()
+                                ->disk('public')
+                                ->directory('vehicles/'.now()->format('Y/m'))
+                                ->maxSize(5120)
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                ->required(),
+                            Forms\Components\TextInput::make('alt_text')
+                                ->label('Alt Text')
+                                ->maxLength(255)
+                                ->columnSpan(1),
+                            Forms\Components\TextInput::make('caption')
+                                ->label('Keterangan')
+                                ->maxLength(255)
+                                ->columnSpan(1),
+                            Forms\Components\Select::make('type')
+                                ->label('Jenis Foto')
+                                ->options([
+                                    'exterior' => 'Eksterior',
+                                    'interior' => 'Interior',
+                                    'dashboard' => 'Dashboard/Odometer',
+                                    'rear' => 'Belakang',
+                                    'side' => 'Samping',
+                                    'luggage' => 'Bagasi',
+                                    'other' => 'Lainnya',
+                                ])
+                                ->default('exterior')
+                                ->columnSpan(1),
+                            Forms\Components\TextInput::make('sort_order')
+                                ->label('Urutan')
+                                ->numeric()
+                                ->default(fn () => 0)
+                                ->columnSpan(1),
+                            Forms\Components\Toggle::make('is_primary')
+                                ->label('Jadikan Cover')
+                                ->columnSpan(1),
+                        ])
+                        ->columns(2)
+                        ->collapsible()
+                        ->itemLabel(fn (array $state): ?string => $state['caption'] ?? ($state['alt_text'] ?? 'Foto kendaraan')),
+                ]),
+
+            Schemas\Components\Section::make('Fitur Kendaraan')->schema([
                 Forms\Components\KeyValue::make('features')
                     ->label('Fitur Kendaraan')
                     ->placeholder('Tambah fitur'),
-            ])->columns(2),
+            ])->columns(1),
 
             Schemas\Components\Section::make('Status Servis')->schema([
                 Forms\Components\DateTimePicker::make('last_serviced_at')
@@ -177,7 +237,7 @@ class VehicleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')
+                Tables\Columns\ImageColumn::make('photos.0.photo_url')
                     ->label('Foto')
                     ->disk('public')
                     ->circular(),
@@ -185,7 +245,7 @@ class VehicleResource extends Resource
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('license_plate')
+                Tables\Columns\TextColumn::make('plate_number')
                     ->label('No. Polisi')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('category.name')
@@ -218,7 +278,7 @@ class VehicleResource extends Resource
                     ->label('Tarif/Hari')
                     ->money('IDR')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('current_km')
+                Tables\Columns\TextColumn::make('mileage')
                     ->label('KM')
                     ->sortable(),
             ])

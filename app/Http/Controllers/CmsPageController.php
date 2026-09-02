@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Faq;
 use App\Models\Page;
-use App\Models\SystemSetting;
 use App\Models\Testimonial;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\Cache;
@@ -13,23 +12,9 @@ class CmsPageController extends Controller
 {
     public function home()
     {
-        if (auth()->check()) {
-            return redirect('/admin');
-        }
-
-        $page = $this->findPublished('home');
-
-        if ($page) {
-            return $this->render($page);
-        }
-
-        return response()->view('marketing.home', [
-            'vehicles' => Vehicle::query()->with(['brand', 'category', 'location'])
-                ->where('is_active', true)->where('status', 'available')->limit(6)->get(),
-            'faqs' => Faq::query()->where('is_active', true)->orderBy('sort_order')->limit(6)->get(),
-            'testimonials' => Testimonial::query()->where('is_active', true)->latest()->limit(6)->get(),
-            'settings' => SystemSetting::getAll(),
-        ]);
+        // The storefront homepage is the primary customer experience; CMS pages
+        // remain available for other slugs and via /{pageSlug} routing.
+        return app(\App\Http\Controllers\StorefrontController::class)->home();
     }
 
     public function show(string $pageSlug)

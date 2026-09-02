@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Vehicle extends Model
@@ -107,7 +109,40 @@ class Vehicle extends Model
 
     public function photos()
     {
-        return $this->hasMany(VehiclePhoto::class);
+        return $this->hasMany(VehiclePhoto::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    /**
+     * Best available photo URL for the vehicle: cover/gallery photo first,
+     * then the legacy photo_url column. Null when the fleet has no media yet.
+     */
+    public function coverPhotoUrl(): ?string
+    {
+        $photo = $this->photos->firstWhere('is_primary', true) ?? $this->photos->first();
+
+        if ($photo && filled($photo->photo_url)) {
+            return $photo->url;
+        }
+
+        if (filled($this->photo_url)) {
+            return str_starts_with((string) $this->photo_url, 'http')
+                ? $this->photo_url
+                : Storage::disk('public')->url($this->photo_url);
+        }
+
+        return null;
+    }
+
+    /**
+     * Gallery photos excluding the cover.
+     */
+    public function galleryPhotos(): Collection
+    {
+        $photos = $this->photos;
+
+        return $photos->reject(
+            fn (VehiclePhoto $photo) => $photo->is_primary && $photo->is($photos->first())
+        )->values();
     }
 
     public function bookings()

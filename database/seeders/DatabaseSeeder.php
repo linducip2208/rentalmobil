@@ -42,6 +42,8 @@ class DatabaseSeeder extends Seeder
         $this->call(EnterpriseProcurementSeeder::class);
         $this->seedCms();
         $this->call(RolePermissionSeeder::class);
+        $this->call(StorefrontContentSeeder::class);
+        $this->call(DemoVehicleMediaSeeder::class);
     }
 
     protected function seedUsers(): void

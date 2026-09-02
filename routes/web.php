@@ -20,9 +20,20 @@ use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\PublicHandoverController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [CmsPageController::class, 'home'])->name('home');
+
+// ===== Storefront rental =====
+Route::get('/sewa-mobil', [StorefrontController::class, 'catalog'])->name('storefront.catalog');
+Route::get('/sewa-mobil/cari', [StorefrontController::class, 'search'])->name('storefront.search');
+Route::get('/sewa-mobil/{categorySlug}', [StorefrontController::class, 'catalog'])
+    ->where('categorySlug', '[a-z0-9-]+')
+    ->name('storefront.category');
+Route::get('/mobil/{vehicle:slug}', [StorefrontController::class, 'show'])->name('storefront.show');
+Route::get('/lokasi', [StorefrontController::class, 'locations'])->name('storefront.locations');
+Route::get('/cara-sewa', fn () => view('storefront.how-it-works'))->name('storefront.how-it-works');
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/feed.xml', [BlogController::class, 'feed'])->name('blog.feed');
@@ -85,9 +96,9 @@ Route::prefix('portal')->name('portal.')->group(function () {
     });
 });
 
-Route::get('/sewa-mobil', [CategoryListController::class, 'index'])->name('pseo.category-list');
+// Katalog legacy (pSEO) — /sewa-mobil sekarang menjadi katalog nyata di atas.
 Route::get('/sewa-mobil-di-{city}', CategoryCityController::class)->name('pseo.category-city');
-Route::get('/sewa/{vehicle}', VehicleDetailController::class)->name('pseo.vehicle-detail');
+Route::get('/sewa/{vehicle:slug}', VehicleDetailController::class)->name('pseo.vehicle-detail');
 Route::get('/bandingkan/{a}-vs-{b}', CompareController::class)->name('pseo.compare');
 Route::get('/alternatives-to-{slug}', AlternativeController::class)->name('pseo.alternatives');
 

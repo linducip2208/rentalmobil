@@ -6,4 +6,49 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Storefront brand palette */
+    --color-fleet-950: #08111f;
+    --color-fleet-900: #0d1b2d;
+    --color-fleet-800: #12253d;
+    --color-brass-500: #c69245;
+    --color-brass-600: #a97b34;
+    --color-sky-brand: #0369a1;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Accessible focus for keyboard users only */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--color-sky-brand);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
 }

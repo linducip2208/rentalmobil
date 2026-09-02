@@ -1,68 +1,81 @@
-@extends('pseo._layout')
+@extends('storefront.layout')
+
+@php($brand = app(\App\Services\WhitelabelService::class)->viewData())
+@php($cityVehiclesLink = route('storefront.catalog', $location ? ['location' => $location->slug, 'available_only' => 1] : ['available_only' => 1]))
+
+@section('title', 'Sewa Mobil di '.$city.' — Armada & Harga | '.$brand['name'])
+@section('seoDescription', $cityDescription)
 
 @section('content')
-<section class="py-16 lg:py-24">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 class="font-bold text-4xl lg:text-5xl text-stone-900 mb-4">Sewa Mobil di {{ $city }}</h1>
-        <p class="text-lg text-stone-500 mb-12">Temukan kendaraan terbaik untuk perjalanan Anda di {{ $city }}</p>
-
-        <div class="prose prose-stone prose-lg max-w-none mb-12">
-            <p>{{ $cityDescription ?? "Menyewa mobil di {$city} memberikan Anda kebebasan untuk menjelajahi kota dan sekitarnya dengan nyaman. {$city} adalah salah satu kota dengan permintaan rental mobil tertinggi di Indonesia, baik untuk kebutuhan wisata, bisnis, maupun perjalanan pribadi. Dengan armada kendaraan yang beragam, dari city car yang lincah hingga SUV yang tangguh, Anda dapat menemukan kendaraan yang sempurna sesuai dengan rencana perjalanan." }}</p>
-
-            <p>Kami menyediakan berbagai pilihan kendaraan di {{ $city }} dengan kondisi terawat dan dilengkapi asuransi. Proses pemesanan mudah dan cepat — cukup pilih kendaraan, tentukan tanggal, dan lakukan pembayaran. Driver profesional juga tersedia jika Anda membutuhkan bantuan selama perjalanan di {{ $city }} dan sekitarnya.</p>
+    <section class="bg-fleet-950 pb-14 pt-28 text-white lg:pt-36">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+            <nav class="text-xs font-semibold text-slate-400" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2">
+                    <li><a href="{{ route('home') }}" class="transition hover:text-white">Beranda</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" class="text-slate-200">{{ $city }}</li>
+                </ol>
+            </nav>
+            <h1 class="mt-4 font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">Sewa Mobil di {{ $city }}</h1>
+            <p class="mt-4 max-w-2xl leading-7 text-slate-300">{{ $cityDescription }}</p>
         </div>
+    </section>
 
-        <h2 class="font-bold text-2xl text-stone-900 mb-6">Kendaraan Tersedia di {{ $city }}</h2>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            @forelse($vehicles ?? [] as $vehicle)
-            <a href="/sewa/{{ $vehicle->slug ?? $vehicle['slug'] ?? '#' }}" class="bg-white border border-stone-200 rounded-2xl overflow-hidden card-lift block">
-                <div class="aspect-video bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
-                    <span class="text-5xl">🚗</span>
-                </div>
-                <div class="p-5">
-                    <h3 class="font-bold text-stone-900 mb-1">{{ $vehicle->name ?? $vehicle['name'] ?? 'Kendaraan' }}</h3>
-                    <p class="text-sm text-stone-500 mb-3">{{ $vehicle->category ?? $vehicle['category'] ?? '—' }} &middot; {{ $vehicle->transmission ?? $vehicle['transmission'] ?? '—' }} &middot; {{ $vehicle->fuel ?? $vehicle['fuel'] ?? 'Bensin' }}</p>
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-brand-600">Rp {{ number_format($vehicle->price_per_day ?? $vehicle['price_per_day'] ?? 0, 0, ',', '.') }}/hari</span>
-                        <span class="text-xs text-stone-400">{{ $vehicle->seats ?? $vehicle['seats'] ?? 4 }} kursi</span>
-                    </div>
-                </div>
-            </a>
+    <section class="mx-auto max-w-7xl px-5 py-14 lg:px-8" aria-label="Armada di {{ $city }}">
+        <h2 class="font-display text-2xl font-extrabold tracking-tight">Armada di {{ $city }}</h2>
+        <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @forelse($vehicles as $vehicle)
+                <x-storefront.vehicle-card :vehicle="$vehicle" :show-status="true" />
             @empty
-            <div class="col-span-full text-center py-12 text-stone-400">
-                <div class="text-4xl mb-3">🚗</div>
-                <p>Armada untuk kota ini sedang dalam proses update. Silakan hubungi kami untuk informasi.</p>
-            </div>
+                <div class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+                    <h3 class="font-display text-xl font-bold">Armada {{ $city }} sedang diperbarui</h3>
+                    <p class="mt-2 text-slate-500">Lihat armada lengkap kami di seluruh cabang atau hubungi tim untuk rekomendasi.</p>
+                    <a href="{{ route('storefront.catalog') }}" class="mt-6 inline-flex rounded-xl bg-fleet-950 px-6 py-3 text-sm font-extrabold text-white">Lihat semua armada</a>
+                </div>
             @endforelse
         </div>
+    </section>
 
-        <div class="bg-white border border-stone-200 rounded-2xl p-8 mb-12">
-            <h2 class="font-bold text-xl text-stone-900 mb-4">Harga Sewa di {{ $city }}</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-stone-200">
-                            <th class="text-left py-3 px-4 font-semibold text-stone-700">Kategori</th>
-                            <th class="text-left py-3 px-4 font-semibold text-stone-700">Lepas Kunci</th>
-                            <th class="text-left py-3 px-4 font-semibold text-stone-700">Dengan Driver</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-100">
-                        <tr><td class="py-3 px-4">City Car</td><td class="py-3 px-4">Rp 250.000/hari</td><td class="py-3 px-4">Rp 400.000/hari</td></tr>
-                        <tr><td class="py-3 px-4">Sedan</td><td class="py-3 px-4">Rp 350.000/hari</td><td class="py-3 px-4">Rp 500.000/hari</td></tr>
-                        <tr><td class="py-3 px-4">SUV</td><td class="py-3 px-4">Rp 500.000/hari</td><td class="py-3 px-4">Rp 650.000/hari</td></tr>
-                        <tr><td class="py-3 px-4">MPV</td><td class="py-3 px-4">Rp 400.000/hari</td><td class="py-3 px-4">Rp 550.000/hari</td></tr>
-                    </tbody>
-                </table>
+    @if(count($priceRows) > 0)
+        <section class="border-y border-slate-200 bg-white py-14" aria-label="Harga sewa per kategori">
+            <div class="mx-auto max-w-7xl px-5 lg:px-8">
+                <h2 class="font-display text-2xl font-extrabold tracking-tight">Harga sewa di {{ $city }}</h2>
+                <p class="mt-2 text-sm text-slate-500">Kisaran tarif harian nyata per kategori, dihitung dari armada aktif.</p>
+                <div class="mt-8 overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50 text-left text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">
+                                <th class="px-5 py-4">Kategori</th>
+                                <th class="px-5 py-4">Tarif mulai</th>
+                                <th class="px-5 py-4">Unit tersedia</th>
+                                <th class="px-5 py-4"><span class="sr-only">Aksi</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @foreach($priceRows as $row)
+                                <tr>
+                                    <td class="px-5 py-4 font-bold text-slate-950">{{ $row['name'] }}</td>
+                                    <td class="px-5 py-4 text-slate-700">Rp {{ number_format((float) $row['min_rate'], 0, ',', '.') }}/hari</td>
+                                    <td class="px-5 py-4 text-slate-700">{{ $row['units'] }} unit</td>
+                                    <td class="px-5 py-4 text-right">
+                                        <a href="{{ route('storefront.category', str_replace('-', '', \Illuminate\Support\Str::slug($row['name']))) }}" class="font-bold text-sky-700 transition hover:text-sky-900">Lihat unit &rarr;</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <p class="text-xs text-stone-400 mt-3">*Harga bervariasi tergantung jenis kendaraan dan musim</p>
-        </div>
+        </section>
+    @endif
 
-        <div class="bg-brand-600 rounded-2xl p-8 text-center text-white">
-            <h3 class="font-bold text-2xl mb-2">Butuh Mobil di {{ $city }}?</h3>
-            <p class="text-brand-100 mb-6">Pesan sekarang dan dapatkan harga terbaik</p>
-            <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-brand-700 font-bold rounded-xl hover:bg-brand-50 transition-all">Pesan Sekarang →</a>
+    <section class="mx-auto max-w-7xl px-5 py-14 lg:px-8">
+        <div class="relative overflow-hidden rounded-[2rem] bg-brass-500 px-7 py-12 text-fleet-950 sm:px-12 lg:flex lg:items-center lg:justify-between">
+            <div>
+                <h2 class="font-display text-3xl font-extrabold">Butuh mobil di {{ $city }}?</h2>
+                <p class="mt-2 text-fleet-900/75">Cek ketersediaan dan estimasi harga sekarang — proses hanya beberapa menit.</p>
+            </div>
+            <a href="{{ $cityVehiclesLink }}" class="mt-7 inline-flex min-h-12 items-center rounded-xl bg-fleet-950 px-6 font-extrabold text-white transition hover:-translate-y-0.5 lg:mt-0">Cari mobil <span class="ml-3" aria-hidden="true">&rarr;</span></a>
         </div>
-    </div>
-</section>
+    </section>
 @endsection
