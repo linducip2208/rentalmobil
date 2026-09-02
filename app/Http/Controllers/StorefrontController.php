@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Addon;
-use App\Models\Booking;
 use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Location;
 use App\Models\PromoVoucher;
-use App\Models\RentalOrder;
 use App\Models\Testimonial;
 use App\Models\Vehicle;
 use App\Services\AvailabilityEngine;
@@ -41,9 +38,16 @@ class StorefrontController extends Controller
             ->limit(6)
             ->get();
 
+        // Eager-load active vehicles + photos for category cards (no N+1).
         $categories = Category::query()
             ->where('is_active', true)
             ->whereHas('vehicles', fn (Builder $q) => $q->where('is_active', true))
+            ->with([
+                'vehicles' => fn (Builder $q) => $q
+                    ->where('is_active', true)
+                    ->select(['id', 'category_id', 'name', 'slug', 'photo_url'])
+                    ->with('photos'),
+            ])
             ->withCount(['vehicles' => fn (Builder $q) => $q->where('is_active', true)])
             ->orderBy('sort_order')
             ->orderBy('name')
@@ -52,7 +56,17 @@ class StorefrontController extends Controller
         return response()->view('storefront.home', [
             'vehicles' => $vehicles,
             'categories' => $categories,
-            'locations' => Location::active()->orderBy('name')->get(),
+            // City cards read $location->vehicles (is_active + cover photos).
+            'locations' => Location::query()
+                ->active()
+                ->orderBy('name')
+                ->with([
+                    'vehicles' => fn (Builder $q) => $q
+                        ->where('is_active', true)
+                        ->select(['id', 'location_id', 'name', 'slug', 'photo_url'])
+                        ->with('photos'),
+                ])
+                ->get(),
             'promos' => PromoVoucher::query()
                 ->where('is_active', true)
                 ->where(fn (Builder $q) => $q->whereNull('end_date')->orWhere('end_date', '>=', today()))
@@ -65,16 +79,23 @@ class StorefrontController extends Controller
         ]);
     }
 
-    public function catalog(Request $request, AvailabilityEngine $availability)
+    public function catalog(Request $request, AvailabilityEngine $availability, ?string $categorySlug = null)
     {
         $filters = $this->validatedFilters($request);
+
+        // /sewa-mobil/{categorySlug} is the canonical category filter; the
+        // ?category= query param stays supported. Unknown slugs → 404.
+        $categorySlug = $filters['category'] ?? $categorySlug;
+        $activeCategory = null;
+        if ($categorySlug !== null) {
+            $activeCategory = Category::query()->where('is_active', true)->where('slug', $categorySlug)->first();
+            abort_unless($activeCategory !== null, 404, 'Kategori kendaraan tidak ditemukan.');
+        }
+
         $query = Vehicle::query()
             ->with(['category', 'brand', 'location', 'photos'])
             ->where('is_active', true)
-            ->when($filters['category'], fn (Builder $q, $slug) => $q->whereHas(
-                'category',
-                fn (Builder $c) => $c->where('slug', $slug)
-            ))
+            ->when($activeCategory, fn (Builder $q) => $q->where('category_id', $activeCategory->id))
             ->when($filters['location'], fn (Builder $q, $slug) => $q->whereHas(
                 'location',
                 fn (Builder $l) => $l->where('slug', $slug)
@@ -94,14 +115,10 @@ class StorefrontController extends Controller
             [$start, $end] = $filters['period'];
 
             if ($filters['available_only']) {
-                $busyVehicleIds = $this->busyVehicleIds($start, $end);
-                $busyVehicleIds->push(...$this->maintenanceVehicleIds());
+                $blockedIds = $availability->blockedVehicleIds($start, $end);
 
-                $query->whereNotIn('id', $busyVehicleIds->unique()->values())
+                $query->whereNotIn('id', $blockedIds)
                     ->where('status', 'available');
-            } else {
-                // Show status context per vehicle for the requested period.
-                $query->with(['category', 'brand', 'location', 'photos']);
             }
         } elseif ($filters['available_only']) {
             $query->where('status', 'available');
@@ -118,7 +135,7 @@ class StorefrontController extends Controller
             'vehicles' => $vehicles,
             'categories' => Category::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'locations' => Location::active()->orderBy('name')->get(),
-            'activeCategory' => $filters['category'] ? Category::where('slug', $filters['category'])->first() : null,
+            'activeCategory' => $activeCategory,
             'filters' => $filters,
             'priceBounds' => $this->priceBounds(),
         ]);
@@ -267,35 +284,6 @@ class StorefrontController extends Controller
             ->selectRaw('MIN(daily_rate) as min_price, MAX(daily_rate) as max_price')
             ->first()
             ?->toArray() ?? ['min_price' => 0, 'max_price' => 0];
-    }
-
-    /**
-     * Vehicle IDs overlapping the period through bookings or rental orders
-     * that block availability.
-     */
-    private function busyVehicleIds(CarbonImmutable $start, CarbonImmutable $end): \Illuminate\Support\Collection
-    {
-        $bookings = Booking::query()
-            ->whereIn('status', ['pending_verification', 'pending_payment', 'confirmed', 'hold', 'active'])
-            ->where('start_date', '<=', $end->endOfDay())
-            ->where('end_date', '>=', $start->startOfDay())
-            ->pluck('vehicle_id');
-
-        $orders = RentalOrder::query()
-            ->whereNotIn('status', ['completed', 'cancelled', 'disputed'])
-            ->where('start_date', '<=', $end->endOfDay())
-            ->where('end_date', '>=', $start->startOfDay())
-            ->pluck('vehicle_id');
-
-        return $bookings->merge($orders);
-    }
-
-    private function maintenanceVehicleIds(): array
-    {
-        return Vehicle::query()
-            ->whereIn('status', ['maintenance', 'damaged', 'inactive', 'inspection', 'cleaning'])
-            ->pluck('id')
-            ->all();
     }
 
     /**

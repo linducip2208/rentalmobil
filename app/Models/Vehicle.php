@@ -113,15 +113,23 @@ class Vehicle extends Model
     }
 
     /**
-     * Best available photo URL for the vehicle: cover/gallery photo first,
-     * then the legacy photo_url column. Null when the fleet has no media yet.
+     * Media priority: real uploaded cover > real gallery photo > legacy
+     * photo_url > generated demo artwork. Real photos always outrank demo
+     * media once an admin uploads them.
      */
     public function coverPhotoUrl(): ?string
     {
-        $photo = $this->photos->firstWhere('is_primary', true) ?? $this->photos->first();
+        $photos = $this->photos;
 
-        if ($photo && filled($photo->photo_url)) {
-            return $photo->url;
+        $real = $photos->firstWhere('is_primary', true)
+            ?? $photos->first(fn (VehiclePhoto $p) => ! $p->isDemoMedia());
+        $demo = $photos->firstWhere('is_primary', true);
+        $demo ??= $photos->first(fn (VehiclePhoto $p) => $p->isDemoMedia());
+
+        foreach ([$real, $demo] as $photo) {
+            if ($photo && filled($photo->photo_url)) {
+                return $photo->url;
+            }
         }
 
         if (filled($this->photo_url)) {
@@ -134,14 +142,17 @@ class Vehicle extends Model
     }
 
     /**
-     * Gallery photos excluding the cover.
+     * Gallery photos excluding the cover and demo fallbacks once real media
+     * exists.
      */
     public function galleryPhotos(): Collection
     {
         $photos = $this->photos;
+        $hasRealMedia = $photos->contains(fn (VehiclePhoto $p) => ! $p->isDemoMedia());
 
         return $photos->reject(
-            fn (VehiclePhoto $photo) => $photo->is_primary && $photo->is($photos->first())
+            fn (VehiclePhoto $photo) => ($photo->is_primary && $photo->is($photos->first()))
+                || ($hasRealMedia && $photo->isDemoMedia())
         )->values();
     }
 

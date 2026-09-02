@@ -13,7 +13,6 @@ use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\ProgrammaticSeoController;
 use App\Http\Controllers\PSeo\AlternativeController;
 use App\Http\Controllers\PSeo\CategoryCityController;
-use App\Http\Controllers\PSeo\CategoryListController;
 use App\Http\Controllers\PSeo\CompareController;
 use App\Http\Controllers\PSeo\VehicleDetailController;
 use App\Http\Controllers\PublicBookingController;
@@ -90,6 +89,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::post('/invoice/{invoice}/bukti-bayar', [DashboardController::class, 'uploadPaymentProof'])->middleware('throttle:10,1')->name('invoices.payment-proof');
         Route::post('/invoice/{invoice}/bayar', [DashboardController::class, 'checkoutPayment'])->middleware('throttle:10,1')->name('invoices.pay');
         Route::post('/pesanan/{order}/perpanjang', [DashboardController::class, 'requestExtension'])->middleware('throttle:5,1')->name('orders.extend');
+        Route::post('/dokumen/{document}/unggah-ulang', [DashboardController::class, 'reuploadDocument'])->middleware('throttle:10,1')->name('documents.reupload');
         Route::get('/referral', [DashboardController::class, 'referrals'])->name('referrals');
         Route::get('/poin', [DashboardController::class, 'loyaltyPoints'])->name('loyalty');
         Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');

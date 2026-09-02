@@ -24,18 +24,30 @@ class VoucherService
             );
         }
 
-        $existingUsage = VoucherUsage::where('voucher_id', $voucherId)
-            ->where('customer_id', $customerId)
-            ->where('booking_id', $booking->id)
-            ->exists();
-
-        if ($existingUsage) {
-            throw new \RuntimeException('Voucher already applied to this booking.');
+        if ($voucher->min_rental_days && (int) $booking->duration_days < (int) $voucher->min_rental_days) {
+            throw new \RuntimeException('Voucher membutuhkan minimal sewa '.$voucher->min_rental_days.' hari.');
         }
 
-        $discountAmount = $voucher->calculateDiscount((float) $booking->subtotal);
+        // Concurrency-safe quota: re-check inside a locked transaction before
+        // incrementing used_count so parallel checkouts cannot overshoot.
+        return DB::transaction(function () use ($booking, $voucher, $customerId) {
+            $voucher = PromoVoucher::whereKey($voucher->id)->lockForUpdate()->first();
 
-        return DB::transaction(function () use ($booking, $voucher, $customerId, $discountAmount) {
+            if (! $voucher || ! $voucher->isValid()) {
+                throw new \RuntimeException("Voucher '{$voucher->code}' is not valid or has expired.");
+            }
+
+            $existingUsage = VoucherUsage::where('voucher_id', $voucher->id)
+                ->where('customer_id', $customerId)
+                ->where('booking_id', $booking->id)
+                ->exists();
+
+            if ($existingUsage) {
+                throw new \RuntimeException('Voucher already applied to this booking.');
+            }
+
+            $discountAmount = $voucher->calculateDiscount((float) $booking->subtotal);
+
             $usage = VoucherUsage::create([
                 'voucher_id' => $voucher->id,
                 'booking_id' => $booking->id,

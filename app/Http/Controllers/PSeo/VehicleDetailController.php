@@ -4,6 +4,7 @@ namespace App\Http\Controllers\PSeo;
 
 use App\Http\Controllers\StorefrontController;
 use App\Models\Vehicle;
+use App\Services\AvailabilityEngine;
 
 /**
  * Legacy vehicle detail route (/sewa/{slug}).
@@ -19,6 +20,6 @@ class VehicleDetailController extends BasePseoController
             abort(404);
         }
 
-        return $storefront->show(request(), $vehicle, app(\App\Services\AvailabilityEngine::class));
+        return $storefront->show(request(), $vehicle, app(AvailabilityEngine::class));
     }
 }

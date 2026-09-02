@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\VehicleUnavailableException;
 use App\Models\AbandonedBooking;
 use App\Models\Booking;
 use App\Models\BookingHold;
@@ -45,8 +46,17 @@ class BookingService
             throw new \InvalidArgumentException('End date must be after start date.');
         }
 
+        // Vehicle-level guard (is_active + status servis) via AvailabilityEngine.
+        $vehicleCheck = app(AvailabilityEngine::class)->checkAvailability($vehicle, $startDate->toDateString(), $endDate->toDateString());
+        if (! $vehicleCheck['available']) {
+            $message = in_array($vehicle->status, AvailabilityEngine::OUT_OF_SERVICE_STATUSES, true) || ! $vehicle->is_active
+                ? $vehicleCheck['message']
+                : 'Unit sudah tidak tersedia untuk tanggal yang dipilih. Silakan pilih tanggal lain atau kendaraan serupa.';
+            throw new VehicleUnavailableException($message);
+        }
+
         if (! $this->checkAvailability($vehicle->id, $startDate, $endDate)) {
-            throw new \RuntimeException('Vehicle is not available for the selected dates.');
+            throw new VehicleUnavailableException('Unit sudah tidak tersedia untuk tanggal yang dipilih. Silakan pilih tanggal lain atau kendaraan serupa.');
         }
 
         // Dokumen kendaraan harus valid selama masa sewa (STNK/pajak/KIR).
@@ -78,7 +88,21 @@ class BookingService
             }
         }
 
-        return DB::transaction(function () use ($data, $pricing, $durationDays, $vehicle) {
+        return DB::transaction(function () use ($data, $pricing, $durationDays, $vehicle, $startDate, $endDate) {
+            // P0 double-booking guard: lock the vehicle row, then re-check
+            // availability + active holds INSIDE the transaction. Two customers
+            // booking the same unit concurrently — only the first commits;
+            // the second gets a 409 from the controller.
+            Vehicle::whereKey($vehicle->id)->lockForUpdate()->first();
+
+            if (! $this->checkAvailability($vehicle->id, $startDate, $endDate)) {
+                throw new VehicleUnavailableException('Unit sudah tidak tersedia untuk tanggal yang dipilih. Silakan pilih tanggal lain atau kendaraan serupa.');
+            }
+
+            if (app(BookingHoldService::class)->hasActiveConflict($vehicle->id, $startDate->toDateString(), $endDate->toDateString())) {
+                throw new VehicleUnavailableException('Unit sedang di-hold pemesan lain. Coba beberapa menit lagi atau pilih tanggal lain.');
+            }
+
             $booking = Booking::create([
                 'customer_id' => $data['customer_id'],
                 'group_booking_id' => $data['group_booking_id'] ?? null,
@@ -97,7 +121,8 @@ class BookingService
                 'discount_amount' => $pricing['discount_amount'],
                 'tax_amount' => $pricing['tax_amount'],
                 'total_amount' => $pricing['total'],
-                'deposit_amount' => $data['deposit_amount'] ?? $vehicle->deposit_amount,
+                // Deposit SELALU dari master vehicle — input browser diabaikan.
+                'deposit_amount' => $vehicle->deposit_amount,
                 'status' => 'pending_verification',
                 'notes' => $data['notes'] ?? null,
                 'source' => $data['source'] ?? 'admin',
@@ -152,9 +177,14 @@ class BookingService
 
         $vehicle = Vehicle::findOrFail($booking->vehicle_id);
 
-        if (! $this->checkAvailability($vehicle->id, $booking->start_date, $booking->end_date, $booking->id)) {
-            throw new \RuntimeException('Vehicle is no longer available for the selected dates.');
-        }
+        // Re-check under a row lock — another booking may have claimed the slot.
+        DB::transaction(function () use ($vehicle, $booking) {
+            Vehicle::whereKey($vehicle->id)->lockForUpdate()->first();
+
+            if (! $this->checkAvailability($vehicle->id, $booking->start_date, $booking->end_date, $booking->id)) {
+                throw new VehicleUnavailableException('Vehicle is no longer available for the selected dates.');
+            }
+        });
 
         $booking->update(['status' => 'confirmed', 'confirmed_at' => now()]);
         $vehicle->update(['status' => 'reserved']);
@@ -238,43 +268,19 @@ class BookingService
 
     public function checkAvailability(int $vehicleId, Carbon $startDate, Carbon $endDate, ?int $excludeBookingId = null): bool
     {
-        $query = RentalOrder::where('vehicle_id', $vehicleId)
-            ->whereIn('status', ['ready_for_preparation', 'preparing', 'ready_for_handover', 'checked_out', 'active', 'extension_requested', 'return_due', 'overdue'])
-            ->where(function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('start_date', [$startDate, $endDate])
-                    ->orWhereBetween('end_date', [$startDate, $endDate])
-                    ->orWhere(function ($q2) use ($startDate, $endDate) {
-                        $q2->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                    });
-            });
+        $vehicle = Vehicle::find($vehicleId);
 
-        if ($excludeBookingId) {
-            $query->where('booking_id', '!=', $excludeBookingId);
-        }
-
-        $hasConflict = $query->exists();
-
-        if ($hasConflict) {
+        if (! $vehicle) {
             return false;
         }
 
-        $bookingQuery = Booking::where('vehicle_id', $vehicleId)
-            ->whereIn('status', ['pending_verification', 'pending_payment', 'confirmed', 'hold'])
-            ->where(function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('start_date', [$startDate, $endDate])
-                    ->orWhereBetween('end_date', [$startDate, $endDate])
-                    ->orWhere(function ($q2) use ($startDate, $endDate) {
-                        $q2->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                    });
-            });
-
-        if ($excludeBookingId) {
-            $bookingQuery->where('id', '!=', $excludeBookingId);
-        }
-
-        return ! $bookingQuery->exists();
+        // Single source of truth: AvailabilityEngine (expired holds excluded).
+        return app(AvailabilityEngine::class)->checkOverlap(
+            $startDate->toDateString(),
+            $endDate->toDateString(),
+            $vehicleId,
+            $excludeBookingId
+        ) === false;
     }
 
     protected function applyVouchers(Booking $booking, array $voucherIds, int $customerId): void

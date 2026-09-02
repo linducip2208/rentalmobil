@@ -15,11 +15,15 @@ class BankReconciliationTest extends TestCase
 
     private function csv(): string
     {
+        // Tanggal dinamis agar match fuzzy (±3 hari) tidak time-bomb terhadap tanggal hari ini.
+        $day1 = today()->format('d/m/Y');
+        $day2 = today()->addDay()->format('d/m/Y');
+
         return implode("\n", [
             'Tanggal Transaksi;Keterangan;Mutasi Masuk;Mutasi Keluar;No. Referensi',
-            '25/08/2026;TRANSFER MASUK TRX-777;1.500.000,00;;TRX-777',
-            '26/08/2026;TRANSFER MASUK TANPA REF;500.000,00;;',
-            '26/08/2026;BEBAN LISTRIK KANTOR;;750.000,00;',
+            "{$day1};TRANSFER MASUK TRX-777;1.500.000,00;;TRX-777",
+            "{$day2};TRANSFER MASUK TANPA REF;500.000,00;;",
+            "{$day2};BEBAN LISTRIK KANTOR;;750.000,00;",
             'Saldo Awal;;;10.000.000,00;',
         ]);
     }
@@ -37,7 +41,7 @@ class BankReconciliationTest extends TestCase
 
         $this->assertSame(3, $import->total_lines);
         $this->assertSame('ready', $import->status);
-        $this->assertSame('2026-08-25', $import->period_start->toDateString());
+        $this->assertSame(today()->toDateString(), $import->period_start->toDateString());
 
         $first = $import->lines()->orderBy('transaction_date')->first();
         $this->assertSame(1500000.0, (float) $first->amount_in);

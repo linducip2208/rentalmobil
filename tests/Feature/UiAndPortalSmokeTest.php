@@ -18,7 +18,7 @@ class UiAndPortalSmokeTest extends TestCase
     public function test_public_marketing_docs_login_and_sitemap_render(): void
     {
         $this->get('/')->assertOk()->assertSee('Temukan Mobil yang Tepat')->assertSee('Cari Mobil untuk Perjalanan Anda', false)->assertSee('/admin/login');
-        $this->get('/booking')->assertOk()->assertSee('Pilih armada')->assertSee('Ringkasan harga');
+        $this->get('/booking')->assertOk()->assertSee('Ringkasan harga')->assertSee('Konfirmasi booking');
         $this->get('/corporate')->assertOk()->assertSee('Corporate mobility');
         $this->get('/tentang-kami')->assertOk()->assertSee('Standar operasional');
         $this->get('/docs')->assertOk()->assertSee('Dokumentasi RentalMobil');

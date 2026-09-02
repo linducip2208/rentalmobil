@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\CustomerDocument;
+use App\Models\Deposit;
 use App\Models\Invoice;
 use App\Models\LoyaltyLedger;
 use App\Models\Payment;
@@ -12,6 +15,7 @@ use App\Models\RentalExtension;
 use App\Models\RentalOrder;
 use App\Models\Subscription;
 use App\Models\VehicleInspection;
+use App\Services\AvailabilityEngine;
 use App\Services\LoyaltyRedemptionService;
 use App\Services\LoyaltyService;
 use App\Services\PaymentGatewayService;
@@ -30,7 +34,19 @@ class DashboardController extends Controller
         $orders = RentalOrder::with('vehicle')->where('customer_id', $customer->id)->latest()->limit(5)->get();
         $invoices = Invoice::where('customer_id', $customer->id)->latest()->limit(5)->get();
 
-        return view('portal.dashboard', compact('customer', 'orders', 'invoices'));
+        // Booking timeline (status nyata) + deposits milik customer ini saja.
+        $bookings = Booking::with('vehicle')
+            ->where('customer_id', $customer->id)
+            ->latest()
+            ->limit(6)
+            ->get();
+        $deposits = Deposit::with('rentalOrder')
+            ->where('customer_id', $customer->id)
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('portal.dashboard', compact('customer', 'orders', 'invoices', 'bookings', 'deposits'));
     }
 
     public function referrals(Request $request)
@@ -103,14 +119,12 @@ class DashboardController extends Controller
         $end = Carbon::parse($data['end_date']);
 
         // Kendaraan harus bebas pada rentang baru (abaikan order ini sendiri).
-        $conflict = RentalOrder::where('vehicle_id', $order->vehicle_id)
-            ->where('id', '!=', $order->id)
-            ->whereIn('status', ['ready_for_preparation', 'preparing', 'ready_for_handover', 'checked_out', 'active', 'extension_requested', 'return_due', 'overdue'])
-            ->where(function ($q) use ($start, $end) {
-                $q->whereBetween('start_date', [$start, $end])
-                    ->orWhereBetween('end_date', [$start, $end])
-                    ->orWhere(fn ($qq) => $qq->where('start_date', '<=', $start)->where('end_date', '>=', $end));
-            })->exists();
+        // AvailabilityEngine = single source of truth; booking aktif ikut dihitung.
+        $conflict = app(AvailabilityEngine::class)->checkOverlap(
+            $data['start_date'],
+            $data['end_date'],
+            $order->vehicle_id
+        );
         abort_if($conflict, 422, 'Kendaraan tidak tersedia pada tanggal baru tersebut.');
 
         if ($order->vehicle->expiredDocuments($end) !== []) {
@@ -204,6 +218,41 @@ class DashboardController extends Controller
         $order->update(['status' => 'extension_requested']);
 
         return back()->with('status', 'Permintaan perpanjangan dikirim.');
+    }
+
+    /**
+     * Re-upload a rejected identity document. The customer only ever touches
+     * their own documents; old file is replaced on the private disk.
+     */
+    public function reuploadDocument(Request $request, CustomerDocument $document)
+    {
+        $customer = $request->user('customer');
+        abort_unless($document->customer_id === $customer->id, 404);
+
+        $data = $request->validate([
+            'document' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ]);
+
+        if ($document->status === 'verified') {
+            abort(422, 'Dokumen sudah terverifikasi dan tidak perlu diunggah ulang.');
+        }
+
+        // Remove the old private file before storing the replacement.
+        if (filled($document->document_url) && \Storage::disk('local')->exists($document->document_url)) {
+            \Storage::disk('local')->delete($document->document_url);
+        }
+
+        $path = $request->file('document')->store("customer-documents/{$customer->id}", 'local');
+
+        $document->update([
+            'document_url' => $path,
+            'status' => 'pending',
+            'rejection_reason' => null,
+            'verified_at' => null,
+            'verified_by' => null,
+        ]);
+
+        return back()->with('status', 'Dokumen baru terkirim dan menunggu verifikasi ulang.');
     }
 
     public function checkoutPayment(Request $request, Invoice $invoice, PaymentGatewayService $gateway)

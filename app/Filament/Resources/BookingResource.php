@@ -29,6 +29,22 @@ class BookingResource extends Resource
 
     protected static ?string $navigationLabel = 'Reservasi';
 
+    /**
+     * Booking statuses aligned with BookingService domain transitions.
+     */
+    private static function statusOptions(): array
+    {
+        return [
+            'hold' => 'Ditahan Sementara',
+            'pending_verification' => 'Menunggu Verifikasi',
+            'pending_payment' => 'Menunggu Pembayaran',
+            'confirmed' => 'Dikonfirmasi',
+            'converted' => 'Menjadi Order',
+            'expired' => 'Kedaluwarsa',
+            'cancelled' => 'Dibatalkan',
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -55,7 +71,7 @@ class BookingResource extends Resource
                     ->relationship('driver', 'name')
                     ->searchable()
                     ->preload()
-                    ->placeholder('â€” Tanpa supir â€”'),
+                    ->placeholder('— Tanpa supir —'),
                 Forms\Components\Select::make('pickup_location_id')
                     ->label('Lokasi Pengambilan')
                     ->relationship('pickupLocation', 'name')
@@ -114,17 +130,23 @@ class BookingResource extends Resource
             ])->columns(3),
 
             Schemas\Components\Section::make('Status & Catatan')->schema([
+                // Status transitions happen ONLY through table actions backed
+                // by BookingService (verify → confirm → convert / cancel).
+                // The select is create-only: admin starts a booking as hold.
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([
-                        'pending' => 'Menunggu',
-                        'confirmed' => 'Dikonfirmasi',
-                        'active' => 'Aktif',
-                        'completed' => 'Selesai',
-                        'cancelled' => 'Dibatalkan',
+                        'hold' => 'Ditahan Sementara',
+                        'pending_verification' => 'Menunggu Verifikasi',
                     ])
-                    ->default('pending')
+                    ->default('hold')
+                    ->hiddenOn('edit')
+                    ->dehydrated(fn (string $operation) => $operation === 'create')
                     ->required(),
+                Forms\Components\Placeholder::make('status_display')
+                    ->label('Status')
+                    ->content(fn (?Booking $record) => self::statusOptions()[$record?->status] ?? $record?->status)
+                    ->visibleOn('edit'),
                 Forms\Components\Textarea::make('notes')
                     ->label('Catatan')
                     ->rows(2),
@@ -160,21 +182,15 @@ class BookingResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
+                        'hold' => 'gray',
+                        'pending_verification', 'pending_payment' => 'warning',
                         'confirmed' => 'info',
-                        'active' => 'success',
-                        'completed' => 'gray',
+                        'converted' => 'success',
+                        'expired' => 'gray',
                         'cancelled' => 'danger',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'pending' => 'Menunggu',
-                        'confirmed' => 'Dikonfirmasi',
-                        'active' => 'Aktif',
-                        'completed' => 'Selesai',
-                        'cancelled' => 'Dibatalkan',
-                        default => ucfirst($state),
-                    }),
+                    ->formatStateUsing(fn (string $state): string => self::statusOptions()[$state] ?? ucfirst($state)),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Total')
                     ->money('IDR')
@@ -183,13 +199,7 @@ class BookingResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
-                    ->options([
-                        'pending' => 'Menunggu',
-                        'confirmed' => 'Dikonfirmasi',
-                        'active' => 'Aktif',
-                        'completed' => 'Selesai',
-                        'cancelled' => 'Dibatalkan',
-                    ]),
+                    ->options(self::statusOptions()),
                 Tables\Filters\Filter::make('start_date')
                     ->label('Tanggal Mulai')
                     ->modalForm([
@@ -220,19 +230,62 @@ class BookingResource extends Resource
 
                             return;
                         }
-                        $order = app(BookingService::class)->convertToOrder($record);
-                        Notification::make()
-                            ->title("Berhasil dikonversi! Order #{$order->order_number}")
-                            ->success()
-                            ->send();
+                        try {
+                            $order = app(BookingService::class)->convertToOrder($record);
+                            Notification::make()
+                                ->title("Berhasil dikonversi! Order #{$order->order_number}")
+                                ->success()
+                                ->send();
+                        } catch (\RuntimeException $e) {
+                            Notification::make()->title('Gagal konversi')->body($e->getMessage())->danger()->send();
+                        }
                     })
-                    ->visible(fn (Booking $record): bool => $record->status === 'confirmed'),
+                    ->visible(fn (Booking $record): bool => in_array($record->status, ['pending_verification', 'confirmed'], true)),
                 Actions\Action::make('confirm')
                     ->label('Konfirmasi')->icon('heroicon-o-check-circle')->color('info')->requiresConfirmation()
-                    ->action(fn (Booking $record) => app(BookingService::class)->confirmBooking($record))
+                    ->action(function (Booking $record) {
+                        try {
+                            app(BookingService::class)->confirmBooking($record);
+                            Notification::make()->title('Booking dikonfirmasi')->success()->send();
+                        } catch (\RuntimeException $e) {
+                            Notification::make()->title('Gagal konfirmasi')->body($e->getMessage())->danger()->send();
+                        }
+                    })
                     ->visible(fn (Booking $record): bool => $record->status === 'pending_verification'),
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Actions\Action::make('verify')
+                    ->label('Verifikasi Pembayaran')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->visible(fn (Booking $record): bool => $record->status === 'pending_payment')
+                    ->action(function (Booking $record) {
+                        $record->update(['status' => 'pending_verification']);
+                        Notification::make()->title('Booking siap diverifikasi')->success()->send();
+                    }),
+                Actions\Action::make('cancel')
+                    ->label('Batalkan')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->form([
+                        Forms\Components\Textarea::make('reason')
+                            ->label('Alasan pembatalan')
+                            ->required()
+                            ->maxLength(500),
+                    ])
+                    ->action(function (Booking $record, array $data) {
+                        try {
+                            app(BookingService::class)->cancelBooking($record, $data['reason']);
+                            Notification::make()->title('Booking dibatalkan')->warning()->send();
+                        } catch (\RuntimeException $e) {
+                            Notification::make()->title('Gagal membatalkan')->body($e->getMessage())->danger()->send();
+                        }
+                    })
+                    ->visible(fn (Booking $record): bool => ! in_array($record->status, ['converted', 'cancelled', 'expired'], true)),
+                Actions\EditAction::make()
+                    ->visible(fn (Booking $record): bool => ! in_array($record->status, ['converted', 'cancelled', 'expired'], true)),
+                Actions\DeleteAction::make()
+                    ->visible(fn (Booking $record): bool => in_array($record->status, ['cancelled', 'expired'], true)),
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([

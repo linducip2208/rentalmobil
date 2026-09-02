@@ -6,10 +6,41 @@ use App\Models\Booking;
 use App\Models\RentalOrder;
 use App\Models\Vehicle;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
+/**
+ * Single source of truth for fleet availability.
+ *
+ * All availability questions (storefront catalog, homepage, vehicle detail,
+ * booking creation, booking confirmation, hold conflict, public API) MUST go
+ * through this engine — controllers and services only orchestrate.
+ *
+ * Overlap semantics (day-inclusive, consistent across the project):
+ *   existing.start_date <= requested_end AND existing.end_date >= requested_start
+ */
 class AvailabilityEngine
 {
+    /**
+     * Booking statuses that block a period. Expired holds are excluded at
+     * query time (hold_expires_at in the past never blocks).
+     */
+    public const BLOCKING_BOOKING_STATUSES = ['hold', 'pending_verification', 'pending_payment', 'confirmed', 'active'];
+
+    /**
+     * RentalOrder statuses that block a period. Draft orders are not yet
+     * committed to the fleet; completed/cancelled/disputed free the unit.
+     */
+    public const BLOCKING_ORDER_STATUSES = [
+        'ready_for_preparation', 'preparing', 'ready_for_handover', 'checked_out',
+        'active', 'extension_requested', 'return_due', 'overdue', 'return_inspection', 'payment_pending',
+    ];
+
+    /**
+     * Vehicle statuses that take the unit out of service entirely.
+     */
+    public const OUT_OF_SERVICE_STATUSES = ['maintenance', 'damaged', 'inspection', 'cleaning', 'inactive'];
+
     /**
      * Check if a vehicle is available for a given date range.
      */
@@ -27,7 +58,7 @@ class AvailabilityEngine
             ];
         }
 
-        if ($vehicle->status !== 'available') {
+        if (in_array($vehicle->status, self::OUT_OF_SERVICE_STATUSES, true)) {
             return [
                 'available' => false,
                 'conflicts' => collect(),
@@ -58,6 +89,40 @@ class AvailabilityEngine
     }
 
     /**
+     * Vehicle IDs unavailable for the requested period — bookings, orders,
+     * out-of-service statuses, and unit-level state combined.
+     */
+    public function blockedVehicleIds(CarbonInterface $start, CarbonInterface $end): Collection
+    {
+        $booked = Booking::query()
+            ->whereIn('status', self::BLOCKING_BOOKING_STATUSES)
+            ->where(function ($q) {
+                // Expired holds never block availability.
+                $q->where('status', '!=', 'hold')
+                    ->orWhereNull('hold_expires_at')
+                    ->orWhere('hold_expires_at', '>', now());
+            })
+            ->where('start_date', '<=', $end->copy()->endOfDay())
+            ->where('end_date', '>=', $start->copy()->startOfDay())
+            ->pluck('vehicle_id');
+
+        $ordered = RentalOrder::query()
+            ->whereIn('status', self::BLOCKING_ORDER_STATUSES)
+            ->where('start_date', '<=', $end->copy()->endOfDay())
+            ->where('end_date', '>=', $start->copy()->startOfDay())
+            ->pluck('vehicle_id');
+
+        $outOfService = Vehicle::query()
+            ->where(function ($q) {
+                $q->where('is_active', false)
+                    ->orWhereIn('status', self::OUT_OF_SERVICE_STATUSES);
+            })
+            ->pluck('id');
+
+        return $booked->merge($ordered)->merge($outOfService)->unique()->values();
+    }
+
+    /**
      * Find all available vehicles matching the given criteria.
      */
     public function findAvailableVehicles(
@@ -73,7 +138,8 @@ class AvailabilityEngine
 
         $query = Vehicle::query()
             ->where('is_active', true)
-            ->where('status', 'available');
+            ->whereNotIn('status', self::OUT_OF_SERVICE_STATUSES)
+            ->whereNotIn('id', $this->bookedOrOrderedVehicleIds($start, $end));
 
         if ($categoryId !== null) {
             $query->where('category_id', $categoryId);
@@ -88,27 +154,7 @@ class AvailabilityEngine
             $query->where('seat_count', '>=', $minSeats);
         }
 
-        $busyBookingIds = Booking::query()
-            ->where('status', '!=', 'cancelled')
-            ->where('start_date', '<=', $end)
-            ->where('end_date', '>=', $start)
-            ->pluck('vehicle_id')
-            ->toArray();
-
-        $busyOrderIds = RentalOrder::query()
-            ->whereNotIn('status', ['completed', 'cancelled', 'disputed'])
-            ->where('start_date', '<=', $end)
-            ->where('end_date', '>=', $start)
-            ->pluck('vehicle_id')
-            ->toArray();
-
-        $busyIds = array_unique(array_merge($busyBookingIds, $busyOrderIds));
-
-        if (! empty($busyIds)) {
-            $query->whereNotIn('id', $busyIds);
-        }
-
-        return $query->with(['category', 'brand', 'location'])->get();
+        return $query->with(['category', 'brand', 'location', 'photos'])->get();
     }
 
     /**
@@ -125,7 +171,12 @@ class AvailabilityEngine
 
         $bookingQuery = Booking::query()
             ->where('vehicle_id', $vehicleId)
-            ->whereIn('status', ['confirmed', 'active', 'hold'])
+            ->whereIn('status', self::BLOCKING_BOOKING_STATUSES)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'hold')
+                    ->orWhereNull('hold_expires_at')
+                    ->orWhere('hold_expires_at', '>', now());
+            })
             ->where('start_date', '<=', $end)
             ->where('end_date', '>=', $start);
 
@@ -137,13 +188,7 @@ class AvailabilityEngine
             return true;
         }
 
-        $orderQuery = RentalOrder::query()
-            ->where('vehicle_id', $vehicleId)
-            ->whereNotIn('status', ['completed', 'cancelled', 'disputed'])
-            ->where('start_date', '<=', $end)
-            ->where('end_date', '>=', $start);
-
-        return $orderQuery->exists();
+        return $this->orderOverlapExists($vehicleId, $start, $end);
     }
 
     /**
@@ -202,13 +247,18 @@ class AvailabilityEngine
         $endDate = $startDate->copy()->endOfMonth();
 
         $orders = RentalOrder::where('vehicle_id', $vehicle->id)
-            ->whereNotIn('status', ['completed', 'cancelled', 'disputed'])
+            ->whereIn('status', self::BLOCKING_ORDER_STATUSES)
             ->where('start_date', '<=', $endDate)
             ->where('end_date', '>=', $startDate)
             ->get(['id', 'start_date', 'end_date', 'order_number', 'status']);
 
         $bookings = Booking::where('vehicle_id', $vehicle->id)
-            ->whereIn('status', ['confirmed', 'active', 'hold'])
+            ->whereIn('status', self::BLOCKING_BOOKING_STATUSES)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'hold')
+                    ->orWhereNull('hold_expires_at')
+                    ->orWhere('hold_expires_at', '>', now());
+            })
             ->where('start_date', '<=', $endDate)
             ->where('end_date', '>=', $startDate)
             ->get(['id', 'start_date', 'end_date', 'booking_number', 'status']);
@@ -286,7 +336,12 @@ class AvailabilityEngine
 
         $bookingQuery = Booking::query()
             ->where('vehicle_id', $vehicleId)
-            ->whereIn('status', ['confirmed', 'active', 'hold'])
+            ->whereIn('status', self::BLOCKING_BOOKING_STATUSES)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'hold')
+                    ->orWhereNull('hold_expires_at')
+                    ->orWhere('hold_expires_at', '>', now());
+            })
             ->where('start_date', '<=', $end)
             ->where('end_date', '>=', $start);
 
@@ -311,7 +366,7 @@ class AvailabilityEngine
 
         $conflictingOrders = RentalOrder::query()
             ->where('vehicle_id', $vehicleId)
-            ->whereNotIn('status', ['completed', 'cancelled', 'disputed'])
+            ->whereIn('status', self::BLOCKING_ORDER_STATUSES)
             ->where('start_date', '<=', $end)
             ->where('end_date', '>=', $start)
             ->get([
@@ -330,5 +385,40 @@ class AvailabilityEngine
         }
 
         return $conflicts;
+    }
+
+    /**
+     * Vehicle IDs blocked by bookings or rental orders for the period.
+     */
+    private function bookedOrOrderedVehicleIds(Carbon $start, Carbon $end): array
+    {
+        $booked = Booking::query()
+            ->whereIn('status', self::BLOCKING_BOOKING_STATUSES)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'hold')
+                    ->orWhereNull('hold_expires_at')
+                    ->orWhere('hold_expires_at', '>', now());
+            })
+            ->where('start_date', '<=', $end)
+            ->where('end_date', '>=', $start)
+            ->pluck('vehicle_id');
+
+        $ordered = RentalOrder::query()
+            ->whereIn('status', self::BLOCKING_ORDER_STATUSES)
+            ->where('start_date', '<=', $end)
+            ->where('end_date', '>=', $start)
+            ->pluck('vehicle_id');
+
+        return $booked->merge($ordered)->unique()->values()->all();
+    }
+
+    private function orderOverlapExists($vehicleId, Carbon $start, Carbon $end): bool
+    {
+        return RentalOrder::query()
+            ->where('vehicle_id', $vehicleId)
+            ->whereIn('status', self::BLOCKING_ORDER_STATUSES)
+            ->where('start_date', '<=', $end)
+            ->where('end_date', '>=', $start)
+            ->exists();
     }
 }

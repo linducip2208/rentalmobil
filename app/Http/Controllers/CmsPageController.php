@@ -14,7 +14,7 @@ class CmsPageController extends Controller
     {
         // The storefront homepage is the primary customer experience; CMS pages
         // remain available for other slugs and via /{pageSlug} routing.
-        return app(\App\Http\Controllers\StorefrontController::class)->home();
+        return app(StorefrontController::class)->home();
     }
 
     public function show(string $pageSlug)

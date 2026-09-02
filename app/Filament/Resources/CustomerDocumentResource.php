@@ -8,6 +8,7 @@ use App\Models\CustomerDocument;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -41,6 +42,8 @@ class CustomerDocumentResource extends Resource
                     ->options([
                         'ktp' => 'KTP',
                         'sim' => 'SIM',
+                        'sim_a' => 'SIM A',
+                        'selfie' => 'Selfie',
                         'passport' => 'Paspor',
                         'stnk' => 'STNK',
                         'other' => 'Lainnya',
@@ -138,12 +141,49 @@ class CustomerDocumentResource extends Resource
                     ->options([
                         'ktp' => 'KTP',
                         'sim' => 'SIM',
+                        'sim_a' => 'SIM A',
+                        'selfie' => 'Selfie',
                         'passport' => 'Paspor',
                         'stnk' => 'STNK',
                         'other' => 'Lainnya',
                     ]),
             ])
             ->actions([
+                Actions\Action::make('verify')
+                    ->label('Verifikasi')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (CustomerDocument $record): bool => $record->status !== 'verified')
+                    ->action(function (CustomerDocument $record) {
+                        $record->update([
+                            'status' => 'verified',
+                            'verified_by' => auth()->id(),
+                            'verified_at' => now(),
+                            'rejection_reason' => null,
+                        ]);
+                        Notification::make()->title('Dokumen terverifikasi')->success()->send();
+                    }),
+                Actions\Action::make('reject')
+                    ->label('Tolak')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn (CustomerDocument $record): bool => $record->status !== 'rejected')
+                    ->form([
+                        Forms\Components\Textarea::make('rejection_reason')
+                            ->label('Alasan penolakan')
+                            ->required()
+                            ->maxLength(500),
+                    ])
+                    ->action(function (CustomerDocument $record, array $data) {
+                        $record->update([
+                            'status' => 'rejected',
+                            'rejection_reason' => $data['rejection_reason'],
+                            'verified_by' => auth()->id(),
+                            'verified_at' => now(),
+                        ]);
+                        Notification::make()->title('Dokumen ditolak')->warning()->send();
+                    }),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])
