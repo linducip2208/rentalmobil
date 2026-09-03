@@ -46,7 +46,16 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('portal.dashboard', compact('customer', 'orders', 'invoices', 'bookings', 'deposits'));
+        // Dokumen identitas milik customer ini (KTP/SIM/selfie) untuk re-upload
+        // bila ditolak verifikasi.
+        $documents = CustomerDocument::where('customer_id', $customer->id)
+            ->whereIn('document_type', ['ktp', 'sim', 'sim_a', 'selfie'])
+            ->latest()
+            ->get()
+            ->unique(fn ($doc) => $doc->document_type)
+            ->values();
+
+        return view('portal.dashboard', compact('customer', 'orders', 'invoices', 'bookings', 'deposits', 'documents'));
     }
 
     public function referrals(Request $request)
