@@ -229,7 +229,7 @@ class BookingService
                 'customer_id' => $booking->customer_id,
                 'vehicle_id' => $booking->vehicle_id,
                 'driver_id' => $booking->driver_id,
-                'location_id' => $booking->pickup_location_id,
+                'location_id' => $booking->pickup_location_id ?? $booking->vehicle?->location_id,
                 'start_date' => $booking->start_date,
                 'end_date' => $booking->end_date,
                 'duration_days' => $booking->duration_days,

@@ -49,7 +49,7 @@
                     <a href="{{ route('portal.login') }}" class="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-bold transition hover:bg-white/10">Daftar</a>
                 @endguest
                 @auth('web')
-                    <a href="/admin" class="rounded-xl bg-white px-4 py-2.5 text-sm font-extrabold text-fleet-950 transition hover:bg-slate-200">Masuk Admin</a>
+                    <a href="{{ route('lte.dashboard') }}" class="rounded-xl bg-white px-4 py-2.5 text-sm font-extrabold text-fleet-950 transition hover:bg-slate-200">Masuk Admin</a>
                 @endauth
                 @guest('web')
                     <a href="{{ route('booking.index') }}" class="rounded-xl bg-white px-5 py-2.5 text-sm font-extrabold text-fleet-950 transition hover:bg-slate-200">Booking Saya</a>
@@ -114,7 +114,7 @@
                 <div class="mt-4 grid gap-3 text-sm">
                     <a class="transition hover:text-white" href="{{ route('portal.login') }}">Portal Pelanggan</a>
                     <a class="transition hover:text-white" href="{{ route('booking.index') }}">Booking Saya</a>
-                    <a class="transition hover:text-white" href="/admin/login">Login Admin</a>
+                    <a class="transition hover:text-white" href="{{ route('filament.admin.auth.login') }}">Login Admin</a>
                 </div>
             </div>
         </div>
