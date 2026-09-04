@@ -78,7 +78,7 @@
                                 @if($tracker['battery'] !== null)
                                     <span class="inline-flex items-center gap-1
                                         {{ $tracker['battery'] < 20 ? 'text-red-500' : ($tracker['battery'] < 50 ? 'text-amber-500' : 'text-emerald-500') }}">
-                                        🔋 {{ $tracker['battery'] }}%
+                                        Batt {{ $tracker['battery'] }}%
                                     </span>
                                 @else
                                     <span class="text-stone-400">N/A</span>

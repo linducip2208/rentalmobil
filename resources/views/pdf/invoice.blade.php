@@ -40,7 +40,7 @@
     <div class="container">
         <div class="header">
             <div>
-                <div class="company-name">🚗 {{ $companyName ?? 'RentalMobil' }}</div>
+                <div class="company-name">{{ $companyName ?? 'RentalMobil' }}</div>
                 <div class="company-details">
                     {{ $companyAddress ?? 'Jl. Sudirman No. 123, Jakarta Selatan 12190' }}<br>
                     {{ $companyPhone ?? '+62 812-3456-7890' }} &middot; {{ $companyEmail ?? 'hello@rentalmobil.id' }}<br>
@@ -132,7 +132,7 @@
         </div>
 
         <div class="payment-info">
-            <h4>💳 Informasi Pembayaran</h4>
+            <h4>Informasi Pembayaran</h4>
             <p><strong>Bank Transfer:</strong></p>
             <p>Bank BCA &mdash; a.n. {{ $companyName ?? 'RentalMobil' }}</p>
             <p>No. Rek: {{ $bankAccount ?? '1234 5678 9012' }}</p>

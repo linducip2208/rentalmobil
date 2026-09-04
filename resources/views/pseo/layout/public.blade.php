@@ -71,10 +71,10 @@
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                 <div>
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="text-xl">🚗</span>
-                        <span class="font-bold text-lg text-white">RentalMobil</span>
+                        <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs font-black text-white">{{ $brand['initials'] }}</span>
+                        <span class="font-bold text-lg text-white">{{ $brand['name'] }}</span>
                     </div>
-                    <p class="text-sm">Sewa mobil mudah dan terpercaya di seluruh Indonesia.</p>
+                    <p class="text-sm">{{ $brand['tagline'] }}</p>
                 </div>
                 <div>
                     <h4 class="font-semibold text-white text-sm uppercase tracking-wider mb-3">Navigasi</h4>
@@ -96,14 +96,14 @@
                 <div>
                     <h4 class="font-semibold text-white text-sm uppercase tracking-wider mb-3">Kontak</h4>
                     <ul class="space-y-1.5 text-sm">
-                        <li>📞 +62 812-3456-7890</li>
-                        <li>✉️ hello@rentalmobil.id</li>
+                        <li>{{ $brand['phone'] }}</li>
+                        <li>{{ $brand['email'] }}</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-stone-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <p class="text-xs">&copy; {{ date('Y') }} RentalMobil. All rights reserved.</p>
-                <p class="text-xs text-stone-600">Powered by Laravel</p>
+                <p class="text-xs">&copy; {{ date('Y') }} {{ $brand['name'] }}. {{ $brand['copyright'] }}</p>
+                @if($brand['showPoweredBy'])<p class="text-xs text-stone-600">Powered by Laravel</p>@endif
             </div>
         </div>
     </footer>

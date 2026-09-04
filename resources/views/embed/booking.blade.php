@@ -29,7 +29,7 @@
 </head>
 <body>
 <div class="widget-header">
-  <div class="widget-title">🚗 Cek Ketersediaan</div>
+  <div class="widget-title">Cek Ketersediaan</div>
   <div class="filters">
     <select id="location"><option value="">Semua Lokasi</option></select>
     <input type="date" id="start">
@@ -90,7 +90,7 @@
     $('cards').innerHTML = items.map(function (v) {
       var price = 'Rp' + Number(v.total).toLocaleString('id-ID');
       var daily = 'Rp' + Number(v.daily_rate).toLocaleString('id-ID') + '/hari';
-      var img = v.photo_url ? '<img src="' + v.photo_url + '" alt="' + v.name + '" loading="lazy">' : '🚗';
+      var img = v.photo_url ? '<img src="' + v.photo_url + '" alt="' + v.name + '" loading="lazy">' : '';
       return '<div class="card">' +
         '<div class="card-img">' + img + '</div>' +
         '<div class="card-body">' +

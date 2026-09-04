@@ -67,12 +67,12 @@ class WaBotService
 
     protected function handleGreeting(WaConversation $conversation, string $message): string
     {
-        $greeting = SystemSetting::get('wa_bot_greeting', 'Halo! Selamat datang di layanan rental kami. 🚗');
+        $greeting = SystemSetting::get('wa_bot_greeting', 'Halo! Selamat datang di layanan rental kami.');
 
         if ($this->wantsHuman($message)) {
             $this->handOver($conversation);
 
-            return 'Baik, kami hubungkan dengan tim customer service kami. Mohon tunggu sebentar. 🙏';
+            return 'Baik, kami hubungkan dengan tim customer service kami. Mohon tunggu sebentar.';
         }
 
         $conversation->update(['state' => 'ask_dates', 'context' => []]);
@@ -85,7 +85,7 @@ class WaBotService
         if ($this->wantsHuman($message)) {
             $this->handOver($conversation);
 
-            return 'Baik, kami hubungkan dengan tim customer service kami. 🙏';
+            return 'Baik, kami hubungkan dengan tim customer service kami.';
         }
 
         $dates = $this->parseDateRange($message);
@@ -118,7 +118,7 @@ class WaBotService
         ]);
 
         if ($options === []) {
-            return "Mohon maaf, saat ini semua unit sedang terpakai untuk tanggal tersebut. 😢\nKetik *CS* jika ingin bantuan lebih lanjut.";
+            return "Mohon maaf, saat ini semua unit sedang terpakai untuk tanggal tersebut.\nKetik *CS* jika ingin bantuan lebih lanjut.";
         }
 
         return "Berikut opsi unit tersedia {$start->format('d/m')} – {$end->format('d/m')}:\n\n".
@@ -136,7 +136,7 @@ class WaBotService
             if ($this->wantsHuman($message)) {
                 $this->handOver($conversation);
 
-                return 'Baik, kami hubungkan dengan tim customer service kami. 🙏';
+                return 'Baik, kami hubungkan dengan tim customer service kami.';
             }
 
             return 'Silakan balas dengan nomor unit (contoh: *1*), atau ketik *CS*.';
@@ -148,7 +148,7 @@ class WaBotService
 
         $conversation->update(['state' => 'completed']);
 
-        return "Pilihan bagus! ✨\n\nLanjutkan booking di sini:\n{$bookingUrl}\n\nAtau ketik ulang tanggal lain untuk cek unit lagi. Terima kasih! 🙏";
+        return "Pilihan bagus!\n\nLanjutkan booking di sini:\n{$bookingUrl}\n\nAtau ketik ulang tanggal lain untuk cek unit lagi. Terima kasih!";
     }
 
     protected function handOver(WaConversation $conversation): void

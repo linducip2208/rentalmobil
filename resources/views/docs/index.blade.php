@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -42,7 +42,7 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-stone-200/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
             <a href="{{ route('home') }}" class="flex items-center gap-2">
-                <span class="text-2xl">🚗</span>
+                <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-sm font-black text-white">RM</span>
                 <span class="font-bold text-xl text-stone-900">RentalMobil</span>
             </a>
             <nav class="hidden md:flex items-center gap-6">
@@ -80,7 +80,7 @@
             {{-- Demo Accounts --}}
             <section id="demo" class="mb-20 reveal">
                 <div class="flex items-center gap-3 mb-6">
-                    <span class="text-2xl">🧪</span>
+                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-50 text-brand-600"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
                     <h2 class="text-2xl font-bold text-stone-900">Akun Demo</h2>
                 </div>
                 <p class="text-stone-600 mb-6">Gunakan akun berikut untuk mencoba seluruh fitur admin panel. Password untuk semua akun: <code class="bg-stone-100 px-2 py-1 rounded font-mono text-sm">password</code></p>
@@ -141,7 +141,7 @@
             {{-- Admin Menu Structure --}}
             <section id="menu" class="mb-20 reveal">
                 <div class="flex items-center gap-3 mb-6">
-                    <span class="text-2xl">📋</span>
+                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-50 text-brand-600"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></span>
                     <h2 class="text-2xl font-bold text-stone-900">Struktur Menu Admin</h2>
                 </div>
                 <p class="text-stone-600 mb-8">Menu admin diorganisir mengikuti alur bisnis rental mobil. Berikut struktur lengkapnya:</p>
@@ -150,7 +150,7 @@
                     {{-- Data Utama --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center text-sm">📦</span>
+                            <span class="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></span>
                             Data Utama
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
@@ -168,7 +168,7 @@
                     {{-- Reservasi --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">💳</span>
+                            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg></span>
                             Reservasi & Rental
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
@@ -183,7 +183,7 @@
 
                     {{-- Logistics --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
-                        <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm">🚚</span>Serah Terima & Logistik</h3>
+                        <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg></span>Serah Terima & Logistik</h3>
                         <ul class="space-y-2 text-sm text-stone-600">
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Serah Terima Kendaraan</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pengiriman & Penjemputan</li>
@@ -195,7 +195,7 @@
                     {{-- Finance --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm">💰</span>
+                            <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg></span>
                             Keuangan
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
@@ -209,7 +209,7 @@
                     {{-- Maintenance --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center text-sm">🔧</span>
+                            <span class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
                             Perawatan Armada
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
@@ -222,7 +222,7 @@
 
                     {{-- GPS --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
-                        <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">📡</span>GPS & Monitoring</h3>
+                        <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg></span>GPS & Monitoring</h3>
                         <ul class="space-y-2 text-sm text-stone-600">
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Pusat Kendali</li>
                             <li class="flex items-center gap-2"><span class="text-stone-400">→</span> Peta Armada</li>
@@ -234,7 +234,7 @@
                     {{-- Security --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-sm">🛡️</span>
+                            <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span>
                             Risiko & Keamanan
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
@@ -249,7 +249,7 @@
                     {{-- Laporan --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-600 flex items-center justify-center text-sm">📊</span>
+                            <span class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span>
                             Laporan
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
@@ -263,7 +263,7 @@
                     {{-- Marketing --}}
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <h3 class="font-bold text-stone-900 mb-3 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center text-sm">📢</span>
+                            <span class="w-8 h-8 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.297z"/></svg></span>
                             Konten & Marketing
                         </h3>
                         <ul class="space-y-2 text-sm text-stone-600">
@@ -291,7 +291,7 @@
             {{-- Tutorial --}}
             <section id="tutorial" class="mb-20 reveal">
                 <div class="flex items-center gap-3 mb-6">
-                    <span class="text-2xl">📖</span>
+                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-50 text-brand-600"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></span>
                     <h2 class="text-2xl font-bold text-stone-900">Tutorial Langkah demi Langkah</h2>
                 </div>
                 <p class="text-stone-600 mb-8">Ikuti 8 fase berikut untuk menguasai seluruh fitur RentalMobil sesuai alur bisnis yang sebenarnya.</p>
@@ -434,16 +434,26 @@
 
                 <div class="space-y-6">
                     @foreach([
-                        ['icon' => '📋', 'title' => 'Booking Management', 'desc' => 'Sistem booking cerdaas dengan auto-overlap check, hold mechanism, dan quotation builder PDF.', 'items' => ['Auto-overlap check', 'Hold mechanism', 'Quotation builder PDF', 'Multi-lokasi pickup/dropoff', 'Status workflow otomatis']],
-                        ['icon' => '🚗', 'title' => 'Fleet Management', 'desc' => 'Kontrol penuh atas armada kendaraan — status real-time, maintenance tracking, dan dokumentasi lengkap.', 'items' => ['Vehicle status real-time', 'Maintenance scheduling', 'KM logs otomatis', 'Dokumen STNK/asuransi', 'Photo gallery kondisi']],
-                        ['icon' => '💰', 'title' => 'Financial Management', 'desc' => 'Invoice otomatis, verifikasi pembayaran, dan double-entry bookkeeping terintegrasi.', 'items' => ['Invoice auto-gen', 'Payment verification workflow', 'Journal entries otomatis', 'COA lengkap (P&L, balance sheet)', 'Multi-payment support']],
-                        ['icon' => '👥', 'title' => 'Customer Management', 'desc' => 'Kenali pelanggan dengan trust scoring, verifikasi dokumen, dan loyalty tier.', 'items' => ['Trust scoring', 'Document verification (KTP/SIM)', 'Loyalty tiers', 'Rental history lengkap', 'Corporate accounts']],
-                        ['icon' => '🛡️', 'title' => 'Security & Anti-Fraud', 'desc' => 'Lindungi bisnis dari risiko dengan blacklist, watch list, dan investigation cases.', 'items' => ['Blacklist pelanggan', 'Watch list monitoring', 'Investigation cases', 'Police report generator', 'Audit trail lengkap']],
-                        ['icon' => '📊', 'title' => 'Reports & Analytics', 'desc' => 'Laporan penjualan, keuangan, dan operasional dengan grafik interaktif dan export PDF/Excel.', 'items' => ['Sales reports', 'Financial reports (P&L)', 'Utilization reports', 'Chart interaktif (Chart.js)', 'Export PDF & Excel']],
+                        ['icon' => 'clipboard', 'title' => 'Booking Management', 'desc' => 'Sistem booking cerdas dengan auto-overlap check, hold mechanism, dan quotation builder PDF.', 'items' => ['Auto-overlap check', 'Hold mechanism', 'Quotation builder PDF', 'Multi-lokasi pickup/dropoff', 'Status workflow otomatis']],
+                        ['icon' => 'car', 'title' => 'Fleet Management', 'desc' => 'Kontrol penuh atas armada kendaraan — status real-time, maintenance tracking, dan dokumentasi lengkap.', 'items' => ['Vehicle status real-time', 'Maintenance scheduling', 'KM logs otomatis', 'Dokumen STNK/asuransi', 'Photo gallery kondisi']],
+                        ['icon' => 'cash', 'title' => 'Financial Management', 'desc' => 'Invoice otomatis, verifikasi pembayaran, dan double-entry bookkeeping terintegrasi.', 'items' => ['Invoice auto-gen', 'Payment verification workflow', 'Journal entries otomatis', 'COA lengkap (P&L, balance sheet)', 'Multi-payment support']],
+                        ['icon' => 'users', 'title' => 'Customer Management', 'desc' => 'Kenali pelanggan dengan trust scoring, verifikasi dokumen, dan loyalty tier.', 'items' => ['Trust scoring', 'Document verification (KTP/SIM)', 'Loyalty tiers', 'Rental history lengkap', 'Corporate accounts']],
+                        ['icon' => 'shield', 'title' => 'Security & Anti-Fraud', 'desc' => 'Lindungi bisnis dari risiko dengan blacklist, watch list, dan investigation cases.', 'items' => ['Blacklist pelanggan', 'Watch list monitoring', 'Investigation cases', 'Police report generator', 'Audit trail lengkap']],
+                        ['icon' => 'chart', 'title' => 'Reports & Analytics', 'desc' => 'Laporan penjualan, keuangan, dan operasional dengan grafik interaktif dan export PDF/Excel.', 'items' => ['Sales reports', 'Financial reports (P&L)', 'Utilization reports', 'Chart interaktif (Chart.js)', 'Export PDF & Excel']],
                     ] as $feature)
                     <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
                         <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center text-2xl shrink-0">{{ $feature['icon'] }}</div>
+                            <div class="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    @if($feature['icon'] === 'clipboard')<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    @elseif($feature['icon'] === 'car')<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    @elseif($feature['icon'] === 'cash')<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    @elseif($feature['icon'] === 'users')<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                    @elseif($feature['icon'] === 'shield')<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                    @else<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    @endif
+                                </svg>
+                            </div>
                             <div class="flex-1">
                                 <h3 class="font-bold text-stone-900 text-lg mb-1">{{ $feature['title'] }}</h3>
                                 <p class="text-stone-600 text-sm mb-3">{{ $feature['desc'] }}</p>
@@ -483,7 +493,7 @@
     <footer class="bg-stone-950 text-stone-400 py-12 border-t border-stone-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">🚗</span>
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
                 <span class="font-bold text-white">RentalMobil</span>
             </div>
             <p class="text-xs">&copy; {{ date('Y') }} RentalMobil. All rights reserved. Powered by Laravel</p>

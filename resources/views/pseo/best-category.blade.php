@@ -12,7 +12,7 @@
 
         @if($vehicles->isEmpty())
             <div class="bg-stone-100 rounded-2xl p-12 text-center">
-                <div class="text-4xl mb-4">🚗</div>
+                <div class="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-600"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg></div>
                 <p class="text-stone-500">Belum ada kendaraan di kategori ini untuk tahun {{ $year ?? 'semua tahun' }}.</p>
                 <a href="/sewa-mobil" class="mt-4 inline-block px-6 py-2 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition-all">Lihat Semua Kendaraan</a>
             </div>
@@ -24,7 +24,7 @@
                             @if($vehicle->photo_url)
                                 <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" class="w-full h-full object-cover">
                             @else
-                                <span class="text-5xl">🚗</span>
+                                <span class="text-2xl font-black text-brand-600">RM</span>
                             @endif
                         </div>
                         <div class="p-5">

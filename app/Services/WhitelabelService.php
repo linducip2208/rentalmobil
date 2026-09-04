@@ -55,6 +55,10 @@ class WhitelabelService
             'font' => $this->get('public_font', 'Inter'),
             'copyright' => $this->get('brand_copyright', 'Hak cipta dilindungi.'),
             'showPoweredBy' => (bool) $this->get('show_powered_by', false),
+            'phone' => $this->get('company_phone', '021-555-0101'),
+            'email' => $this->get('company_email', 'info@rentalmobil.test'),
+            'address' => $this->get('company_address', 'Jl. Sudirman No. 123, Jakarta Pusat'),
+            'whatsapp' => $this->get('company_whatsapp', '6281234567890'),
         ];
     }
 }

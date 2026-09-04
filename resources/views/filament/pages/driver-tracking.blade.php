@@ -8,7 +8,7 @@
     <div class="space-y-6">
         {{-- Driver Report Location --}}
         <div class="bg-white rounded-xl border border-stone-200 p-6">
-            <h3 class="font-bold text-lg text-stone-900 mb-4">📱 Kirim Lokasi Driver</h3>
+            <h3 class="font-bold text-lg text-stone-900 mb-4">Kirim Lokasi Driver</h3>
             <p class="text-sm text-stone-500 mb-4">Halaman ini dibuka dari HP driver. GPS otomatis mengirim lokasi ke server.</p>
 
             <div class="grid md:grid-cols-2 gap-6">

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hubungi Kami — RentalMobil</title>
     <meta name="description" content="Hubungi tim RentalMobil untuk pertanyaan, demo, atau kerja sama bisnis.">
+    @php($brand = app(\App\Services\WhitelabelService::class)->viewData())
+    <link rel="icon" href="{{ $brand['favicon'] }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,8 +38,12 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-stone-200/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
             <a href="{{ route('home') }}" class="flex items-center gap-2">
-                <span class="text-2xl">🚗</span>
-                <span class="font-bold text-xl text-stone-900">RentalMobil</span>
+                @if($brand['logo'])
+                    <img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}" class="h-9 max-w-40 object-contain">
+                @else
+                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-sm font-black text-white">{{ $brand['initials'] }}</span>
+                    <span class="font-bold text-xl text-stone-900">{{ $brand['name'] }}</span>
+                @endif
             </a>
             <nav class="hidden md:flex items-center gap-6">
                 <a href="/" class="text-sm font-medium text-stone-600 hover:text-brand-600 transition-colors">Beranda</a>
@@ -63,7 +69,7 @@
                 <div class="lg:col-span-3">
                     @if (session('success'))
                         <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-xl text-sm mb-6 flex items-center gap-3">
-                            <span class="text-xl">✅</span>
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>{{ session('success') }}</span>
                         </div>
                     @endif
@@ -77,7 +83,6 @@
                             </ul>
                         </div>
                     @endif
-
                     <form method="POST" action="{{ route('contact.store') }}" class="bg-white rounded-2xl border border-stone-200 p-6 lg:p-8 shadow-sm space-y-5">
                         @csrf
                         <div class="grid sm:grid-cols-2 gap-5">
@@ -127,28 +132,36 @@
                         <h3 class="font-bold text-stone-900 mb-4">Informasi Perusahaan</h3>
                         <div class="space-y-4 text-sm">
                             <div class="flex items-start gap-3">
-                                <span class="text-xl mt-0.5">📍</span>
+                                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </span>
                                 <div>
                                     <div class="font-semibold text-stone-700">Alamat</div>
-                                    <div class="text-stone-500">Jl. Raya Utama No. 123<br>Jakarta Selatan, DKI Jakarta 12345</div>
+                                    <div class="text-stone-500">{{ $brand['address'] }}</div>
                                 </div>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="text-xl mt-0.5">📞</span>
+                                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                </span>
                                 <div>
                                     <div class="font-semibold text-stone-700">Telepon</div>
-                                    <div class="text-stone-500">+62 812-3456-7890</div>
+                                    <div class="text-stone-500">{{ $brand['phone'] }}</div>
                                 </div>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="text-xl mt-0.5">✉️</span>
+                                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                </span>
                                 <div>
                                     <div class="font-semibold text-stone-700">Email</div>
-                                    <div class="text-stone-500">hello@rentalmobil.id</div>
+                                    <div class="text-stone-500">{{ $brand['email'] }}</div>
                                 </div>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="text-xl mt-0.5">🕐</span>
+                                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </span>
                                 <div>
                                     <div class="font-semibold text-stone-700">Jam Operasional</div>
                                     <div class="text-stone-500">Senin - Sabtu: 08:00 - 17:00 WIB<br>Minggu: Libur</div>
@@ -157,23 +170,13 @@
                         </div>
                     </div>
 
-                    {{-- Map Placeholder --}}
-                    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-                        <div class="bg-stone-200 aspect-[4/3] flex items-center justify-center">
-                            <div class="text-center text-stone-400">
-                                <div class="text-4xl mb-2">🗺️</div>
-                                <div class="text-sm font-medium">Peta Lokasi</div>
-                                <div class="text-xs mt-1">Google Maps embed di sini</div>
-                            </div>
-                        </div>
-                    </div>
-
                     {{-- Quick Contact --}}
                     <div class="bg-gradient-to-r from-brand-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-brand-600/20">
                         <h3 class="font-bold mb-2">Butuh Respons Cepat?</h3>
                         <p class="text-brand-100 text-sm mb-4">Hubungi kami langsung via WhatsApp untuk respons lebih cepat.</p>
-                        <a href="https://wa.me/6281234567890" target="_blank" class="inline-flex items-center gap-2 bg-white text-brand-700 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-brand-50 transition-all hover:shadow-lg">
-                            💬 Chat WhatsApp
+                        <a href="https://wa.me/{{ $brand['whatsapp'] }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-white text-brand-700 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-brand-50 transition-all hover:shadow-lg">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            Chat WhatsApp
                         </a>
                     </div>
                 </div>
@@ -185,10 +188,14 @@
     <footer class="bg-stone-950 text-stone-400 py-12 border-t border-stone-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">🚗</span>
-                <span class="font-bold text-white">RentalMobil</span>
+                @if($brand['logo'])
+                    <img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}" class="h-8 max-w-32 object-contain">
+                @else
+                    <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs font-black text-white">{{ $brand['initials'] }}</span>
+                    <span class="font-bold text-white">{{ $brand['name'] }}</span>
+                @endif
             </div>
-            <p class="text-xs">&copy; {{ date('Y') }} RentalMobil. All rights reserved. Powered by Laravel</p>
+            <p class="text-xs">&copy; {{ date('Y') }} {{ $brand['name'] }}. {{ $brand['copyright'] }}</p>
         </div>
     </footer>
 </body>

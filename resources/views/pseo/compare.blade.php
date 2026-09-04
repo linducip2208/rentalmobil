@@ -35,7 +35,7 @@
 
         {{-- Verdict --}}
         <div class="bg-brand-50 border border-brand-200 rounded-2xl p-8 mb-12">
-            <h2 class="font-bold text-xl text-stone-900 mb-3">💡 Kesimpulan</h2>
+            <h2 class="font-bold text-xl text-stone-900 mb-3">Kesimpulan</h2>
             <div class="prose prose-stone prose-sm max-w-none">
                 <p>{{ $verdict ?? "Pilihan terbaik tergantung pada kebutuhan Anda. Jika Anda membutuhkan kendaraan untuk perjalanan keluarga dengan banyak penumpang dan bagasi, pilih kendaraan yang lebih besar. Namun jika Anda lebih mementingkan efisiensi bahan bakar dan kemudahan bermanuver di perkotaan, kendaraan yang lebih kompak bisa menjadi pilihan yang lebih tepat." }}</p>
             </div>
@@ -44,12 +44,12 @@
         {{-- CTA --}}
         <div class="grid sm:grid-cols-2 gap-6">
             <a href="/sewa/{{ $slugA ?? strtolower(str_replace(' ', '-', $vehicleA ?? 'kendaraan-a')) }}" class="bg-white border border-stone-200 rounded-2xl p-6 text-center card-lift block">
-                <div class="text-3xl mb-2">🚗</div>
+                <div class="text-3xl mb-2"></div>
                 <h3 class="font-bold text-stone-900 mb-1">{{ $vehicleA ?? 'Kendaraan A' }}</h3>
                 <p class="text-sm text-brand-600 font-semibold">Lihat Detail →</p>
             </a>
             <a href="/sewa/{{ $slugB ?? strtolower(str_replace(' ', '-', $vehicleB ?? 'kendaraan-b')) }}" class="bg-white border border-stone-200 rounded-2xl p-6 text-center card-lift block">
-                <div class="text-3xl mb-2">🚙</div>
+                <div class="text-3xl mb-2"></div>
                 <h3 class="font-bold text-stone-900 mb-1">{{ $vehicleB ?? 'Kendaraan B' }}</h3>
                 <p class="text-sm text-brand-600 font-semibold">Lihat Detail →</p>
             </a>
