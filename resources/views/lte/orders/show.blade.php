@@ -50,7 +50,7 @@
                             <tr>
                                 <td>Rp {{ number_format((float) $deposit->amount, 0, ',', '.') }}</td>
                                 <td><span class="badge badge-{{ ['held' => 'primary', 'received' => 'info', 'refunded' => 'success', 'forfeited' => 'danger'][$deposit->deposit_status] ?? 'secondary' }}">{{ $deposit->deposit_status }}</span></td>
-                                <td>{{ $deposit->refunded_at?->format('d M Y') ?? '—' }}</td>
+                                <td>{{ $deposit->refunded_at?->format('d M Y') ?? '—' }}@if($deposit->refund_amount !== null)<small class="d-block">Rp {{ number_format((float) $deposit->refund_amount, 0, ',', '.') }}</small>@endif</td>
                             </tr>
                         @empty
                             <tr><td colspan="3" class="text-center text-muted">Tidak ada deposit.</td></tr>
@@ -58,6 +58,13 @@
                     </tbody>
                 </table>
             </div>
+            @if($order->deposits->where('deposit_status', 'held')->isNotEmpty() || $order->deposits->where('deposit_status', 'received')->isNotEmpty())
+                <div class="card-footer">
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-block" data-toggle="modal" data-target="#refund-modal">
+                        <i class="fas fa-undo mr-1"></i>Proses Refund Deposit
+                    </button>
+                </div>
+            @endif
         </div>
 
         <div class="card">
@@ -81,4 +88,35 @@
         </div>
     </div>
 </div>
+
+{{-- Refund deposit modal --}}
+@php($refundable = $order->deposits->firstWhere('deposit_status', 'held') ?? $order->deposits->firstWhere('deposit_status', 'received'))
+@if($refundable)
+    <div class="modal fade" id="refund-modal" tabindex="-1" role="dialog" aria-labelledby="refund-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form method="POST" action="{{ route('lte.orders.refund-deposit', [$order, $refundable]) }}">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="refund-modal-label">Refund Deposit Rp {{ number_format((float) $refundable->amount, 0, ',', '.') }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted small">Isi potongan bila ada (Rp). Deposit bersih = jumlah − total potongan. Potongan otomatis menerbitkan invoice penalti.</p>
+                        <div class="form-row">
+                            <div class="form-group col-6"><label>Kurang BBM</label><input type="number" name="fuel" min="0" step="1000" value="0" class="form-control"></div>
+                            <div class="form-group col-6"><label>Kerusakan minor</label><input type="number" name="damage" min="0" step="1000" value="0" class="form-control"></div>
+                            <div class="form-group col-6"><label>Denda terlambat</label><input type="number" name="late_fee" min="0" step="1000" value="0" class="form-control"></div>
+                            <div class="form-group col-6"><label>Biaya cuci</label><input type="number" name="cleaning" min="0" step="1000" value="0" class="form-control"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-undo mr-1"></i>Proses Refund</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
 @endsection

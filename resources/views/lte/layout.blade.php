@@ -68,6 +68,18 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('lte.payments.index') }}" class="nav-link {{ request()->routeIs('lte.payments.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-money-check-alt"></i><p>{{ __('Pembayaran') }}</p>
+                            @php($pendingPayments = \App\Models\Payment::where('status', 'pending')->count())
+                            @if($pendingPayments > 0)<span class="badge badge-warning float-right">{{ $pendingPayments }}</span>@endif
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('lte.drivers.index') }}" class="nav-link {{ request()->routeIs('lte.drivers.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-id-card"></i><p>{{ __('Driver') }}</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('lte.customers.index') }}" class="nav-link {{ request()->routeIs('lte.customers.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i><p>{{ __('Pelanggan') }}</p>
                         </a>

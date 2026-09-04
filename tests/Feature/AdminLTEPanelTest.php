@@ -6,6 +6,11 @@ use App\Models\Booking;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Deposit;
+use App\Models\Driver;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\RentalOrder;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -143,5 +148,99 @@ class AdminLTEPanelTest extends TestCase
         $response = $this->post('/lte/bookings/'.$booking->id.'/cancel', ['reason' => 'uji coba']);
         $response->assertRedirect();
         $this->assertSame('converted', $booking->fresh()->status);
+    }
+
+    public function test_payments_verify_and_reject_via_service(): void
+    {
+        $this->actingAs($this->owner);
+
+        $vehicle = $this->makeVehicle('Avanza Pay', 'B 4200 PT');
+        $customer = Customer::create([
+            'name' => 'Pay Cust', 'email' => 'pay-cust@test.local', 'phone' => '08155550004',
+            'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true,
+        ]);
+
+        $invoice = Invoice::create([
+            'customer_id' => $customer->id, 'type' => 'rental',
+            'subtotal' => 1000000, 'total_amount' => 1000000, 'balance_due' => 1000000, 'status' => 'issued',
+        ]);
+
+        $payment = Payment::create([
+            'invoice_id' => $invoice->id, 'customer_id' => $customer->id,
+            'amount' => 1000000, 'payment_date' => today(), 'reference_number' => 'TRX-LTE-1',
+            'status' => 'pending',
+        ]);
+
+        // Payment page renders
+        $this->get('/lte/payments')->assertOk()->assertSee('TRX-LTE-1');
+
+        // Verify → invoice becomes paid
+        $this->post('/lte/payments/'.$payment->id.'/verify')->assertRedirect();
+        $this->assertSame('verified', $payment->fresh()->status);
+        $this->assertSame('paid', $invoice->fresh()->status);
+
+        // Second payment pending → reject
+        $payment2 = Payment::create([
+            'invoice_id' => $invoice->id, 'customer_id' => $customer->id,
+            'amount' => 500000, 'payment_date' => today(), 'reference_number' => 'TRX-LTE-2',
+            'status' => 'pending',
+        ]);
+        $this->post('/lte/payments/'.$payment2->id.'/reject', ['reason' => 'bukti tidak valid'])->assertRedirect();
+        $this->assertSame('rejected', $payment2->fresh()->status);
+    }
+
+    public function test_drivers_list_detail_and_toggle_availability(): void
+    {
+        $this->actingAs($this->owner);
+
+        $driver = Driver::create([
+            'name' => 'Andi LTE', 'sim_number' => 'SIM-LTE-1', 'phone' => '08177770001',
+            'sim_type' => 'A', 'sim_expiry' => now()->addYear(), 'location_id' => 1,
+            'is_active' => true, 'is_available' => true, 'rating' => 4.5, 'total_trips' => 12,
+        ]);
+
+        $this->get('/lte/drivers')->assertOk()->assertSee('Andi LTE');
+        $this->get('/lte/drivers/'.$driver->id)->assertOk()->assertSee('SIM-LTE-1');
+
+        $this->post('/lte/drivers/'.$driver->id.'/toggle-availability')->assertRedirect();
+        $this->assertFalse($driver->fresh()->is_available);
+
+        $this->post('/lte/drivers/'.$driver->id.'/toggle-availability')->assertRedirect();
+        $this->assertTrue($driver->fresh()->is_available);
+    }
+
+    public function test_deposit_refund_via_order_page(): void
+    {
+        $this->actingAs($this->owner);
+
+        $vehicle = $this->makeVehicle('Avanza Deposit', 'B 4300 DP');
+        $customer = Customer::create([
+            'name' => 'Dep Cust', 'email' => 'dep-cust@test.local', 'phone' => '08155550005',
+            'customer_type' => 'individual', 'verification_status' => 'verified', 'is_active' => true,
+        ]);
+
+        $order = RentalOrder::create([
+            'order_number' => 'RO-LTE-DEP-1', 'customer_id' => $customer->id,
+            'vehicle_id' => $vehicle->id, 'location_id' => 1,
+            'start_date' => '2026-10-01', 'end_date' => '2026-10-05',
+            'rental_type' => 'self_drive', 'duration_days' => 4,
+            'daily_rate_snapshot' => 350000, 'subtotal' => 1400000,
+            'final_amount' => 1554000, 'amount_paid' => 1554000, 'balance_due' => 0,
+            'deposit_amount' => 500000, 'status' => 'active', 'payment_status' => 'paid',
+        ]);
+
+        $deposit = Deposit::create([
+            'customer_id' => $customer->id, 'rental_order_id' => $order->id,
+            'amount' => 500000, 'deposit_status' => 'held', 'received_at' => now(),
+        ]);
+
+        // Refund with deductions → penalty invoice auto-created, deposit refunded
+        $this->post('/lte/orders/'.$order->id.'/deposits/'.$deposit->id.'/refund', [
+            'fuel' => 50000, 'cleaning' => 25000,
+        ])->assertRedirect();
+
+        $this->assertSame('refunded', $deposit->fresh()->deposit_status);
+        $this->assertEquals(425000.0, (float) $deposit->fresh()->refund_amount);
+        $this->assertDatabaseHas('invoices', ['rental_order_id' => $order->id, 'type' => 'penalty', 'total_amount' => 75000]);
     }
 }
