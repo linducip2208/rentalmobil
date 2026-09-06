@@ -24,7 +24,7 @@
             </div>
             <div class="relative min-h-[300px] overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-800 to-fleet-900 shadow-2xl">
                 @if($vehicles->first() && $vehicles->first()->coverPhotoUrl())
-                    <img src="{{ $vehicles->first()->coverPhotoUrl() }}" alt="Kendaraan andalan {{ $brand['name'] }}" width="800" height="500" class="absolute inset-0 h-full w-full object-cover" fetchpriority="high">
+                    <img src="{{ $vehicles->first()->coverPhotoUrl() }}" alt="Kendaraan andalan {{ $brand['name'] }}" width="800" height="500" sizes="(max-width: 1024px) 100vw, 50vw" class="absolute inset-0 h-full w-full object-cover" fetchpriority="high" onerror="this.remove()">
                     <div class="absolute inset-0 bg-gradient-to-t from-fleet-950/85 via-fleet-950/10 to-transparent" aria-hidden="true"></div>
                 @else
                     <div class="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(56,189,248,.22),transparent)]" aria-hidden="true"></div>
@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <div class="relative mx-auto -mb-14 max-w-6xl px-5 lg:px-8">
+        <div class="relative z-10 mx-auto -mb-14 max-w-6xl px-5 lg:px-8">
             <x-storefront.search-form :locations="$locations" />
         </div>
     </section>

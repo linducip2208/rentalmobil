@@ -93,7 +93,7 @@
                     @endif
 
                     {{-- Lightbox --}}
-                    <div x-show="lightbox" x-cloak x-transition.opacity class="fixed inset-0 z-[80] flex items-center justify-center bg-fleet-950/95 p-4" role="dialog" aria-modal="true" aria-label="Galeri foto {{ $vehicle->name }}" @click.self="lightbox = false" @keydown.escape.window="lightbox = false" x-trap.inert.noscroll="lightbox">
+                    <div x-show="lightbox" x-cloak x-transition.opacity class="fixed inset-0 z-[80] flex items-center justify-center bg-fleet-950/95 p-4" role="dialog" aria-modal="true" aria-label="Galeri foto {{ $vehicle->name }}" @click.self="lightbox = false" @keydown.escape.window="lightbox = false" @keydown.arrow-right.window="lightbox && next()" @keydown.arrow-left.window="lightbox && prev()" x-trap.inert.noscroll="lightbox">
                         <button type="button" class="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-xl border border-white/20 text-white transition hover:bg-white/10" @click="lightbox = false" aria-label="Tutup galeri">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
@@ -209,7 +209,8 @@
                         @endif
                     </div>
 
-                    <form method="GET" action="{{ url()->current() }}" class="mt-6 space-y-3" onchange="this.submit()">
+                    <form method="GET" action="{{ url()->current() }}" class="mt-6 space-y-3" onchange="this.submit()" onsubmit="var b=this.querySelector('[data-checking]'); if(b){b.classList.remove('hidden');}">
+                        <p class="hidden text-xs font-semibold text-sky-700" data-checking aria-live="polite">Memeriksa ketersediaan tanggal…</p>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="text-xs font-bold text-slate-500">Tanggal ambil
                                 <input type="date" name="pickup_date" value="{{ $search['pickup_date'] }}" min="{{ today()->toDateString() }}" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-bold text-slate-900">
@@ -276,7 +277,7 @@
     </section>
 
     {{-- Mobile sticky booking bar --}}
-    <div class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-5 py-3 backdrop-blur lg:hidden" role="region" aria-label="Booking cepat">
+    <div class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden" role="region" aria-label="Booking cepat">
         <div class="flex items-center justify-between gap-4">
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-[.1em] text-slate-500">Mulai dari</p>

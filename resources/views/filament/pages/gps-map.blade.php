@@ -48,8 +48,9 @@
 
         {{-- Tracker List --}}
         <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
-            <div class="p-4 border-b border-stone-200">
+            <div class="p-4 border-b border-stone-200 flex flex-wrap items-center justify-between gap-2">
                 <h3 class="font-semibold text-stone-900">Daftar GPS Tracker</h3>
+                <p class="text-xs text-stone-500" aria-live="polite">Auto-refresh 30 dtk · <span data-gps-updated>baru saja</span> · <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>online</span> · <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-stone-300"></span>offline &gt;10 mnt</span></p>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
@@ -158,6 +159,7 @@
                     '</div>';
 
                 marker.bindPopup(popup);
+                marker._trackerId = t.id;
                 markers.push(marker);
             });
 
@@ -166,16 +168,23 @@
                 map.fitBounds(group.getBounds().pad(0.1));
             }
 
+            var updatedEl = document.querySelector('[data-gps-updated]');
             setInterval(function() {
                 fetch('{{ route('internal.gps.trackers') }}', { credentials: 'same-origin' })
-                    .then(function(r) { return r.json(); })
+                    .then(function(r) { if (!r.ok) throw 0; return r.json(); })
                     .then(function(data) {
-                        data.trackers.forEach(function(t) {
+                        (data.trackers || []).forEach(function(t) {
                             var existing = markers.find(function(m) { return m._trackerId === t.id; });
-                            if (existing) {
+                            if (existing && t.lat && t.lng) {
                                 existing.setLatLng([t.lat, t.lng]);
+                                var online = t.is_online !== false && (t.minutes_stale === undefined || t.minutes_stale <= 10);
+                                existing.setStyle({ fillColor: online ? '#10b981' : '#9ca3af' });
                             }
                         });
+                        if (updatedEl) updatedEl.textContent = 'diperbarui ' + new Date().toLocaleTimeString('id-ID');
+                    })
+                    .catch(function() {
+                        if (updatedEl) updatedEl.textContent = 'gagal refresh — tampilkan data terakhir';
                     });
             }, 30000);
         });

@@ -63,6 +63,23 @@
         </tbody>
     </table>
 
+    @php
+        $tot = (float) $permit->totalOperationalCost();
+        $kata = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+        $bilang = function ($n) use (&$bilang, $kata) {
+            $n = (int) $n;
+            if ($n < 12) return $kata[$n];
+            if ($n < 20) return $bilang($n - 10) . ' belas';
+            if ($n < 100) return trim($bilang(intval($n / 10)) . ' puluh ' . $bilang($n % 10));
+            if ($n < 200) return 'seratus ' . $bilang($n - 100);
+            if ($n < 1000) return trim($bilang(intval($n / 100)) . ' ratus ' . $bilang($n % 100));
+            if ($n < 2000) return 'seribu ' . $bilang($n - 1000);
+            if ($n < 1000000) return trim($bilang(intval($n / 1000)) . ' ribu ' . $bilang($n % 1000));
+            return trim($bilang(intval($n / 1000000)) . ' juta ' . $bilang($n % 1000000));
+        };
+    @endphp
+    <p class="muted" style="margin-bottom:10px"><b>Terbilang:</b> <em>{{ ucfirst($bilang($tot)) }} rupiah</em></p>
+
     @if ($permit->notes)
         <div class="note"><b>Catatan:</b> {{ $permit->notes }}</div>
     @endif

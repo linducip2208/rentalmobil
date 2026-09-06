@@ -153,11 +153,13 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        document.addEventListener('livewire:navigated', function() {
+        function renderRevenueChart() {
             const darkGet = (k) => document.documentElement.classList.contains('dark') ? k.dark : k.light;
             const gridColor = darkGet({light: 'rgba(0,0,0,0.06)', dark: 'rgba(255,255,255,0.06)'});
-
-            new Chart(document.getElementById('revenueChart'), {
+            const canvas = document.getElementById('revenueChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+            if (window.__revenueChart) window.__revenueChart.destroy();
+            window.__revenueChart = new Chart(canvas, {
                 type: 'line',
                 data: {
                     labels: @json($periodData['labels']),
@@ -191,7 +193,10 @@
                     }
                 }
             });
-        });
+        }
+        document.addEventListener('DOMContentLoaded', renderRevenueChart);
+        document.addEventListener('livewire:navigated', renderRevenueChart);
+        document.addEventListener('livewire:updated', renderRevenueChart);
     </script>
     @endpush
 </x-filament-panels::page>

@@ -89,7 +89,8 @@
             <div>
                 <strong class="font-display text-xl font-extrabold text-white">{{ $brand['name'] }}</strong>
                 <p class="mt-4 max-w-sm text-sm leading-6">Sewa mobil harian, mingguan, dan bulanan untuk perjalanan pribadi maupun perusahaan. Armada terawat, harga transparan, proses digital.</p>
-                <p class="mt-5 text-sm">021-555-0101 · info@rentalmobil.test</p>
+                <p class="mt-5 text-sm">{{ $brand['phone'] }} · {{ $brand['email'] }}</p>
+                <p class="mt-1 text-xs text-slate-500">{{ $brand['address'] }}</p>
             </div>
             <div>
                 <h2 class="text-xs font-extrabold uppercase tracking-[0.16em] text-white">Layanan</h2>

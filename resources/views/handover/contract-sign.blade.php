@@ -5,8 +5,9 @@
     <title>Tanda Tangan Kontrak {{ $contract->contract_number }} — RentalMobil</title>
     <meta name="robots" content="noindex">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Instrument Sans','ui-sans-serif','sans-serif']}}}}</script>
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 antialiased">
 <div class="mx-auto max-w-3xl px-4 py-8">
@@ -52,14 +53,16 @@
                     <p class="mt-1 text-xs text-blue-700">Masukkan 6 digit kode yang dikirim ke nomor/email Anda.</p>
                     <div class="mt-2 flex gap-2">
                         <input name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="••••••" class="w-32 rounded-lg border border-blue-300 px-3 py-2 font-mono text-lg tracking-[.3em]">
-                        <button type="button" onclick="fetch('{{ route('handover.contract.otp', $token) }}',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}}).then(r=>location.reload())" class="rounded-lg border border-blue-300 px-4 text-sm font-bold text-blue-700 hover:bg-blue-100">Kirim OTP</button>
+                        <button type="button" data-otp-btn data-otp-url="{{ route('handover.contract.otp', $token) }}" class="rounded-lg border border-blue-300 px-4 text-sm font-bold text-blue-700 hover:bg-blue-100 disabled:opacity-60">Kirim OTP</button>
                     </div>
+                    <p class="hidden mt-2 text-xs font-semibold text-blue-700" data-otp-info aria-live="polite"></p>
                 </div>
             @endif
 
             <label class="block text-sm font-bold">Tanda tangan elektronik</label>
             <p class="mt-1 text-xs text-slate-500">Tanda tangan ini sah menurut UU ITE — tercatat waktu, alamat IP, dan sidik jari dokumen (SHA-256).</p>
             <canvas id="pad" width="640" height="220" class="mt-3 w-full touch-none rounded-xl border-2 border-dashed border-slate-300 bg-slate-50"></canvas>
+            <p id="sign-error" class="hidden mt-2 text-sm font-semibold text-red-600" role="alert">Mohon tanda tangan dulu sebelum mengirim.</p>
             <input type="hidden" name="signature" id="signature-input">
             <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
                 <button type="button" id="clear" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50">Hapus</button>
@@ -74,10 +77,20 @@
 (function () {
     var canvas = document.getElementById('pad');
     var ctx = canvas.getContext('2d');
-    ctx.lineWidth = 2.6;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#0f172a';
+    // HiDPI: samakan resolusi canvas dengan tampilan agar tidak blur.
+    (function fit() {
+        var ratio = Math.min(2, window.devicePixelRatio || 1);
+        var w = canvas.clientWidth || 640;
+        var h = 220;
+        canvas.width = Math.round(w * ratio);
+        canvas.height = Math.round(h * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.lineWidth = 2.6;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#0f172a';
+    })();
     var drawing = false, hasInk = false;
+    var err = document.getElementById('sign-error');
 
     function pos(e) {
         var rect = canvas.getBoundingClientRect();
@@ -92,13 +105,45 @@
     ['mouseup','mouseleave','touchend','touchcancel'].forEach(function(ev){canvas.addEventListener(ev,end);});
 
     document.getElementById('clear').addEventListener('click', function () {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
         hasInk = false;
+        if (err) err.classList.add('hidden');
     });
 
-    document.getElementById('sign-form').addEventListener('submit', function () {
-        document.getElementById('signature-input').value = hasInk ? canvas.toDataURL('image/png') : '';
+    document.getElementById('sign-form').addEventListener('submit', function (e) {
+        if (!hasInk) {
+            e.preventDefault();
+            if (err) err.classList.remove('hidden');
+            canvas.focus();
+            return;
+        }
+        document.getElementById('signature-input').value = canvas.toDataURL('image/png');
+        var btn = document.getElementById('submit-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Mengirim…'; }
     });
+
+    var otpBtn = document.querySelector('[data-otp-btn]');
+    if (otpBtn) {
+        otpBtn.addEventListener('click', function () {
+            var info = document.querySelector('[data-otp-info]');
+            otpBtn.disabled = true;
+            otpBtn.textContent = 'Mengirim…';
+            fetch(otpBtn.dataset.otpUrl, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
+                .then(function (r) { if (!r.ok) throw 0; return r.json().catch(function () { return {}; }); })
+                .then(function () {
+                    if (info) { info.textContent = 'OTP terkirim — cek SMS/email, lalu masukkan 6 digit.'; info.classList.remove('hidden'); }
+                    otpBtn.textContent = 'Kirim ulang OTP';
+                })
+                .catch(function () {
+                    if (info) { info.textContent = 'Gagal mengirim OTP — coba lagi.'; info.classList.remove('hidden'); }
+                    otpBtn.textContent = 'Coba lagi';
+                })
+                .finally(function () { otpBtn.disabled = false; });
+        });
+    }
 })();
 </script>
 </body>

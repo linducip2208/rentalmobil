@@ -37,6 +37,46 @@
     </style>
 </head>
 <body>
+@php
+    // Normalisasi: dukung Invoice model asli + fallback variabel lama (demo).
+    $inv = $invoice ?? null;
+    $companyName = $companyName ?? ($inv?->rentalOrder?->location?->name ?? 'RentalMobil');
+    $invoiceNumber = $invoiceNumber ?? $inv?->invoice_number ?? 'INV-2026-0001';
+    $customerName = $customerName ?? ($customer->name ?? $inv?->customer?->name ?? 'Nama Pelanggan');
+    $customerEmail = $customerEmail ?? ($customer->email ?? $inv?->customer?->email ?? 'email@pelanggan.com');
+    $customerPhone = $customerPhone ?? ($customer->phone ?? $inv?->customer?->phone ?? '+62 812-xxxx-xxxx');
+    $invoiceDate = $invoiceDate ?? ($inv?->created_at?->format('d M Y') ?? date('d M Y'));
+    $dueDate = $dueDate ?? ($inv?->due_date?->format('d M Y') ?? date('d M Y', strtotime('+7 days')));
+    $paymentStatus = $paymentStatus ?? ($inv?->status ?? 'unpaid');
+    $bookingNumber = $bookingNumber ?? ($order?->order_number ?? $inv?->rentalOrder?->order_number ?? 'BK-0001');
+    $subtotal = $subtotal ?? (float) ($inv?->subtotal ?? 1050000);
+    $tax = $tax ?? (float) ($inv?->tax_amount ?? 115500);
+    $discount = $discount ?? (float) ($inv?->discount_amount ?? 0);
+    $total = $total ?? (float) ($inv?->total_amount ?? 1165500);
+    $paid = $paid ?? (float) ($inv?->amount_paid ?? 0);
+    $sisa = ($balance_due ?? null) !== null ? (float) $balance_due : max(0, $total - $paid);
+    if (! isset($items)) {
+        if ($inv?->rentalOrder?->vehicle) {
+            $v = $inv->rentalOrder->vehicle;
+            $items = [['name' => $v->name ?? 'Sewa kendaraan', 'description' => ($order?->start_date?->format('d M Y') ?? '') . ' – ' . ($order?->end_date?->format('d M Y') ?? ''), 'duration' => (($order?->duration_days ?? 1) . ' hari'), 'daily_rate' => (float) ($order->daily_rate_snapshot ?? $v->daily_rate ?? 0), 'subtotal' => (float) ($inv->subtotal ?? 0)]];
+        } else {
+            $items = [['name' => 'Toyota Avanza 2024', 'duration' => '3 hari', 'daily_rate' => 350000, 'subtotal' => 1050000]];
+        }
+    }
+    $terbilang = function ($n) use (&$terbilang) {
+        $n = (int) $n;
+        $kata = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+        if ($n < 12) return $kata[$n];
+        if ($n < 20) return $terbilang($n - 10) . ' belas';
+        if ($n < 100) return trim($terbilang(intval($n / 10)) . ' puluh ' . $terbilang($n % 10));
+        if ($n < 200) return 'seratus ' . $terbilang($n - 100);
+        if ($n < 1000) return trim($terbilang(intval($n / 100)) . ' ratus ' . $terbilang($n % 100));
+        if ($n < 2000) return 'seribu ' . $terbilang($n - 1000);
+        if ($n < 1000000) return trim($terbilang(intval($n / 1000)) . ' ribu ' . $terbilang($n % 1000));
+        if ($n < 1000000000) return trim($terbilang(intval($n / 1000000)) . ' juta ' . $terbilang($n % 1000000));
+        return trim($terbilang(intval($n / 1000000000)) . ' miliar ' . $terbilang($n % 1000000000));
+    };
+@endphp
     <div class="container">
         <div class="header">
             <div>
@@ -128,7 +168,22 @@
                     <span>Total</span>
                     <span>Rp {{ number_format($total ?? 1165500, 0, ',', '.') }}</span>
                 </div>
+                @if($paid > 0)
+                <div class="totals-row">
+                    <span>Sudah dibayar</span>
+                    <span>Rp {{ number_format($paid, 0, ',', '.') }}</span>
+                </div>
+                <div class="totals-row total" style="border-top:1px dashed #1e40af;font-size:14px;">
+                    <span>Sisa tagihan</span>
+                    <span>Rp {{ number_format($sisa, 0, ',', '.') }}</span>
+                </div>
+                @endif
             </div>
+        </div>
+
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:20px;">
+            <p style="font-size:11px;color:#334155;"><strong>Terbilang:</strong> <em>{{ ucfirst($terbilang($sisa > 0 ? $sisa : $total)) }} rupiah</em></p>
+            @if(isset($generated_at))<p style="font-size:10px;color:#94a3b8;margin-top:4px;">Dibuat {{ $generated_at }} · No. Booking {{ $bookingNumber }}</p>@endif
         </div>
 
         <div class="payment-info">

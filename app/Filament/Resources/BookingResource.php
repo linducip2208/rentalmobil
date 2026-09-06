@@ -5,14 +5,18 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BookingResource\Pages;
 use App\Filament\Resources\EnterpriseResource as Resource;
 use App\Models\Booking;
+use App\Models\Vehicle;
 use App\Services\ApprovalService;
 use App\Services\BookingService;
 use BackedEnum;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Schemas;
+use Filament\Schemas\Get;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
 use UnitEnum;
@@ -45,6 +49,31 @@ class BookingResource extends Resource
         ];
     }
 
+    public static function recalcBookingTotals(Get $get, Set $set): void
+    {
+        try {
+            $start = $get('start_date') ? Carbon::parse($get('start_date')) : null;
+            $end = $get('end_date') ? Carbon::parse($get('end_date')) : null;
+            $days = ($start && $end) ? max(1, $start->diffInDays($end)) : (int) ($get('duration_days') ?: 1);
+            $set('duration_days', $days);
+
+            $rate = (float) ($get('daily_rate_snapshot') ?: 0);
+            $subtotal = round($days * $rate, 2);
+            $set('subtotal', $subtotal);
+
+            $discount = (float) ($get('discount_amount') ?: 0);
+            $tax = (float) ($get('tax_amount') ?: 0);
+            // Pajak otomatis 11% dari (subtotal-diskon) bila masih 0 dan ada subtotal.
+            if ($tax <= 0 && $subtotal > 0) {
+                $tax = round(max(0, $subtotal - $discount) * 0.11, 2);
+                $set('tax_amount', $tax);
+            }
+            $set('total_amount', round(max(0, $subtotal - $discount) + $tax, 2));
+        } catch (\Throwable) {
+            // Best-effort: jangan blokir form bila tanggal belum valid.
+        }
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -60,7 +89,17 @@ class BookingResource extends Resource
                     ->relationship('vehicle', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, Get $get, $state) {
+                        if ($state && ($v = Vehicle::find($state))) {
+                            $set('daily_rate_snapshot', (float) $v->daily_rate);
+                            if (! $get('deposit_amount')) {
+                                $set('deposit_amount', (float) ($v->deposit_amount ?? 0));
+                            }
+                        }
+                        self::recalcBookingTotals($get, $set);
+                    }),
                 Forms\Components\TextInput::make('purchase_order_number')
                     ->label('No. PO Perusahaan')
                     ->maxLength(80)
@@ -88,41 +127,57 @@ class BookingResource extends Resource
             Schemas\Components\Section::make('Jadwal')->schema([
                 Forms\Components\DateTimePicker::make('start_date')
                     ->label('Tanggal Mulai')
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, Get $get) => self::recalcBookingTotals($get, $set)),
                 Forms\Components\DateTimePicker::make('end_date')
                     ->label('Tanggal Selesai')
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, Get $get) => self::recalcBookingTotals($get, $set)),
                 Forms\Components\DatePicker::make('estimated_return_date')
                     ->label('Estimasi Pengembalian'),
                 Forms\Components\TextInput::make('duration_days')
                     ->label('Durasi (Hari)')
                     ->numeric()
-                    ->default(1),
+                    ->default(1)
+                    ->readOnly()
+                    ->helperText('Otomatis dari tanggal mulai & selesai.'),
             ])->columns(2),
 
-            Schemas\Components\Section::make('Biaya')->schema([
+            Schemas\Components\Section::make('Biaya')->description('Otomatis dari kendaraan & tanggal — masih bisa dikoreksi manual.')->schema([
                 Forms\Components\TextInput::make('daily_rate_snapshot')
                     ->label('Tarif/Hari (Rp)')
                     ->numeric()
-                    ->prefix('Rp'),
+                    ->prefix('Rp')
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (Set $set, Get $get) => self::recalcBookingTotals($get, $set)),
                 Forms\Components\TextInput::make('subtotal')
                     ->label('Subtotal (Rp)')
                     ->numeric()
-                    ->prefix('Rp'),
+                    ->prefix('Rp')
+                    ->readOnly()
+                    ->helperText('Durasi × tarif harian.'),
                 Forms\Components\TextInput::make('discount_amount')
                     ->label('Diskon (Rp)')
                     ->numeric()
                     ->prefix('Rp')
-                    ->default(0),
+                    ->default(0)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (Set $set, Get $get) => self::recalcBookingTotals($get, $set)),
                 Forms\Components\TextInput::make('tax_amount')
                     ->label('Pajak (Rp)')
                     ->numeric()
                     ->prefix('Rp')
-                    ->default(0),
+                    ->default(0)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (Set $set, Get $get) => self::recalcBookingTotals($get, $set)),
                 Forms\Components\TextInput::make('total_amount')
                     ->label('Total (Rp)')
                     ->numeric()
-                    ->prefix('Rp'),
+                    ->prefix('Rp')
+                    ->readOnly()
+                    ->helperText('Subtotal − diskon + pajak.'),
                 Forms\Components\TextInput::make('deposit_amount')
                     ->label('Deposit (Rp)')
                     ->numeric()

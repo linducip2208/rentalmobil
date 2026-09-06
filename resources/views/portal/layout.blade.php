@@ -5,9 +5,10 @@
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Portal Pelanggan') — {{ $brand['name'] }}</title>
     <link rel="icon" href="{{ $brand['favicon'] }}"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="{{ $brand['primaryColor'] }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root{color-scheme:light;--brand-primary:{{ $brand['primaryColor'] }}} body{font-family:'{{ $brand['font'] }}',ui-sans-serif,system-ui;background:#f5f7fa}
+        :root{color-scheme:light;--brand-primary:{{ $brand['primaryColor'] }}} body{font-family:'Instrument Sans','{{ $brand['font'] }}',ui-sans-serif,system-ui;background:#f5f7fa}
         .road-grid{background-image:linear-gradient(rgba(15,23,42,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.035) 1px,transparent 1px);background-size:32px 32px}
         .lift{transition:transform .25s ease,box-shadow .25s ease}.lift:hover{transform:translateY(-3px);box-shadow:0 18px 40px -24px #0f172a}
         @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}

@@ -62,6 +62,8 @@
                     <div class="font-mono text-sm font-bold text-emerald-600" id="info-sent">0 kali</div>
                 </div>
             </div>
+            <p id="tracking-error" class="hidden mt-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700" role="alert"></p>
+            <p class="mt-3 text-xs text-stone-400">Lokasi dikirim maks. tiap 5 detik agar hemat baterai. Akurasi GPS tampil di status bila tersedia.</p>
         </div>
     </div>
 
@@ -77,6 +79,13 @@
             var watchId = null;
             var sendCount = 0;
             var intervalId = null;
+            var lastSendAt = 0;
+            var errorEl = document.getElementById('tracking-error');
+            var showError = function (msg) {
+                if (!errorEl) return;
+                errorEl.textContent = msg;
+                errorEl.classList.remove('hidden');
+            };
 
             trackerSelect.addEventListener('change', function() {
                 startBtn.disabled = !this.value;
@@ -84,9 +93,10 @@
 
             startBtn.addEventListener('click', function() {
                 if (!navigator.geolocation) {
-                    alert('GPS tidak didukung di browser ini');
+                    showError('GPS tidak didukung di browser ini. Buka halaman ini dari Chrome/Safari HP.');
                     return;
                 }
+                if (errorEl) errorEl.classList.add('hidden');
 
                 var trackerId = trackerSelect.value;
                 statusDot.className = 'w-3 h-3 bg-amber-400 rounded-full animate-pulse';
@@ -98,11 +108,17 @@
                 watchId = navigator.geolocation.watchPosition(
                     function(pos) {
                         statusDot.className = 'w-3 h-3 bg-emerald-500 rounded-full';
-                        statusText.textContent = 'GPS aktif — sedang mengirim data';
+                        var acc = pos.coords.accuracy ? ' · ±' + Math.round(pos.coords.accuracy) + 'm' : '';
+                        statusText.textContent = 'GPS aktif — sedang mengirim data' + acc;
 
                         document.getElementById('info-lat').textContent = pos.coords.latitude.toFixed(7);
                         document.getElementById('info-lng').textContent = pos.coords.longitude.toFixed(7);
                         document.getElementById('info-speed').textContent = (pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(1) : '0') + ' km/h';
+
+                        // Throttle: kirim maks tiap 5 detik.
+                        var now = Date.now();
+                        if (now - lastSendAt < 5000) return;
+                        lastSendAt = now;
 
                         fetch('/api/gps/report', {
                             method: 'POST',
@@ -125,7 +141,8 @@
                     },
                     function(err) {
                         statusDot.className = 'w-3 h-3 bg-red-500 rounded-full';
-                        statusText.textContent = 'Error: ' + err.message;
+                        statusText.textContent = 'GPS bermasalah — coba di area terbuka';
+                        showError('GPS error: ' + err.message + '. Pastikan izin lokasi diizinkan & coba lagi di area terbuka.');
                     },
                     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
                 );

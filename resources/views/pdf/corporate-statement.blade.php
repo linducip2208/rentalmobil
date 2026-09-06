@@ -39,7 +39,7 @@
         </tr></thead>
         <tbody>
             @forelse ($rows as $row)
-                <tr>
+                <tr @if(($row['balance'] ?? 0) > 0) style="background:#fffbeb" @endif>
                     <td>{{ $row['order']->order_number }}</td>
                     <td>{{ $row['order']->customer?->name }}</td>
                     <td>{{ $row['order']->vehicle?->name }}</td>
@@ -47,7 +47,7 @@
                     <td>{{ $row['order']->purchase_order_number ?? '-' }}</td>
                     <td class="num">Rp {{ number_format($row['invoiced'], 0, ',', '.') }}</td>
                     <td class="num">Rp {{ number_format($row['paid'], 0, ',', '.') }}</td>
-                    <td class="num">Rp {{ number_format($row['balance'], 0, ',', '.') }}</td>
+                    <td class="num"><b>Rp {{ number_format($row['balance'], 0, ',', '.') }}</b></td>
                 </tr>
             @empty
                 <tr><td colspan="8" style="text-align:center;padding:20px" class="muted">Tidak ada order pada periode ini.</td></tr>
@@ -68,6 +68,12 @@
         Limit kredit: Rp {{ number_format($creditLimit, 0, ',', '.') }}<br>
         Total outstanding seluruh periode: <b>Rp {{ number_format($outstanding, 0, ',', '.') }}</b><br>
         Sisa limit tersedia: <b>Rp {{ number_format(max(0, $creditLimit - $outstanding), 0, ',', '.') }}</b>
+    </div>
+
+    <p class="muted" style="margin-top:12px">Baris kuning = masih ada sisa tagihan pada periode ini. Mohon lunasi sesuai termin {{ $account->payment_terms_days }} hari.</p>
+    <div style="margin-top:28px;display:flex;justify-content:space-between">
+        <div style="width:30%;text-align:center"><div style="margin-top:44px;border-top:1px solid #334155;padding-top:4px;font-size:10px">Finance RentalMobil</div></div>
+        <div style="width:30%;text-align:center"><div style="margin-top:44px;border-top:1px solid #334155;padding-top:4px;font-size:10px">{{ $account->name }}</div></div>
     </div>
 </body>
 </html>

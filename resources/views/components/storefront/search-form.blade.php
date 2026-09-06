@@ -1,5 +1,5 @@
 @props(['locations' => collect(), 'action' => route('storefront.search'), 'compact' => false])
-<form method="GET" action="{{ $action }}" {{ $attributes->merge(['class' => 'rounded-[1.35rem] bg-white p-4 text-slate-900 shadow-2xl shadow-slate-950/25 '.($compact ? 'grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.1fr_.9fr_.8fr_.9fr_.8fr_auto]' : 'grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_.8fr_1fr_.8fr_auto]')]) }} aria-label="Cari mobil untuk disewa">
+<form method="GET" action="{{ $action }}" data-search-form {{ $attributes->merge(['class' => 'rounded-[1.35rem] bg-white p-4 text-slate-900 shadow-2xl shadow-slate-950/25 '.($compact ? 'grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.1fr_.9fr_.8fr_.9fr_.8fr_auto]' : 'grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_.8fr_1fr_.8fr_auto]')]) }} aria-label="Cari mobil untuk disewa">
     <label class="px-3 py-2 text-xs font-bold text-slate-500">
         Lokasi pengambilan
         <select name="location" class="mt-1 block w-full border-0 p-0 text-sm font-bold outline-none focus:ring-0">
@@ -31,4 +31,37 @@
     <button type="submit" class="mt-1 min-h-14 rounded-xl bg-sky-700 px-6 font-extrabold text-white transition hover:bg-sky-800 lg:mt-0">
         Cari Mobil
     </button>
+    <p class="hidden text-xs font-semibold text-red-600 sm:col-span-2 lg:col-span-6" data-search-error aria-live="polite"></p>
 </form>
+<script>
+(function () {
+    if (window.__searchFormInit) return;
+    window.__searchFormInit = true;
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-search-form]').forEach((form) => {
+            const pickup = form.querySelector('input[name=pickup_date]');
+            const ret = form.querySelector('input[name=return_date]');
+            const err = form.querySelector('[data-search-error]');
+            const sync = () => {
+                if (pickup?.value && ret) ret.min = pickup.value;
+                if (pickup?.value && ret?.value && ret.value <= pickup.value) {
+                    const d = new Date(pickup.value + 'T00:00:00');
+                    d.setDate(d.getDate() + 1);
+                    ret.value = d.toISOString().slice(0, 10);
+                }
+            };
+            pickup?.addEventListener('change', sync);
+            form.addEventListener('submit', (e) => {
+                if (pickup?.value && ret?.value && ret.value <= pickup.value) {
+                    e.preventDefault();
+                    if (err) {
+                        err.textContent = 'Tanggal kembali harus setelah tanggal ambil — sudah kami koreksi otomatis, silakan tekan Cari lagi.';
+                        err.classList.remove('hidden');
+                    }
+                    sync();
+                }
+            });
+        });
+    });
+})();
+</script>

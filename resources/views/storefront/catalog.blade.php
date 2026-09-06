@@ -50,73 +50,12 @@
                 <div class="sticky top-28 space-y-6 rounded-2xl border border-slate-200 bg-white p-6">
                     <h2 class="text-sm font-extrabold uppercase tracking-[.12em] text-slate-500">Filter</h2>
 
-                    <form method="GET" action="{{ route('storefront.catalog') }}" id="filter-form" class="space-y-6">
+                    <form method="GET" action="{{ route('storefront.catalog') }}" id="filter-form" data-filter-form class="space-y-6">
                         @foreach(['pickup_date' => request('pickup_date'), 'return_date' => request('return_date'), 'pickup_time' => request('pickup_time'), 'return_time' => request('return_time'), 'rental_type' => request('rental_type')] as $hiddenKey => $hiddenValue)
                             @if(filled($hiddenValue))<input type="hidden" name="{{ $hiddenKey }}" value="{{ $hiddenValue }}">@endif
                         @endforeach
 
-                        <fieldset>
-                            <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Kategori</legend>
-                            <div class="mt-3 grid gap-2 text-sm">
-                                <label class="flex cursor-pointer items-center gap-2 font-medium {{ $filters['category'] ? 'text-slate-600' : 'font-bold text-slate-950' }}">
-                                    <input type="radio" name="category" value="" class="h-4 w-4" @checked(! $filters['category'])> Semua
-                                </label>
-                                @foreach($categories as $category)
-                                    <label class="flex cursor-pointer items-center gap-2 {{ $filters['category'] === $category->slug ? 'font-bold text-slate-950' : 'text-slate-600' }}">
-                                        <input type="radio" name="category" value="{{ $category->slug }}" class="h-4 w-4" @checked($filters['category'] === $category->slug)> {{ $category->name }}
-                                    </label>
-                                @endforeach
-                            </div>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Transmisi</legend>
-                            <div class="mt-3 grid gap-2 text-sm">
-                                <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="transmission" value="" class="h-4 w-4" @checked(! $filters['transmission'])> Semua</label>
-                                <label class="flex items-center gap-2 {{ $filters['transmission'] === 'automatic' ? 'font-bold text-slate-950' : 'text-slate-600' }}"><input type="radio" name="transmission" value="automatic" class="h-4 w-4" @checked($filters['transmission'] === 'automatic')> Automatic</label>
-                                <label class="flex items-center gap-2 {{ $filters['transmission'] === 'manual' ? 'font-bold text-slate-950' : 'text-slate-600' }}"><input type="radio" name="transmission" value="manual" class="h-4 w-4" @checked($filters['transmission'] === 'manual')> Manual</label>
-                            </div>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Kapasitas kursi</legend>
-                            <div class="mt-3 grid gap-2 text-sm">
-                                <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="seats" value="" class="h-4 w-4" @checked(! $filters['seats'])> Semua</label>
-                                @foreach([4, 5, 6, 7, 10] as $seatOption)
-                                    <label class="flex items-center gap-2 {{ $filters['seats'] == $seatOption ? 'font-bold text-slate-950' : 'text-slate-600' }}">
-                                        <input type="radio" name="seats" value="{{ $seatOption }}" class="h-4 w-4" @checked($filters['seats'] == $seatOption)> {{ $seatOption }}+ kursi
-                                    </label>
-                                @endforeach
-                            </div>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">BBM</legend>
-                            <div class="mt-3 grid gap-2 text-sm">
-                                <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="fuel" value="" class="h-4 w-4" @checked(! $filters['fuel'])> Semua</label>
-                                @foreach(['pertalite' => 'Bensin', 'diesel' => 'Diesel', 'electric' => 'Listrik'] as $fuelKey => $fuelLabel)
-                                    <label class="flex items-center gap-2 {{ $filters['fuel'] === $fuelKey ? 'font-bold text-slate-950' : 'text-slate-600' }}">
-                                        <input type="radio" name="fuel" value="{{ $fuelKey }}" class="h-4 w-4" @checked($filters['fuel'] === $fuelKey)> {{ $fuelLabel }}
-                                    </label>
-                                @endforeach
-                            </div>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Harga per hari</legend>
-                            <div class="mt-3 grid grid-cols-2 gap-2">
-                                <label class="text-xs text-slate-500">Min
-                                    <input type="number" name="min_price" min="0" step="50000" value="{{ $filters['min_price'] }}" placeholder="{{ number_format((int) $priceBounds['min_price']) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-900">
-                                </label>
-                                <label class="text-xs text-slate-500">Maks
-                                    <input type="number" name="max_price" min="0" step="50000" value="{{ $filters['max_price'] }}" placeholder="{{ number_format((int) $priceBounds['max_price']) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-900">
-                                </label>
-                            </div>
-                        </fieldset>
-
-                        <label class="flex items-center gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
-                            <input type="checkbox" name="available_only" value="1" class="h-4 w-4" @checked($filters['available_only'])> Hanya tersedia
-                        </label>
+                        @include('storefront.partials.filter-fields')
 
                         <div class="grid gap-2">
                             <button type="submit" class="min-h-12 rounded-xl bg-fleet-950 px-5 font-extrabold text-white transition hover:bg-sky-800">Terapkan Filter</button>
@@ -133,7 +72,11 @@
                         dari <strong class="text-slate-950">{{ $vehicles->total() }}</strong> kendaraan
                     </p>
                     <div class="flex items-center gap-3">
-                        <button type="button" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 lg:hidden" @click="$dispatch('open-filter-drawer')" aria-haspopup="dialog">Filter</button>
+                        @php($activeFilterCount = collect([$filters['category'], $filters['transmission'], $filters['seats'], $filters['fuel'], $filters['min_price'], $filters['max_price']])->filter()->count() + ($filters['available_only'] ? 1 : 0))
+                        <button type="button" class="relative rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 lg:hidden" @click="$dispatch('open-filter-drawer')" aria-haspopup="dialog">
+                            Filter
+                            @if($activeFilterCount > 0)<span class="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-fleet-950 px-1.5 text-[11px] font-extrabold text-white">{{ $activeFilterCount }}</span>@endif
+                        </button>
                         <label class="text-sm">
                             <span class="sr-only">Urutkan hasil</span>
                             <select onchange="window.location.href=this.value" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-900">
@@ -144,6 +87,17 @@
                         </label>
                     </div>
                 </div>
+                @if($activeFilterCount > 0 || ($filters['sort'] ?? '') !== 'recommended')
+                    <div class="mt-4 flex flex-wrap items-center gap-2" aria-label="Filter aktif">
+                        @if($filters['category'])<a href="{{ $qs(['category' => null]) }}" class="rounded-full bg-fleet-950 px-3 py-1.5 text-xs font-bold text-white">Kategori: {{ $filters['category'] }} ✕</a>@endif
+                        @if($filters['transmission'])<a href="{{ $qs(['transmission' => null]) }}" class="rounded-full bg-fleet-950 px-3 py-1.5 text-xs font-bold text-white">Transmisi: {{ $filters['transmission'] }} ✕</a>@endif
+                        @if($filters['seats'])<a href="{{ $qs(['seats' => null]) }}" class="rounded-full bg-fleet-950 px-3 py-1.5 text-xs font-bold text-white">{{ $filters['seats'] }}+ kursi ✕</a>@endif
+                        @if($filters['fuel'])<a href="{{ $qs(['fuel' => null]) }}" class="rounded-full bg-fleet-950 px-3 py-1.5 text-xs font-bold text-white">BBM: {{ $filters['fuel'] }} ✕</a>@endif
+                        @if($filters['min_price'] || $filters['max_price'])<a href="{{ $qs(['min_price' => null, 'max_price' => null]) }}" class="rounded-full bg-fleet-950 px-3 py-1.5 text-xs font-bold text-white">Rp {{ number_format((int) ($filters['min_price'] ?? $priceBounds['min_price']), 0, ',', '.') }}–{{ number_format((int) ($filters['max_price'] ?? $priceBounds['max_price']), 0, ',', '.') }} ✕</a>@endif
+                        @if($filters['available_only'])<a href="{{ $qs(['available_only' => null]) }}" class="rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white">Hanya tersedia ✕</a>@endif
+                        <a href="{{ route('storefront.catalog') }}" class="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50">Reset semua</a>
+                    </div>
+                @endif
 
                 <div class="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                     @forelse($vehicles as $vehicle)
@@ -178,57 +132,11 @@
                 </button>
             </div>
             <div class="mt-6 scale-[1] origin-top lg:hidden">
-                <form method="GET" action="{{ route('storefront.catalog') }}" class="space-y-6" onchange="this.submit()">
-                    @foreach(['pickup_date' => request('pickup_date'), 'return_date' => request('return_date'), 'pickup_time' => request('pickup_time'), 'return_time' => request('return_time'), 'rental_type' => request('rental_type'), 'available_only' => request('available_only')] as $hiddenKey => $hiddenValue)
+                <form method="GET" action="{{ route('storefront.catalog') }}" data-filter-form class="space-y-6">
+                    @foreach(['pickup_date' => request('pickup_date'), 'return_date' => request('return_date'), 'pickup_time' => request('pickup_time'), 'return_time' => request('return_time'), 'rental_type' => request('rental_type')] as $hiddenKey => $hiddenValue)
                         @if(filled($hiddenValue))<input type="hidden" name="{{ $hiddenKey }}" value="{{ $hiddenValue }}">@endif
                     @endforeach
-                    <fieldset>
-                        <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Kategori</legend>
-                        <div class="mt-3 grid gap-2 text-sm">
-                            <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="category" value="" @checked(! $filters['category'])> Semua</label>
-                            @foreach($categories as $category)
-                                <label class="flex items-center gap-2 {{ $filters['category'] === $category->slug ? 'font-bold' : 'text-slate-600' }}">
-                                    <input type="radio" name="category" value="{{ $category->slug }}" @checked($filters['category'] === $category->slug)> {{ $category->name }}
-                                </label>
-                            @endforeach
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Transmisi</legend>
-                        <div class="mt-3 grid gap-2 text-sm">
-                            <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="transmission" value="" @checked(! $filters['transmission'])> Semua</label>
-                            <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="transmission" value="automatic" @checked($filters['transmission'] === 'automatic')> Automatic</label>
-                            <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="transmission" value="manual" @checked($filters['transmission'] === 'manual')> Manual</label>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Kursi</legend>
-                        <div class="mt-3 grid gap-2 text-sm">
-                            <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="seats" value="" @checked(! $filters['seats'])> Semua</label>
-                            @foreach([4, 5, 6, 7, 10] as $seatOption)
-                                <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="seats" value="{{ $seatOption }}" @checked($filters['seats'] == $seatOption)> {{ $seatOption }}+ kursi</label>
-                            @endforeach
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">BBM</legend>
-                        <div class="mt-3 grid gap-2 text-sm">
-                            <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="fuel" value="" @checked(! $filters['fuel'])> Semua</label>
-                            @foreach(['pertalite' => 'Bensin', 'diesel' => 'Diesel', 'electric' => 'Listrik'] as $fuelKey => $fuelLabel)
-                                <label class="flex items-center gap-2 text-slate-600"><input type="radio" name="fuel" value="{{ $fuelKey }}" @checked($filters['fuel'] === $fuelKey)> {{ $fuelLabel }}</label>
-                            @endforeach
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend class="text-xs font-extrabold uppercase tracking-[.1em] text-slate-500">Harga per hari</legend>
-                        <div class="mt-3 grid grid-cols-2 gap-2">
-                            <label class="text-xs text-slate-500">Min<input type="number" name="min_price" min="0" step="50000" value="{{ $filters['min_price'] }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold"></label>
-                            <label class="text-xs text-slate-500">Maks<input type="number" name="max_price" min="0" step="50000" value="{{ $filters['max_price'] }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold"></label>
-                        </div>
-                    </fieldset>
-                    <label class="flex items-center gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
-                        <input type="checkbox" name="available_only" value="1" @checked($filters['available_only'])> Hanya tersedia
-                    </label>
+                    @include('storefront.partials.filter-fields')
                     <div class="grid gap-2 pb-8">
                         <button type="submit" class="min-h-12 rounded-xl bg-fleet-950 px-5 font-extrabold text-white">Terapkan Filter</button>
                         <a href="{{ route('storefront.catalog') }}" class="min-h-12 rounded-xl border border-slate-300 px-5 py-3 text-center text-sm font-bold text-slate-700">Reset</a>
@@ -237,4 +145,32 @@
             </div>
         </div>
     </div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const idr = (v) => 'Rp ' + Number(v || 0).toLocaleString('id-ID');
+    // Sinkron slider <-> number + auto-submit radio/checkbox (desktop).
+    document.querySelectorAll('[data-filter-form]').forEach((form) => {
+        const minR = form.querySelector('[data-price-min-range]');
+        const maxR = form.querySelector('[data-price-max-range]');
+        const minN = form.querySelector('[data-price-min-number]');
+        const maxN = form.querySelector('[data-price-max-number]');
+        const label = form.querySelector('[data-price-label]');
+        const paint = () => { if (label && minR && maxR) label.textContent = ' ' + idr(minR.value) + ' – ' + idr(maxR.value); };
+        const syncFromRange = () => {
+            if (minR && maxR && Number(minR.value) > Number(maxR.value)) { const t = minR.value; minR.value = maxR.value; maxR.value = t; }
+            if (minN && minR) minN.value = minR.value;
+            if (maxN && maxR) maxN.value = maxR.value;
+            paint();
+        };
+        [minR, maxR].forEach((el) => el && el.addEventListener('input', syncFromRange));
+        [minR, maxR].forEach((el) => el && el.addEventListener('change', () => form.submit()));
+        form.addEventListener('change', (e) => {
+            if (e.target.matches('input[type=radio], input[type=checkbox]')) form.submit();
+        });
+        paint();
+    });
+});
+</script>
+@endpush
 @endsection

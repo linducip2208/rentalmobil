@@ -38,12 +38,15 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
     </div>
 
     @if($errors->any())<div class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700" role="alert">{{ $errors->first() }}</div>@endif
+    <div x-show="formError" x-cloak class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800" role="alert" x-text="formError"></div>
 
-    {{-- Progress indicator --}}
+    {{-- Progress indicator — bisa diklik mundur, maju tetap validasi --}}
     <ol class="mt-8 grid grid-cols-3 gap-2 sm:grid-cols-9" aria-label="Tahap booking">
         @foreach(['Kendaraan', 'Tipe Sewa', 'Pickup', 'Add-ons', 'Data Diri', 'Dokumen', 'Review', 'Pembayaran', 'Konfirmasi'] as $i => $label)
-            <li :class="step >= {{ $i + 1 }} ? 'bg-fleet-950 text-white' : 'bg-white text-slate-400'" class="rounded-xl p-2.5 text-center text-[11px] font-bold sm:text-left">
-                <span class="block font-mono">0{{ $i + 1 }}</span>{{ $label }}
+            <li>
+                <button type="button" @click="go({{ $i + 1 }})" :class="step >= {{ $i + 1 }} ? 'bg-fleet-950 text-white' : 'bg-white text-slate-400'" class="w-full rounded-xl p-2.5 text-center text-[11px] font-bold transition hover:ring-2 hover:ring-sky-200 sm:text-left" :aria-current="step === {{ $i + 1 }} ? 'step' : null">
+                    <span class="block font-mono">0{{ $i + 1 }}</span>{{ $label }}
+                </button>
             </li>
         @endforeach
     </ol>
@@ -199,7 +202,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
                             <div class="flex justify-between" x-show="quote.tax_amount > 0"><span>PPN <span x-text="Math.round((quote.tax_rate || 0) * 100)"></span>%</span><b>Rp <span x-text="idr(quote.tax_amount)"></span></b></div>
                             <div class="flex justify-between border-t pt-3 text-base text-slate-950"><strong>Total sewa</strong><strong>Rp <span x-text="idr(quote.total)"></span></strong></div>
                             <div class="flex justify-between text-slate-500"><span>Deposit (dikembalikan penuh)</span><span>Rp <span x-text="idr(quote.deposit)"></span></span></div>
-                            <p class="rounded-xl bg-sky-50 p-3 text-xs text-sky-900" x-show="holdMinutesLeft">Slot <b>{{ '' }}</b> unit ini di-hold <span x-text="holdMinutesLeft"></span> menit untuk Anda.</p>
+                            <p x-show="quoteLoading" class="rounded-xl bg-slate-100 p-3 text-xs font-semibold text-slate-500">Menghitung ulang harga dari server…</p>
+                            <p class="rounded-xl bg-sky-50 p-3 text-xs text-sky-900" x-show="holdMinutesLeft">Slot unit ini di-hold untuk Anda — tersisa <b x-text="holdCountdown || (holdMinutesLeft + ' menit')"></b>. Selesaikan booking sebelum timer habis.</p>
                         </div>
                     </template>
                 </div>
@@ -254,7 +258,12 @@ function wizard() {
         confirming: false,
         sessionId: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2)),
         quote: {},
+        quoteLoading: false,
+        formError: '',
         holdMinutesLeft: null,
+        holdExpiresAt: null,
+        holdCountdown: '',
+        holdTimer: null,
         previews: { ktp: null, sim: null, selfie: null },
         idr(v) { return Number(v || 0).toLocaleString('id-ID'); },
         init() {
@@ -264,10 +273,28 @@ function wizard() {
             const f = document.getElementById('booking-form');
             return f?.rental_type?.value === 'self_drive';
         },
+        fail(msg) {
+            this.formError = msg;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        clearError() { this.formError = ''; },
+        go(target) {
+            this.clearError();
+            if (target < this.step) { this.step = target; window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+            // Maju tetap lewat validasi berjenjang.
+            while (this.step < target) {
+                const before = this.step;
+                this.next();
+                if (this.step === before) break;
+            }
+        },
         next() {
             const f = document.getElementById('booking-form');
-            if (this.step === 1 && (!f.vehicle_id.value || !f.start_date.value || !f.end_date.value)) { alert('Pilih kendaraan dan lengkapi tanggal dulu.'); return; }
-            if (this.step === 3 && !f.pickup_location_id.value) { alert('Pilih lokasi pengambilan dulu.'); return; }
+            this.clearError();
+            if (this.step === 1 && (!f.vehicle_id.value || !f.start_date.value || !f.end_date.value)) { this.fail('Pilih kendaraan dan lengkapi tanggal ambil & kembali dulu.'); return; }
+            if (this.step === 1 && f.start_date.value && f.end_date.value && f.end_date.value <= f.start_date.value) { this.fail('Tanggal kembali harus setelah tanggal ambil.'); return; }
+            if (this.step === 3 && !f.pickup_location_id.value) { this.fail('Pilih lokasi pengambilan dulu.'); return; }
+            if (this.step === 5 && (!f.name.value || !f.phone.value || !f.email.value)) { this.fail('Lengkapi nama, WhatsApp, dan email dulu.'); return; }
             this.step = Math.min(9, this.step + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
@@ -280,6 +307,7 @@ function wizard() {
             const v = f.querySelector('[name=vehicle_id]:checked');
             if (!v || !f.start_date.value || !f.end_date.value) return;
             const ids = [...f.querySelectorAll('[name="addon_ids[]"]:checked')].map((x) => x.value);
+            this.quoteLoading = true;
             try {
                 const r = await fetch(@json(route('booking.quote')), {
                     method: 'POST',
@@ -294,8 +322,29 @@ function wizard() {
                 this.quote = await r.json();
             } catch (e) {
                 this.quote = {};
+            } finally {
+                this.quoteLoading = false;
             }
             if (withHold) await this.createHold(v.value);
+        },
+        startHoldCountdown() {
+            if (this.holdTimer) clearInterval(this.holdTimer);
+            if (!this.holdExpiresAt) return;
+            const tick = () => {
+                const ms = this.holdExpiresAt - Date.now();
+                if (ms <= 0) {
+                    this.holdCountdown = '00:00';
+                    this.holdMinutesLeft = 0;
+                    clearInterval(this.holdTimer);
+                    this.fail('Waktu hold habis — silakan ulangi tinjau harga untuk mengunci slot lagi.');
+                    return;
+                }
+                const m = Math.floor(ms / 60000);
+                const s = Math.floor((ms % 60000) / 1000);
+                this.holdCountdown = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            };
+            tick();
+            this.holdTimer = setInterval(tick, 1000);
         },
         async createHold(vehicleId) {
             const f = document.getElementById('booking-form');
@@ -307,11 +356,16 @@ function wizard() {
                 });
                 if (r.status === 409) {
                     const d = await r.json();
-                    alert(d.message || 'Unit sedang di-hold pemesan lain.');
+                    this.fail(d.message || 'Unit sedang di-hold pemesan lain. Coba tanggal atau unit lain.');
                     this.step = 1;
                     return;
                 }
-                if (r.ok) { const d = await r.json(); this.holdMinutesLeft = d.minutes_left; }
+                if (r.ok) {
+                    const d = await r.json();
+                    this.holdMinutesLeft = d.minutes_left;
+                    this.holdExpiresAt = Date.now() + (Number(d.minutes_left || 15) * 60 * 1000);
+                    this.startHoldCountdown();
+                }
             } catch (e) { /* hold bersifat best-effort; server recheck saat submit */ }
         },
         preview(event, key) {
